@@ -1,11 +1,12 @@
 package mock
 
 import (
+	"changemedaddy/db"
 	"changemedaddy/invest"
 	"math/rand/v2"
 )
 
-type RandomDB struct {
+type RandomPositionGenerator struct {
 	ti []string
 
 	pk []invest.PositionKind
@@ -16,23 +17,7 @@ type RandomDB struct {
 	tp []float64
 }
 
-func (r RandomDB) GetIdea(id int64) (invest.Idea, error) {
-	idea := invest.Idea{
-		ID: 123,
-	}
-
-	ps := make([]invest.Position, 0)
-	for i := 0; i < 10; i++ {
-		p, _ := r.GetPosition(id)
-		ps = append(ps, p)
-	}
-
-	idea.Positions = ps
-
-	return idea, nil
-}
-
-func (r RandomDB) GetPosition(id int64) (invest.Position, error) {
+func (r RandomPositionGenerator) GetPosition(id int64) (invest.Position, error) {
 	p := invest.Position{
 		Status:         mustChoose(r.ps),
 		Ticker:         mustChoose(r.ti),
@@ -42,11 +27,15 @@ func (r RandomDB) GetPosition(id int64) (invest.Position, error) {
 		TargetPrice:    mustChoose(r.tp),
 	}
 
+	if rand.IntN(10) == 7 {
+		return invest.Position{}, db.PositionDoesNotExistError
+	}
+
 	return p, nil
 }
 
-func NewRDB() RandomDB {
-	return RandomDB{
+func NewRandPosGen() RandomPositionGenerator {
+	return RandomPositionGenerator{
 		ti: []string{"YNDX", "MGNT", "MAGN", "GAZP", "SBER"},
 		pk: []invest.PositionKind{invest.KindLong, invest.KindShort},
 		it: []invest.InstrumentType{invest.TypeShares},
