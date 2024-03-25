@@ -1,6 +1,14 @@
-package server
+package main
 
-import "changemedaddy/invest"
+import (
+	"changemedaddy/db/mock"
+	"changemedaddy/invest"
+	"fmt"
+	"github.com/go-chi/chi/v5"
+	"github.com/go-chi/chi/v5/middleware"
+	"net/http"
+	"strconv"
+)
 
 // create
 type IdeaSaver interface {
@@ -27,12 +35,39 @@ type PositionProvider interface {
 	GetPosition(int64) (invest.Position, error)
 }
 
-// the following interfaces are intended for testing purposes,
-// but live here at the moment.
-type RandomPositionsGenerator interface {
-	RandomPosition() invest.Position
+var database = mock.NewRDB()
+
+func main() {
+	r := chi.NewRouter()
+
+	r.Use(middleware.Logger)
+
+	r.Route("/api", ApiRouter)
+
+	http.ListenAndServe(":3333", r)
 }
 
-type RandomIdeasGenerator interface {
-	RandomIdea() invest.Position
+func ApiRouter(r chi.Router) {
+	r.Route("/idea", IdeaRouter)
+	r.Route("/position", PositionRouter)
+}
+
+func IdeaRouter(r chi.Router) {
+	r.Get("/{id}", func(w http.ResponseWriter, r *http.Request) {
+		id, _ := strconv.ParseInt(chi.URLParam(r, "id"), 10, 64)
+
+		idea, _ := database.GetIdea(id)
+
+		fmt.Fprintln(w, idea)
+	})
+}
+
+func PositionRouter(r chi.Router) {
+	r.Get("/{id}", func(w http.ResponseWriter, r *http.Request) {
+		id, _ := strconv.ParseInt(chi.URLParam(r, "id"), 10, 64)
+
+		position, _ := database.GetPosition(id)
+
+		fmt.Fprintln(w, position)
+	})
 }
