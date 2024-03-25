@@ -18,6 +18,15 @@ type DB struct {
 	posIdeaID map[int64]int64
 }
 
+func New() *DB {
+	return &DB{
+		ideas:      make(map[int64]invest.Idea),
+		ideaPosIDs: make(map[int64][]int64),
+		positions:  make(map[int64]invest.Position),
+		posIdeaID:  make(map[int64]int64),
+	}
+}
+
 func (d *DB) UpdateIdea(idea invest.Idea) error {
 	d.iLock.Lock()
 	defer d.iLock.Unlock()
@@ -84,12 +93,6 @@ func (d *DB) savePosition(ideaID int64, pos invest.Position) {
 	d.positions[pos.ID] = pos
 	d.posIdeaID[pos.ID] = ideaID
 	d.ideaPosIDs[ideaID] = append(d.ideaPosIDs[ideaID], pos.ID)
-}
-
-func New() (*DB, error) {
-	return &DB{
-		ideas: make(map[int64]invest.Idea),
-	}, nil
 }
 
 func (d *DB) UpdatePosition(pos invest.Position) error {
