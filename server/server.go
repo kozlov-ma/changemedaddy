@@ -26,3 +26,13 @@ type PositionUpdater interface {
 type PositionProvider interface {
 	GetPosition(int64) (invest.Position, error)
 }
+
+// the following interfaces are intended for testing purposes,
+// but live here at the moment.
+type RandomPositionsGenerator interface {
+	RandomPosition() invest.Position
+}
+
+type RandomIdeasGenerator interface {
+	RandomIdea() invest.Position
+}

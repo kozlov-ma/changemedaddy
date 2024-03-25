@@ -26,7 +26,7 @@ type Position struct {
 	Status         PositionStatus
 	Ticker         string
 	InstrumentType InstrumentType
-	PositionType   PositionKind
+	PositionKind   PositionKind
 	StartPrice     float64
 	TargetPrice    float64
 }
