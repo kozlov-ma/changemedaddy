@@ -63,7 +63,17 @@ func (d *DB) SaveIdea(idea invest.Idea) (invest.Idea, error) {
 	d.pLock.Lock()
 	defer d.pLock.Unlock()
 
-	_, ok := d.ideas[idea]
+	d.iCtr++
+	idea.ID = d.iCtr
+
+	for _, p := range idea.Positions {
+		d.savePosition(idea.ID, p)
+	}
+
+	d.ideas[idea.ID] = idea
+	clear(d.ideas[idea.ID].Positions)
+
+	return idea, nil
 }
 
 func (d *DB) savePosition(ideaID int64, pos invest.Position) {
