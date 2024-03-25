@@ -5,6 +5,7 @@ import (
 	"changemedaddy/db/inmem"
 	"changemedaddy/db/mock"
 	"changemedaddy/invest"
+	"encoding/json"
 	"errors"
 	"fmt"
 	"github.com/go-chi/chi/v5"
@@ -52,11 +53,12 @@ var (
 func RunServer() {
 	r := chi.NewRouter()
 
+	r.Use(render.SetContentType(render.ContentTypeJSON))
 	r.Use(middleware.Logger)
 
 	r.Route("/api", apiRouter)
 
-	http.ListenAndServe(":3333", r)
+	http.ListenAndServe(":80", r)
 }
 
 func apiRouter(r chi.Router) {
@@ -79,13 +81,14 @@ func ideaRouter(r chi.Router) {
 			return
 		}
 
-		fmt.Fprintln(w, idea)
+		ideaJson, _ := json.Marshal(idea)
+		fmt.Fprintln(w, string(ideaJson))
 	})
 
 	r.Post("/", func(w http.ResponseWriter, r *http.Request) {
-		idea := invest.Idea{}
+		var idea invest.Idea
 
-		err := render.Decode(r, &idea)
+		err := json.NewDecoder(r.Body).Decode(&idea)
 		if err != nil {
 			w.WriteHeader(400)
 			return
@@ -101,9 +104,9 @@ func ideaRouter(r chi.Router) {
 	})
 
 	r.Patch("/{id}", func(w http.ResponseWriter, r *http.Request) {
-		idea := invest.Idea{}
+		var idea invest.Idea
 
-		err := render.Decode(r, &idea)
+		err := json.NewDecoder(r.Body).Decode(&idea)
 		if err != nil {
 			w.WriteHeader(400)
 			return
@@ -139,7 +142,8 @@ func positionRouter(r chi.Router) {
 			return
 		}
 
-		fmt.Fprintln(w, position)
+		positionJson, _ := json.Marshal(position)
+		fmt.Fprintln(w, string(positionJson))
 	})
 
 	r.Patch("/{id}", func(w http.ResponseWriter, r *http.Request) {
