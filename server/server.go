@@ -1,4 +1,4 @@
-package main
+package server
 
 import (
 	"changemedaddy/db"
@@ -49,22 +49,22 @@ var (
 	positionProvider PositionProvider = mock.NewRandPosGen()
 )
 
-func main() {
+func RunServer() {
 	r := chi.NewRouter()
 
 	r.Use(middleware.Logger)
 
-	r.Route("/api", ApiRouter)
+	r.Route("/api", apiRouter)
 
 	http.ListenAndServe(":3333", r)
 }
 
-func ApiRouter(r chi.Router) {
-	r.Route("/idea", IdeaRouter)
-	r.Route("/position", PositionRouter)
+func apiRouter(r chi.Router) {
+	r.Route("/idea", ideaRouter)
+	r.Route("/position", positionRouter)
 }
 
-func IdeaRouter(r chi.Router) {
+func ideaRouter(r chi.Router) {
 	r.Get("/{id}", func(w http.ResponseWriter, r *http.Request) {
 		id, err := strconv.ParseInt(chi.URLParam(r, "id"), 10, 64)
 		if err != nil {
@@ -124,7 +124,7 @@ func IdeaRouter(r chi.Router) {
 	})
 }
 
-func PositionRouter(r chi.Router) {
+func positionRouter(r chi.Router) {
 	r.Get("/{id}", func(w http.ResponseWriter, r *http.Request) {
 		id, err := strconv.ParseInt(chi.URLParam(r, "id"), 10, 64)
 		if err != nil {
