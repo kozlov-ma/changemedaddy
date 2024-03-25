@@ -17,11 +17,6 @@ type IdeaProvider interface {
 	GetIdea(int64) (invest.Idea, error)
 }
 
-// create position
-type PositionSaver interface {
-	SavePosition(invest.Position) (invest.Position, error)
-}
-
 // update position
 type PositionUpdater interface {
 	UpdatePosition(invest.Position) error
