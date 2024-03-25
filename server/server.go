@@ -3,13 +3,13 @@ package server
 import "changemedaddy/invest"
 
 // create
-type IdeaCreator interface {
-	CreateIdea() (invest.Idea, error)
+type IdeaSaver interface {
+	SaveIdea(invest.Idea) (invest.Idea, error)
 }
 
 // update
-type IdeaSaver interface {
-	SaveIdea(invest.Idea) error
+type IdeaUpdater interface {
+	UpdateIdea(idea invest.Idea) error
 }
 
 // get
@@ -18,13 +18,13 @@ type IdeaProvider interface {
 }
 
 // create position
-type PositionCreator interface {
-	CreatePosition() (invest.Position, error)
+type PositionSaver interface {
+	SavePosition(invest.Position) (invest.Position, error)
 }
 
 // update position
-type PositionSaver interface {
-	SavePosition() error
+type PositionUpdater interface {
+	UpdatePosition(invest.Position) error
 }
 
 // get position
