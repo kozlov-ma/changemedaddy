@@ -1,7 +1,7 @@
 package inmem
 
 import (
-	db "changemedaddy/db"
+	"changemedaddy/db"
 	"changemedaddy/invest"
 	"sync"
 )

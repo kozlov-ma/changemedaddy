@@ -3,7 +3,6 @@ package invest
 import "time"
 
 type Idea struct {
-	ID        int64
 	Positions []Position
 	Deadline  time.Time
 	Log       []IdeaChange

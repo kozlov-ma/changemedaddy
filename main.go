@@ -1,7 +1,7 @@
 package main
 
-import "changemedaddy/server"
+import "changemedaddy/api"
 
 func main() {
-	server.RunServer()
+	api.RunServer()
 }

@@ -1,4 +1,4 @@
-package server
+package api
 
 import (
 	"changemedaddy/db"
@@ -17,17 +17,17 @@ import (
 
 // create
 type IdeaSaver interface {
-	SaveIdea(invest.Idea) (invest.Idea, error)
+	SaveIdea(idea invest.Idea) (id int, err error)
 }
 
 // update
 type IdeaUpdater interface {
-	UpdateIdea(idea invest.Idea) error
+	UpdateIdea(idea invest.Idea, change invest.IdeaChange) error
 }
 
 // get
 type IdeaProvider interface {
-	GetIdea(int64) (invest.Idea, error)
+	GetIdea(id int64) (invest.Idea, error)
 }
 
 // update position

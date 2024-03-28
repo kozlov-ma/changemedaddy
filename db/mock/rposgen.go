@@ -19,10 +19,8 @@ type RandomPositionGenerator struct {
 
 func (r RandomPositionGenerator) GetPosition(id int64) (invest.Position, error) {
 	p := invest.Position{
-		Status:         mustChoose(r.ps),
 		Ticker:         mustChoose(r.ti),
 		InstrumentType: mustChoose(r.it),
-		PositionKind:   mustChoose(r.pk),
 		StartPrice:     mustChoose(r.sp),
 		TargetPrice:    mustChoose(r.tp),
 	}

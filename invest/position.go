@@ -24,7 +24,6 @@ const (
 )
 
 type Position struct {
-	ID             int64
 	Ticker         string
 	Kind           PositionKind
 	InstrumentType InstrumentType
