@@ -1,5 +1,7 @@
 package invest
 
+import "time"
+
 type PositionStatus int
 
 const (
@@ -23,10 +25,33 @@ const (
 
 type Position struct {
 	ID             int64
-	Status         PositionStatus
 	Ticker         string
+	Kind           PositionKind
 	InstrumentType InstrumentType
-	PositionKind   PositionKind
+	RelAmount      int
 	StartPrice     float64
 	TargetPrice    float64
+	Log            []PositionChange
+}
+
+func (p Position) Status() PositionStatus {
+	if p.RelAmount == 0 {
+		return StatusClosed
+	}
+
+	return StatusOpen
+}
+
+type PositionChange interface {
+	When() time.Time
+	Apply(Position) Position
+}
+
+type TargetPriceChange struct {
+	NewTargetPrice float64
+}
+
+type AmountChange struct {
+	Delta int
+	Price float64
 }
