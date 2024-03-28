@@ -18,21 +18,23 @@ func New() *DB {
 	}
 }
 
-func (d *DB) UpdateIdea(idea invest.Idea) error {
+func (d *DB) AddIdea(idea invest.Idea) (int64, error) {
 	d.iLock.Lock()
 	defer d.iLock.Unlock()
 
-	if _, ok := d.ideas[idea.ID]; !ok {
-		return db.IdeaDoesNotExistError
-	}
+	id := d.ideaCounter
 
-	for _, p := range idea.Positions {
-		err := d.UpdatePosition(p)
-		if err != nil {
-			return err // todo нельзя так делать
-		}
-	}
-	d.ideas[idea.ID] = idea
+	d.ideas[id] = idea
+	d.ideaCounter++
+
+	return id, nil
+}
+
+func (d *DB) UpdateIdea(id int64, idea invest.Idea) error {
+	d.iLock.Lock()
+	defer d.iLock.Unlock()
+
+	d.ideas[id] = idea
 
 	return nil
 }
@@ -49,48 +51,35 @@ func (d *DB) GetIdea(id int64) (invest.Idea, error) {
 	return idea, nil
 }
 
-func (d *DB) AddIdea(idea invest.Idea) (int64, error) {
+func (d *DB) UpdatePosition(ideaId int64, index int, position invest.Position) error {
 	d.iLock.Lock()
 	defer d.iLock.Unlock()
 
-	id := d.ideaCounter
+	idea, ok := d.ideas[ideaId]
 
-	d.ideas[id] = idea
-	d.ideaCounter++
-
-	return id, nil
-}
-
-func (d *DB) savePosition(ideaID int64, pos invest.Position) {
-	d.posCtr++
-
-	pos.ID = d.posCtr
-
-	d.positions[pos.ID] = pos
-	d.posIdeaID[pos.ID] = ideaID
-	d.ideaPosIDs[ideaID] = append(d.ideaPosIDs[ideaID], pos.ID)
-}
-
-func (d *DB) UpdatePosition(pos invest.Position) error {
-	d.pLock.Lock()
-	defer d.pLock.Unlock()
-
-	if _, ok := d.positions[pos.ID]; !ok {
+	if !ok {
+		return db.IdeaDoesNotExistError
+	}
+	if !(index >= 0 && index < len(idea.Positions)) {
 		return db.PositionDoesNotExistError
 	}
 
-	d.positions[pos.ID] = pos
+	idea.Positions[index] = position
 	return nil
 }
 
-func (d *DB) GetPosition(id int64) (invest.Position, error) {
-	d.pLock.RLock()
-	defer d.pLock.RUnlock()
+func (d *DB) GetPosition(ideaId int64, posIdx int) (pos invest.Position, err error) {
+	d.iLock.RLock()
+	defer d.iLock.RUnlock()
 
-	pos, ok := d.positions[id]
+	idea, ok := d.ideas[ideaId]
 	if !ok {
+		return pos, db.IdeaDoesNotExistError
+	}
+
+	if !(posIdx >= 0 && posIdx < len(idea.Positions)) {
 		return pos, db.PositionDoesNotExistError
 	}
 
-	return pos, nil
+	return idea.Positions[posIdx], nil
 }
