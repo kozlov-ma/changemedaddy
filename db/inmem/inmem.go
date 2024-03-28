@@ -22,10 +22,9 @@ func (d *DB) AddIdea(idea invest.Idea) (int64, error) {
 	d.iLock.Lock()
 	defer d.iLock.Unlock()
 
-	id := d.ideaCounter
-
-	d.ideas[id] = idea
 	d.ideaCounter++
+	id := d.ideaCounter
+	d.ideas[id] = idea
 
 	return id, nil
 }

@@ -49,8 +49,8 @@ func TestDbIdea(t *testing.T) {
 	id, err := db.AddIdea(idea)
 
 	checkError(err, t)
-	if id != db.ideaCounter-1 {
-		t.Errorf("want id %d, got %d", id, db.ideaCounter-1)
+	if id != db.ideaCounter {
+		t.Errorf("want id %d, got %d", id, db.ideaCounter)
 	}
 
 	idea, err = db.GetIdea(id)
