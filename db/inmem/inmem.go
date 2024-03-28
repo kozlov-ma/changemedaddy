@@ -45,7 +45,8 @@ func (d *DB) GetIdea(id int64) (invest.Idea, error) {
 
 	idea, ok := d.ideas[id]
 	if !ok {
-		return invest.Idea{}, db.IdeaDoesNotExistError
+		var zero invest.Idea
+		return zero, db.IdeaDoesNotExistError
 	}
 
 	return idea, nil

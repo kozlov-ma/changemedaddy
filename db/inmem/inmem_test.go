@@ -18,80 +18,77 @@ func yndxPosition() invest.Position {
 	}
 }
 
-func tnkfPosition() invest.Position {
+func tcsgPosition() invest.Position {
 	return invest.Position{
-		Ticker:         "TNKF",
+		Ticker:         "TCSG",
 		Kind:           invest.KindLong,
 		InstrumentType: invest.TypeShares,
-		RelAmount:      1000,
+		RelAmount:      10,
 		StartPrice:     300,
-		TargetPrice:    100,
+		TargetPrice:    350,
 	}
 }
 
-func SimpleIdea() invest.Idea {
+func simpleIdea() invest.Idea {
 	return invest.Idea{
 		Positions: []invest.Position{yndxPosition()},
 		Deadline:  time.Now(),
 	}
 }
 
-func CheckError(err error, t *testing.T) {
+func checkError(err error, t *testing.T) {
 	if err != nil {
-		t.Errorf("%v", err)
+		t.Errorf("%#v", err)
 	}
 }
 
 func TestDbIdea(t *testing.T) {
 	db := New()
-	idea := SimpleIdea()
+	idea := simpleIdea()
 
 	id, err := db.AddIdea(idea)
 
-	CheckError(err, t)
+	checkError(err, t)
 	if id != db.ideaCounter-1 {
-		t.Errorf("id %d != %d ideaCounter-1", id, db.ideaCounter-1)
+		t.Errorf("want id %d, got %d", id, db.ideaCounter-1)
 	}
 
 	idea, err = db.GetIdea(id)
-	CheckError(err, t)
+	checkError(err, t)
 
-	var newId int64
-	newId = 1
-
+	var newId int64 = 1
 	err = db.UpdateIdea(newId, idea)
-	CheckError(err, t)
+	checkError(err, t)
 
-	var newIdea invest.Idea
-	newIdea, err = db.GetIdea(newId)
-	CheckError(err, t)
+	newIdea, err := db.GetIdea(newId)
+	checkError(err, t)
 
 	if !reflect.DeepEqual(newIdea, idea) {
-		t.Errorf("%v != %v", newIdea, idea)
+		t.Errorf("want idea %#v, got %#v", newIdea, idea)
 	}
 }
 
 func TestDbPosition(t *testing.T) {
 	db := New()
-	idea := SimpleIdea()
+	idea := simpleIdea()
 
 	id, _ := db.AddIdea(idea)
 
 	posIdx := 0
 	pos, err := db.GetPosition(id, posIdx)
-	CheckError(err, t)
+	checkError(err, t)
 	yndx := yndxPosition()
 	if !reflect.DeepEqual(pos, yndx) {
-		t.Errorf("%v != %v", pos, yndx)
+		t.Errorf("want %#v, got %#v", pos, yndx)
 	}
 
-	tnkf := tnkfPosition()
+	tnkf := tcsgPosition()
 	err = db.UpdatePosition(id, posIdx, tnkf)
-	CheckError(err, t)
+	checkError(err, t)
 
 	pos, err = db.GetPosition(id, posIdx)
-	CheckError(err, t)
+	checkError(err, t)
 	if !reflect.DeepEqual(pos, tnkf) {
-		t.Errorf("%v != %v", pos, tnkf)
+		t.Errorf("want position %#v, got %#v", pos, tnkf)
 	}
 }
