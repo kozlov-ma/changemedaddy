@@ -29,7 +29,9 @@ func (api API) RunServer() {
 func (api API) Router(r chi.Router) {
 	r.Get("/idea/{id}", api.handleGetIdea)
 	r.Post("/idea", api.handlePostIdea)
-	r.Patch("/idea/{id}", api.handlePatchIdea)
+	r.Patch("/idea/{id}/deadline", api.handleDeadlineChange)
+
 	r.Get("/idea/{id}/position/{idx}", api.handleGetPosition)
-	r.Patch("/idea/{id}/position/{idx}", api.handlePatchPosition)
+	r.Patch("/idea/{id}/position/{idx}/target", api.handleTargetPriceChange)
+	r.Patch("/idea/{id}/position/{idx}/amount", api.handleAmountChange)
 }

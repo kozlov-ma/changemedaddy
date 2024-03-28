@@ -41,7 +41,7 @@ func (api API) handleGetPosition(w http.ResponseWriter, r *http.Request) {
 	fmt.Fprintln(w, string(positionJson))
 }
 
-func (api API) handlePatchPosition(w http.ResponseWriter, r *http.Request) {
+func (api API) handleTargetPriceChange(w http.ResponseWriter, r *http.Request) {
 	id, err1 := strconv.ParseInt(chi.URLParam(r, "id"), 10, 64)
 	idx, err2 := strconv.Atoi(chi.URLParam(r, "idx"))
 	if err1 != nil || err2 != nil {
@@ -50,8 +50,32 @@ func (api API) handlePatchPosition(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	var ch invest.PositionChange
+	var ch invest.TargetPriceChange
 	_ = render.Decode(r, ch)
+
+	pos, _ := api.PositionProvider.GetPosition(id, idx)
+	pos = ch.Apply(pos)
+
+	err := api.PositionUpdater.UpdatePosition(id, idx, pos)
+	if errors.Is(err, db.PositionDoesNotExistError) {
+		w.WriteHeader(404)
+		return
+	}
+
+	fmt.Fprintf(w, "position updated")
+}
+
+func (api API) handleAmountChange(w http.ResponseWriter, r *http.Request) {
+	id, err1 := strconv.ParseInt(chi.URLParam(r, "id"), 10, 64)
+	idx, err2 := strconv.Atoi(chi.URLParam(r, "idx"))
+	if err1 != nil || err2 != nil {
+		w.WriteHeader(400)
+		fmt.Fprintf(w, "bad id or idx")
+		return
+	}
+
+	var ch invest.AmountChange
+	_ = render.DecodeJSON(r.Body, &ch)
 
 	pos, _ := api.PositionProvider.GetPosition(id, idx)
 	pos = ch.Apply(pos)

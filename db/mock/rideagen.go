@@ -17,7 +17,7 @@ func (r RandomIdeaGenerator) GetIdea(id int64) (invest.Idea, error) {
 	}
 
 	ps := make([]invest.Position, 0)
-	for i := 0; i < 10; i++ {
+	for i := 0; i < 1; i++ {
 		p, _ := r.rpgen.GetPosition(id, i)
 		ps = append(ps, p)
 	}

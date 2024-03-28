@@ -23,6 +23,7 @@ func (r RandomPositionGenerator) GetPosition(id int64, idx int) (invest.Position
 		InstrumentType: mustChoose(r.it),
 		StartPrice:     mustChoose(r.sp),
 		TargetPrice:    mustChoose(r.tp),
+		RelAmount:      100,
 	}
 
 	if rand.IntN(10) == 7 {

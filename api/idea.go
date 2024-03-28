@@ -62,8 +62,8 @@ func (api API) handlePostIdea(w http.ResponseWriter, r *http.Request) {
 	fmt.Fprintf(w, "done with id %v", id)
 }
 
-func (api API) handlePatchIdea(w http.ResponseWriter, r *http.Request) {
-	var ch invest.IdeaChange
+func (api API) handleDeadlineChange(w http.ResponseWriter, r *http.Request) {
+	var ch invest.DeadlineChange
 	err := json.NewDecoder(r.Body).Decode(&ch)
 	if err != nil {
 		w.WriteHeader(400)
@@ -76,5 +76,5 @@ func (api API) handlePatchIdea(w http.ResponseWriter, r *http.Request) {
 	idea = ch.Apply(idea)
 	_ = api.IdeaUpdater.UpdateIdea(id, idea)
 
-	fmt.Fprintf(w, "ch updated")
+	fmt.Fprintf(w, "idea updated")
 }
