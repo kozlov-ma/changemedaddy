@@ -21,17 +21,31 @@ const (
 	KindShort
 )
 
+// A Position represents a position on the security market. Essentially, it
+// describes what was bought, how many, when, and what changes were made since then.
 type Position struct {
-	Ticker         string
-	Kind           PositionKind
+	// A Ticker is a string code for the security, like YNDX, GAZP, USDRUBF or WUSH-6.24
+	Ticker string
+	// Kind tells whether a position is long or short.
+	// CHECK WIKIPEDIA IF YOU DON'T KNOW WHAT ARE THESE.
+	Kind PositionKind
+	// InstrumentType tells whether the asset is Shares, Futures, Bonds, etc.
 	InstrumentType InstrumentType
-	RelAmount      int
-	StartPrice     float64
-	TargetPrice    float64
-	FixedProfitP   float64
-	Log            []PositionChange
+	// RelAmount is amount of lots in a position.
+	RelAmount int
+	// StartPrice is a weighted average of all purchases or sales of the  security.
+	StartPrice float64
+	// TargetPrice is a price at which the author of the idea intends to close this position.
+	TargetPrice float64
+	// FixedProfitP is all the profit fixed at the moment relative to the invested capital.
+	// It is all the profit if the Position is closed.
+	FixedProfitP float64
+	// Log contains all the changes that happened to this Position.
+	Log []PositionChange
 }
 
+// Status tells whether a position is open or closed.
+// You cannot change any information about a closed position.
 func (p Position) Status() PositionStatus {
 	if p.RelAmount == 0 {
 		return StatusClosed

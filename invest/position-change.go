@@ -7,9 +7,17 @@ import (
 
 var minChangeTime = time.Date(2024, time.March, 26, 19, 31, 0, 0, time.FixedZone("UTC-5", 0))
 
+// PositionChange represents a change that the author of the idea makes to one
+// of ideas position after their creation. For example, change the Position.TargetPrice.
 type PositionChange interface {
-	When() time.Time
+	// Apply is a method that takes a Position and returns another Position
+	// with the change applied to it.
+	// The change must appear in the new Position's log.
 	Apply(Position) Position
+	// When is the time when this PositionChange occurred. Is intended for sorting.
+	When() time.Time
+	// Check checks whether this specific PositionChange is valid for the specific Position.
+	// Returns an error if it is not valid, otherwise returns nil.
 	Check(Position) error
 }
 
