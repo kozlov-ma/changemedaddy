@@ -1,8 +1,11 @@
 package invest
 
-import "time"
+import (
+	"math"
+	"time"
+)
 
-var minChangeTime = time.Date(2024, time.March, 28, 19, 31, 0, 0, time.FixedZone("UTC-5", 0))
+var minChangeTime = time.Date(2024, time.March, 26, 19, 31, 0, 0, time.FixedZone("UTC-5", 0))
 
 type PositionChange interface {
 	When() time.Time
@@ -58,16 +61,16 @@ func (a AmountChange) Apply(position Position) Position {
 	p := position
 
 	newAmount := p.RelAmount + a.Delta
-	newPrice := (p.StartPrice*float64(p.RelAmount) + a.Price*float64(a.Delta)) / float64(newAmount)
-
-	p.RelAmount = newAmount
-	p.StartPrice = newPrice
 
 	if abs(newAmount) < abs(p.RelAmount) {
-		profitP := (float64(a.Delta) * a.Price / float64(p.RelAmount) * p.StartPrice) * 100
+		profitP := (math.Abs(float64(a.Delta)) * (a.Price - p.StartPrice)) / (math.Abs(float64(p.RelAmount) * p.StartPrice)) * 100
 		p.FixedProfitP += profitP
+	} else {
+		newPrice := (p.StartPrice*math.Abs(float64(p.RelAmount)) + a.Price*math.Abs(float64(a.Delta))) / math.Abs(float64(newAmount))
+		p.StartPrice = newPrice
 	}
 
+	p.RelAmount = newAmount
 	p.Log = append(p.Log, a)
 
 	return p
