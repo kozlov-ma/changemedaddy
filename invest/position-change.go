@@ -5,7 +5,7 @@ import (
 	"time"
 )
 
-var minChangeTime = time.Date(2024, time.March, 26, 19, 31, 0, 0, time.FixedZone("UTC-5", 0))
+const maxHoursSinceChange = 24
 
 // PositionChange represents a change that the author of the idea makes to one
 // of ideas position after their creation. For example, change the Position.TargetPrice.
@@ -19,6 +19,18 @@ type PositionChange interface {
 	// Check checks whether this specific PositionChange is valid for the specific Position.
 	// Returns an error if it is not valid, otherwise returns nil.
 	Check(Position) error
+}
+
+func commonPCChecks(p Position, pc PositionChange) error {
+	if p.Status() == StatusClosed {
+		return CannotChangeClosedPosition
+	}
+
+	if time.Now().Sub(pc.When()).Hours() > maxHoursSinceChange {
+		return InvalidChangeTime
+	}
+
+	return nil
 }
 
 type TargetPriceChange struct {
@@ -40,12 +52,8 @@ func (t TargetPriceChange) Apply(position Position) Position {
 }
 
 func (t TargetPriceChange) Check(p Position) error {
-	if p.Status() == StatusClosed {
-		return CannotChangeClosedPosition
-	}
-
-	if t.Time.Before(minChangeTime) {
-		return InvalidChangeTime
+	if err := commonPCChecks(p, t); err != nil {
+		return err
 	}
 
 	if t.NewTargetPrice <= 0 {
@@ -85,12 +93,8 @@ func (a AmountChange) Apply(position Position) Position {
 }
 
 func (a AmountChange) Check(p Position) error {
-	if p.Status() == StatusClosed {
-		return CannotChangeClosedPosition
-	}
-
-	if a.Time.Before(minChangeTime) {
-		return InvalidChangeTime
+	if err := commonPCChecks(p, a); err != nil {
+		return err
 	}
 
 	if a.Price <= 0 {
