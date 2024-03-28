@@ -4,6 +4,7 @@ import (
 	"changemedaddy/db"
 	"changemedaddy/invest"
 	"math/rand/v2"
+	"time"
 )
 
 type RandomIdeaGenerator struct {
@@ -12,12 +13,12 @@ type RandomIdeaGenerator struct {
 
 func (r RandomIdeaGenerator) GetIdea(id int64) (invest.Idea, error) {
 	idea := invest.Idea{
-		ID: rand.Int64(),
+		Deadline: time.Now(),
 	}
 
 	ps := make([]invest.Position, 0)
 	for i := 0; i < 10; i++ {
-		p, _ := r.rpgen.GetPosition(id)
+		p, _ := r.rpgen.GetPosition(id, i)
 		ps = append(ps, p)
 	}
 

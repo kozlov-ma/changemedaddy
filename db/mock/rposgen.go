@@ -17,7 +17,7 @@ type RandomPositionGenerator struct {
 	tp []float64
 }
 
-func (r RandomPositionGenerator) GetPosition(id int64) (invest.Position, error) {
+func (r RandomPositionGenerator) GetPosition(id int64, idx int) (invest.Position, error) {
 	p := invest.Position{
 		Ticker:         mustChoose(r.ti),
 		InstrumentType: mustChoose(r.it),

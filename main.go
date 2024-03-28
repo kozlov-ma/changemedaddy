@@ -1,14 +1,19 @@
 package main
 
-import "changemedaddy/api"
+import (
+	"changemedaddy/api"
+	"changemedaddy/db/inmem"
+	"changemedaddy/db/mock"
+)
 
 func main() {
+	db := inmem.New()
 	api := api.API{
-		IdeaProvider:     nil,
-		IdeaSaver:        nil,
-		IdeaUpdater:      nil,
-		PositionUpdater:  nil,
-		PositionProvider: nil,
+		IdeaProvider:     mock.NewRandIdeaGen(),
+		IdeaSaver:        db,
+		IdeaUpdater:      db,
+		PositionUpdater:  db,
+		PositionProvider: mock.NewRandPosGen(),
 	}
 
 	api.RunServer()
