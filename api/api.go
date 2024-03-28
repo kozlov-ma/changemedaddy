@@ -7,34 +7,29 @@ import (
 	"net/http"
 )
 
-type Server struct {
-	IdeaProvider     IdeaProvider
-	IdeaSaver        IdeaSaver
-	IdeaUpdater      IdeaUpdater
-	PositionUpdater  PositionUpdater
-	PositionProvider PositionProvider
+type API struct {
+	IdeaProvider
+	IdeaSaver
+	IdeaUpdater
+	PositionUpdater
+	PositionProvider
 }
 
-var server = Server{
-	IdeaProvider:     nil,
-	IdeaSaver:        nil,
-	IdeaUpdater:      nil,
-	PositionUpdater:  nil,
-	PositionProvider: nil,
-}
-
-func RunServer() {
+func (api API) RunServer() {
 	r := chi.NewRouter()
 
 	r.Use(render.SetContentType(render.ContentTypeJSON))
 	r.Use(middleware.Logger)
 
-	r.Route("/api", apiRouter)
+	r.Route("/api", api.Router)
 
 	http.ListenAndServe(":80", r)
 }
 
-func apiRouter(r chi.Router) {
-	r.Route("/", routeIdeas)
-	r.Route("/", routePositions)
+func (api API) Router(r chi.Router) {
+	r.Get("/idea/{id}", api.handleGetIdea)
+	r.Post("/idea", api.handlePostIdea)
+	r.Patch("/idea/{id}", api.handlePatchIdea)
+	r.Get("/idea/{id}/position/{idx}", api.handleGetPosition)
+	r.Patch("/idea/{id}/position/{idx}", api.handlePatchPosition)
 }

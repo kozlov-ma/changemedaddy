@@ -22,12 +22,7 @@ type PositionUpdater interface {
 	UpdatePosition(ideaId int64, idx int, pos invest.Position) error
 }
 
-func routePositions(r chi.Router) {
-	r.Get("/idea/{id}/position/{idx}", getPositionHandler)
-	r.Patch("/idea/{id}/position/{idx}", patchPositionHandler)
-}
-
-func getPositionHandler(w http.ResponseWriter, r *http.Request) {
+func (api API) handleGetPosition(w http.ResponseWriter, r *http.Request) {
 	id, err1 := strconv.ParseInt(chi.URLParam(r, "id"), 10, 64)
 	idx, err2 := strconv.Atoi(chi.URLParam(r, "idx"))
 	if err1 != nil || err2 != nil {
@@ -36,7 +31,7 @@ func getPositionHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	position, err := server.PositionProvider.GetPosition(id, idx)
+	position, err := api.PositionProvider.GetPosition(id, idx)
 	if errors.Is(err, db.PositionDoesNotExistError) {
 		w.WriteHeader(404)
 		return
@@ -46,7 +41,7 @@ func getPositionHandler(w http.ResponseWriter, r *http.Request) {
 	fmt.Fprintln(w, string(positionJson))
 }
 
-func patchPositionHandler(w http.ResponseWriter, r *http.Request) {
+func (api API) handlePatchPosition(w http.ResponseWriter, r *http.Request) {
 	id, err1 := strconv.ParseInt(chi.URLParam(r, "id"), 10, 64)
 	idx, err2 := strconv.Atoi(chi.URLParam(r, "idx"))
 	if err1 != nil || err2 != nil {
@@ -58,10 +53,10 @@ func patchPositionHandler(w http.ResponseWriter, r *http.Request) {
 	var ch invest.PositionChange
 	_ = render.Decode(r, ch)
 
-	pos, _ := server.PositionProvider.GetPosition(id, idx)
+	pos, _ := api.PositionProvider.GetPosition(id, idx)
 	pos = ch.Apply(pos)
 
-	err := server.PositionUpdater.UpdatePosition(id, idx, pos)
+	err := api.PositionUpdater.UpdatePosition(id, idx, pos)
 	if errors.Is(err, db.PositionDoesNotExistError) {
 		w.WriteHeader(404)
 		return

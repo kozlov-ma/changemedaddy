@@ -26,13 +26,7 @@ type IdeaProvider interface {
 	GetIdea(id int64) (invest.Idea, error)
 }
 
-func routeIdeas(r chi.Router) {
-	r.Get("/idea/{id}", getIdeaHandler)
-	r.Post("/idea", postIdeaHandler)
-	r.Patch("/idea/{id}", patchIdeaHandler)
-}
-
-func getIdeaHandler(w http.ResponseWriter, r *http.Request) {
+func (api API) handleGetIdea(w http.ResponseWriter, r *http.Request) {
 	id, err := strconv.ParseInt(chi.URLParam(r, "id"), 10, 64)
 	if err != nil {
 		w.WriteHeader(400)
@@ -40,17 +34,17 @@ func getIdeaHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	idea, err := server.IdeaProvider.GetIdea(id)
+	idea, err := api.IdeaProvider.GetIdea(id)
 	if errors.Is(err, db.IdeaDoesNotExistError) {
 		w.WriteHeader(404)
 		return
 	}
 
-	ideaJson, _ := json.Marshal(idea)
+	ideaJson, err := json.Marshal(idea)
 	fmt.Fprintln(w, string(ideaJson))
 }
 
-func postIdeaHandler(w http.ResponseWriter, r *http.Request) {
+func (api API) handlePostIdea(w http.ResponseWriter, r *http.Request) {
 	var idea invest.Idea
 
 	err := json.NewDecoder(r.Body).Decode(&idea)
@@ -59,7 +53,7 @@ func postIdeaHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	id, err := server.IdeaSaver.AddIdea(idea)
+	id, err := api.IdeaSaver.AddIdea(idea)
 	if err != nil {
 		w.WriteHeader(400)
 		return
@@ -68,7 +62,7 @@ func postIdeaHandler(w http.ResponseWriter, r *http.Request) {
 	fmt.Fprintf(w, "done with id %v", id)
 }
 
-func patchIdeaHandler(w http.ResponseWriter, r *http.Request) {
+func (api API) handlePatchIdea(w http.ResponseWriter, r *http.Request) {
 	var ch invest.IdeaChange
 	err := json.NewDecoder(r.Body).Decode(&ch)
 	if err != nil {
@@ -77,10 +71,10 @@ func patchIdeaHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	id, _ := strconv.ParseInt(chi.URLParam(r, "id"), 10, 64)
-	idea, _ := server.IdeaProvider.GetIdea(id)
+	idea, _ := api.IdeaProvider.GetIdea(id)
 
 	idea = ch.Apply(idea)
-	_ = server.IdeaUpdater.UpdateIdea(id, idea)
+	_ = api.IdeaUpdater.UpdateIdea(id, idea)
 
 	fmt.Fprintf(w, "ch updated")
 }
