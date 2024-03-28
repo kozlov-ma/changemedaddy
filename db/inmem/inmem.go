@@ -7,23 +7,14 @@ import (
 )
 
 type DB struct {
-	iCtr       int64
-	iLock      sync.RWMutex
-	ideas      map[int64]invest.Idea
-	ideaPosIDs map[int64][]int64
-
-	pLock     sync.RWMutex
-	posCtr    int64
-	positions map[int64]invest.Position
-	posIdeaID map[int64]int64
+	ideaCounter int64
+	iLock       sync.RWMutex
+	ideas       map[int64]invest.Idea
 }
 
 func New() *DB {
 	return &DB{
-		ideas:      make(map[int64]invest.Idea),
-		ideaPosIDs: make(map[int64][]int64),
-		positions:  make(map[int64]invest.Position),
-		posIdeaID:  make(map[int64]int64),
+		ideas: make(map[int64]invest.Idea),
 	}
 }
 
@@ -49,40 +40,25 @@ func (d *DB) UpdateIdea(idea invest.Idea) error {
 func (d *DB) GetIdea(id int64) (invest.Idea, error) {
 	d.iLock.RLock()
 	defer d.iLock.RUnlock()
-	d.pLock.RLock()
-	defer d.pLock.RUnlock()
 
 	idea, ok := d.ideas[id]
 	if !ok {
 		return invest.Idea{}, db.IdeaDoesNotExistError
 	}
 
-	var positions []invest.Position
-	for _, posId := range d.ideaPosIDs[idea.ID] {
-		positions = append(positions, d.positions[posId])
-	}
-
-	idea.Positions = positions
 	return idea, nil
 }
 
-func (d *DB) SaveIdea(idea invest.Idea) (invest.Idea, error) {
+func (d *DB) AddIdea(idea invest.Idea) (int64, error) {
 	d.iLock.Lock()
 	defer d.iLock.Unlock()
-	d.pLock.Lock()
-	defer d.pLock.Unlock()
 
-	d.iCtr++
-	idea.ID = d.iCtr
+	id := d.ideaCounter
 
-	for _, p := range idea.Positions {
-		d.savePosition(idea.ID, p)
-	}
+	d.ideas[id] = idea
+	d.ideaCounter++
 
-	d.ideas[idea.ID] = idea
-	clear(d.ideas[idea.ID].Positions)
-
-	return idea, nil
+	return id, nil
 }
 
 func (d *DB) savePosition(ideaID int64, pos invest.Position) {
