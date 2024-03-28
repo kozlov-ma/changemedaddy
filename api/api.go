@@ -17,12 +17,7 @@ import (
 
 // create
 type IdeaSaver interface {
-	SaveIdea(idea invest.Idea) (id int, err error)
-}
-
-// update
-type IdeaUpdater interface {
-	UpdateIdea(idea invest.Idea, change invest.IdeaChange) error
+	SaveIdea(idea invest.Idea) (id int64, err error)
 }
 
 // get
@@ -32,12 +27,12 @@ type IdeaProvider interface {
 
 // update position
 type PositionUpdater interface {
-	UpdatePosition(invest.Position) error
+	UpdatePosition(ideaId int64, index int, change invest.PositionChange) error
 }
 
 // get position
 type PositionProvider interface {
-	GetPosition(int64) (invest.Position, error)
+	GetPosition(id int64) (invest.Position, error)
 }
 
 var (
