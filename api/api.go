@@ -15,9 +15,14 @@ import (
 	"strconv"
 )
 
-// create
+// create new
 type IdeaSaver interface {
-	SaveIdea(idea invest.Idea) (id int64, err error)
+	AddIdea(idea invest.Idea) (id int64, err error)
+}
+
+// change existing
+type IdeaUpdater interface {
+	UpdateIdea(id int64, idea invest.Idea) error
 }
 
 // get
