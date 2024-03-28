@@ -34,7 +34,7 @@ func (d DeadlineChange) When() time.Time {
 }
 
 func (d DeadlineChange) Check(Idea) error {
-	if d.Time.Before(minChangeTime) {
+	if time.Now().Sub(d.When()).Hours() > maxHoursSinceChange {
 		return InvalidChangeTime
 	}
 
