@@ -7,12 +7,3 @@ type Idea struct {
 	Deadline  time.Time
 	Log       []IdeaChange
 }
-
-type IdeaChange interface {
-	Apply(Idea) Idea
-	When() time.Time
-}
-
-type DeadlineChange struct {
-	NewDeadline time.Time
-}
