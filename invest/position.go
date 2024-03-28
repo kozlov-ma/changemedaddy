@@ -1,7 +1,5 @@
 package invest
 
-import "time"
-
 type PositionStatus int
 
 const (
@@ -30,6 +28,7 @@ type Position struct {
 	RelAmount      int
 	StartPrice     float64
 	TargetPrice    float64
+	FixedProfitP   float64
 	Log            []PositionChange
 }
 
@@ -39,18 +38,4 @@ func (p Position) Status() PositionStatus {
 	}
 
 	return StatusOpen
-}
-
-type PositionChange interface {
-	When() time.Time
-	Apply(Position) Position
-}
-
-type TargetPriceChange struct {
-	NewTargetPrice float64
-}
-
-type AmountChange struct {
-	Delta int
-	Price float64
 }
