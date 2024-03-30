@@ -6,8 +6,8 @@ import (
 )
 
 type TargetPriceChange struct {
-	Time           time.Time
-	NewTargetPrice float64
+	Time           time.Time `validate:"required"`
+	NewTargetPrice float64   `validate:"required,gt=0"`
 }
 
 func (t TargetPriceChange) When() time.Time {
@@ -36,9 +36,9 @@ func (t TargetPriceChange) Check(p Position) error {
 }
 
 type AmountChange struct {
-	Time  time.Time
-	Delta int
-	Price float64
+	Time  time.Time `validate:"required"`
+	Delta int       `validate:"required"`
+	Price float64   `validate:"required,gt=0"`
 }
 
 func (a AmountChange) When() time.Time {
@@ -91,8 +91,8 @@ func (a AmountChange) Check(p Position) error {
 }
 
 type DeadlineChange struct {
-	Time        time.Time
-	NewDeadline time.Time
+	Time        time.Time `validate:"required"`
+	NewDeadline time.Time `validate:"required,nefield=Time"`
 }
 
 func (d DeadlineChange) Apply(p Position) Position {
