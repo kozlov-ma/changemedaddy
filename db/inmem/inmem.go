@@ -3,84 +3,58 @@ package inmem
 import (
 	"changemedaddy/db"
 	"changemedaddy/invest"
+	"github.com/go-playground/validator/v10"
 	"sync"
 )
 
 type DB struct {
-	ideaCounter int64
-	iLock       sync.RWMutex
-	ideas       map[int64]invest.Idea
+	validate validator.Validate
+
+	posLock   sync.RWMutex
+	posCtr    int64
+	positions map[int64]invest.Position
 }
 
 func New() *DB {
 	return &DB{
-		ideas: make(map[int64]invest.Idea),
+		positions: make(map[int64]invest.Position),
 	}
 }
 
-func (d *DB) AddIdea(idea invest.Idea) (int64, error) {
-	d.iLock.Lock()
-	defer d.iLock.Unlock()
+func (d *DB) AddPosition(pos invest.Position) (int64, error) {
+	d.posLock.Lock()
+	defer d.posLock.Unlock()
 
-	id := d.ideaCounter
+	id := d.posCtr + 1
 
-	d.ideas[id] = idea
-	d.ideaCounter++
+	d.positions[id] = pos
+	d.posCtr++
 
 	return id, nil
 }
 
-func (d *DB) UpdateIdea(id int64, idea invest.Idea) error {
-	d.iLock.Lock()
-	defer d.iLock.Unlock()
+func (d *DB) UpdatePosition(id int64, pos invest.Position) error {
+	d.posLock.Lock()
+	defer d.posLock.Unlock()
 
-	d.ideas[id] = idea
-
-	return nil
-}
-
-func (d *DB) GetIdea(id int64) (invest.Idea, error) {
-	d.iLock.RLock()
-	defer d.iLock.RUnlock()
-
-	idea, ok := d.ideas[id]
+	_, ok := d.positions[id]
 	if !ok {
-		var zero invest.Idea
-		return zero, db.IdeaDoesNotExistError
-	}
-
-	return idea, nil
-}
-
-func (d *DB) UpdatePosition(ideaId int64, index int, position invest.Position) error {
-	d.iLock.Lock()
-	defer d.iLock.Unlock()
-
-	idea, ok := d.ideas[ideaId]
-
-	if !ok {
-		return db.IdeaDoesNotExistError
-	}
-	if !(index >= 0 && index < len(idea.Positions)) {
 		return db.PositionDoesNotExistError
 	}
 
-	idea.Positions[index] = position
+	d.positions[id] = pos
+
 	return nil
 }
 
-func (d *DB) GetPosition(ideaId int64, posIdx int) (pos invest.Position, err error) {
-	d.iLock.RLock()
-	defer d.iLock.RUnlock()
+func (d *DB) GetPosition(id int64) (pos invest.Position, err error) {
+	d.posLock.RLock()
+	defer d.posLock.RUnlock()
 
-	idea, ok := d.ideas[ideaId]
+	pos, ok := d.positions[id]
 	if !ok {
 		return pos, db.IdeaDoesNotExistError
 	}
 
-	if !(posIdx >= 0 && posIdx < len(idea.Positions)) {
-		return pos, db.PositionDoesNotExistError
-	}
-
-	return idea.Positions[posIdx], nil
+	return pos, nil
 }

@@ -7,88 +7,132 @@ import (
 	"time"
 )
 
-func yndxPosition() invest.Position {
+func yndxTest() invest.Position {
 	return invest.Position{
 		Ticker:         "YNDX",
 		Kind:           invest.KindLong,
 		InstrumentType: invest.TypeShares,
+		Start:          time.Date(2024, time.February, 18, 12, 0, 0, 0, time.Local),
+		Deadline:       time.Date(2024, time.April, 28, 14, 41, 30, 0, time.Local),
 		RelAmount:      100,
 		StartPrice:     3800,
 		TargetPrice:    4000,
 	}
 }
 
-func tcsgPosition() invest.Position {
+func tcsgTest() invest.Position {
 	return invest.Position{
 		Ticker:         "TCSG",
 		Kind:           invest.KindLong,
 		InstrumentType: invest.TypeShares,
+		Start:          time.Date(2024, time.February, 18, 12, 0, 0, 0, time.Local),
+		Deadline:       time.Date(2024, time.April, 28, 14, 41, 30, 0, time.Local),
 		RelAmount:      10,
-		StartPrice:     300,
-		TargetPrice:    350,
+		StartPrice:     1300,
+		TargetPrice:    1350,
+		FixedProfitP:   0,
+		Log:            nil,
 	}
 }
 
-func simpleIdea() invest.Idea {
-	return invest.Idea{
-		Positions: []invest.Position{yndxPosition()},
-		Deadline:  time.Now(),
-	}
-}
+func TestDB_AddPosition(t *testing.T) {
+	db := New()
 
-func checkError(err error, t *testing.T) {
+	pos1 := yndxTest()
+	firstId, err := db.AddPosition(pos1)
 	if err != nil {
-		t.Errorf("%#v", err)
+		t.Fatal("couldn't add a position to the database", pos1, err)
+	}
+
+	if firstId == 0 {
+		t.Error("want id != 0, got 0")
+	}
+
+	pos2 := tcsgTest()
+	secondId, err := db.AddPosition(pos2)
+	if err != nil {
+		t.Fatal("couldn't add a position to the database", pos1, err)
+	}
+
+	if secondId == 0 {
+		t.Error("want id != 0, got 0")
+	}
+
+	if firstId == secondId {
+		t.Error("added two separate ideas to the database, want different ids, got", firstId, "and", secondId)
 	}
 }
 
-func TestDbIdea(t *testing.T) {
-	db := New()
-	idea := simpleIdea()
+func TestDB_GetPosition(t *testing.T) {
+	t.Run("GetPosition", func(t *testing.T) {
+		ok := t.Run("AddPosition", TestDB_AddPosition)
+		if !ok {
+			t.Skip("skipping because TestDB_AddPosition failed")
+		}
+	})
 
-	id, err := db.AddIdea(idea)
+	var (
+		db          = New()
+		firstId, _  = db.AddPosition(yndxTest())
+		secondId, _ = db.AddPosition(tcsgTest())
+	)
 
-	checkError(err, t)
-	if id != db.ideaCounter-1 {
-		t.Errorf("want id %d, got %d", id, db.ideaCounter-1)
+	pos1, err := db.GetPosition(firstId)
+	if err != nil {
+		t.Fatal("couldn't retrieve an added position", err)
 	}
 
-	idea, err = db.GetIdea(id)
-	checkError(err, t)
+	if !reflect.DeepEqual(yndxTest(), pos1) {
+		t.Error("want retrieved position equal to added, added", yndxTest(), "got", pos1)
+	}
 
-	var newId int64 = 1
-	err = db.UpdateIdea(newId, idea)
-	checkError(err, t)
+	pos2, err := db.GetPosition(secondId)
+	if err != nil {
+		t.Fatal("couldn't retrieve an added position", err)
+	}
 
-	newIdea, err := db.GetIdea(newId)
-	checkError(err, t)
+	if !reflect.DeepEqual(tcsgTest(), pos2) {
+		t.Error("want retrieved position equal to added, added", tcsgTest(), "got", pos2)
+	}
 
-	if !reflect.DeepEqual(newIdea, idea) {
-		t.Errorf("want idea %#v, got %#v", newIdea, idea)
+	if reflect.DeepEqual(pos1, pos2) {
+		t.Error("added different positions, want different, got same", pos1, pos2)
 	}
 }
 
-func TestDbPosition(t *testing.T) {
-	db := New()
-	idea := simpleIdea()
+func TestDB_UpdatePosition(t *testing.T) {
+	t.Run("UpdatePosition", func(t *testing.T) {
+		ok := t.Run("AddPosition", TestDB_AddPosition)
+		if !ok {
+			t.Skip("skipping because TestDB_AddPosition failed")
+		}
+	})
 
-	id, _ := db.AddIdea(idea)
+	t.Run("UpdatePosition", func(t *testing.T) {
+		ok := t.Run("GetPosition", TestDB_GetPosition)
+		if !ok {
+			t.Skip("skipping because TestDB_GetPosition failed")
+		}
+	})
 
-	posIdx := 0
-	pos, err := db.GetPosition(id, posIdx)
-	checkError(err, t)
-	yndx := yndxPosition()
-	if !reflect.DeepEqual(pos, yndx) {
-		t.Errorf("want %#v, got %#v", pos, yndx)
+	var (
+		db    = New()
+		old   = yndxTest()
+		new   = tcsgTest()
+		id, _ = db.AddPosition(old)
+	)
+
+	err := db.UpdatePosition(id, new)
+	if err != nil {
+		t.Fatal("couldn't update a position", err)
 	}
 
-	tnkf := tcsgPosition()
-	err = db.UpdatePosition(id, posIdx, tnkf)
-	checkError(err, t)
+	pos, err := db.GetPosition(id)
+	if reflect.DeepEqual(pos, old) {
+		t.Error("want updated position different from old, got same", old, pos)
+	}
 
-	pos, err = db.GetPosition(id, posIdx)
-	checkError(err, t)
-	if !reflect.DeepEqual(pos, tnkf) {
-		t.Errorf("want position %#v, got %#v", pos, tnkf)
+	if !reflect.DeepEqual(pos, new) {
+		t.Error("want updated position equal to new, new", new, "got", pos)
 	}
 }
