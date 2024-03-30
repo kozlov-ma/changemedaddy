@@ -42,6 +42,8 @@ type Position struct {
 	// FixedProfitP is all the profit fixed at the moment relative to the invested capital.
 	// It is all the profit if the Position is closed.
 	FixedProfitP float64
+	// Start is a date and time when the Position was opened.
+	Start time.Time `validate:"required"`
 	// Author usually intends to close the Position before Deadline.
 	Deadline time.Time `validate:"required"`
 	// Log contains all the changes that happened to this Position.
