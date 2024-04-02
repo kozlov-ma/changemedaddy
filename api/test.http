@@ -1,34 +1,37 @@
 ### 1
-POST localhost/api/
+POST localhost/api/position
 
 {
-"Positions":[{"Ticker":"MGNT","Kind":0,"InstrumentType":1,"RelAmount":100,"StartPrice":4000,"TargetPrice":800,"FixedProfitP":0,"Log":null}],
-"Deadline":"2024-03-28T22:38:42.70871+05:00",
-"Log":null
+  "Ticker": "YNDX",
+  "Kind": 1,
+  "InstrumentType": 1,
+  "RelAmount": 100,
+  "StartPrice": 3800,
+  "TargetPrice": 4000,
+  "FixedProfitP": 0,
+  "Start": "2024-02-18T12:00:00+05:00",
+  "Deadline": "2024-04-28T14:41:30+05:00",
+  "Log": null
 }
 
 
 ### 2
-GET localhost/api/idea/0
+GET localhost/api/position/1
 
 
 ### 3
-PATCH localhost/api/idea/1/deadline
+PATCH localhost/api/position/1/deadline
 
-{"Time":"2024-03-28T22:54:38.63347+05:00","NewDeadline":"2024-03-28T22:54:38.63347+05:00"}
+{"Time":"2038-03-28T22:54:38.63347+05:00","NewDeadline":"2038-03-28T22:54:38.63347+05:00"}
 
 
 ### 4
-GET localhost/api/idea/1/position/1
+PATCH localhost/api/position/1/target
+
+{"Time":"2038-03-28T22:54:38.63347+05:00","NewTargetPrice":1000}
 
 
 ### 5
-PATCH localhost/api/idea/1/position/1/target
+PATCH localhost/api/position/1/amount
 
-{"Time":"2024-03-28T22:54:38.63347+05:00","NewTargetPrice":1000}
-
-
-### 6
-PATCH localhost/api/idea/0/position/0/amount
-
-{"Time":"2024-03-28T22:54:38.63347+05:00", "Delta":-50, "Price":8000}
+{"Time":"2038-03-28T22:54:38.63347+05:00", "Delta":-50, "Price":8000}

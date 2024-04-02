@@ -31,8 +31,14 @@ func handleChange[T invest.PositionChange](api API) http.HandlerFunc {
 		_ = api.validate.Struct(ch)
 
 		pos, _ := api.db.GetPosition(id)
-		pos = ch.Apply(pos)
+		err = ch.Check(pos)
+		if err != nil {
+			w.WriteHeader(400)
+			fmt.Fprintf(w, err.Error())
+			return
+		}
 
+		pos = ch.Apply(pos)
 		err = api.db.PutPosition(id, pos)
 		if errors.Is(err, db.PositionDoesNotExistError) {
 			w.WriteHeader(404)

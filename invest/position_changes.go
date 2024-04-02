@@ -106,9 +106,9 @@ func (d DeadlineChange) When() time.Time {
 	return d.Time
 }
 
-func (d DeadlineChange) Check(Position) error {
-	if time.Now().Sub(d.When()).Hours() > maxHoursSinceChange {
-		return InvalidChangeTime
+func (d DeadlineChange) Check(p Position) error {
+	if err := baseCheck(p, d); err != nil {
+		return err
 	}
 
 	if time.Now().Sub(d.NewDeadline).Hours() >= 24 {

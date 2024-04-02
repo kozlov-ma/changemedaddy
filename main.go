@@ -9,7 +9,7 @@ import (
 
 func main() {
 	db := inmem.New()
-	v := validator.Validate{}
+	v := validator.New()
 	api := api.New(db, v)
 
 	http.ListenAndServe(":80", api.NewRouter())

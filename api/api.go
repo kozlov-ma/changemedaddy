@@ -16,10 +16,10 @@ type DB interface {
 
 type API struct {
 	db       DB
-	validate validator.Validate
+	validate *validator.Validate
 }
 
-func New(db DB, validate validator.Validate) *API {
+func New(db DB, validate *validator.Validate) *API {
 	return &API{db: db, validate: validate}
 }
 
