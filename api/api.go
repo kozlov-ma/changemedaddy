@@ -1,21 +1,29 @@
 package api
 
 import (
+	"changemedaddy/invest"
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/chi/v5/middleware"
 	"github.com/go-chi/render"
-	"net/http"
+	"github.com/go-playground/validator/v10"
 )
 
-type API struct {
-	IdeaProvider
-	IdeaSaver
-	IdeaUpdater
-	PositionUpdater
+type DB interface {
 	PositionProvider
+	PositionAdder
+	PositionPutter
 }
 
-func (api API) RunServer() {
+type API struct {
+	db       DB
+	validate validator.Validate
+}
+
+func New(db DB, validate validator.Validate) *API {
+	return &API{db: db, validate: validate}
+}
+
+func (api API) NewRouter() chi.Router {
 	r := chi.NewRouter()
 
 	r.Use(render.SetContentType(render.ContentTypeJSON))
@@ -23,15 +31,13 @@ func (api API) RunServer() {
 
 	r.Route("/api", api.Router)
 
-	http.ListenAndServe(":80", r)
+	return r
 }
 
 func (api API) Router(r chi.Router) {
-	r.Get("/idea/{id}", api.handleGetIdea)
-	r.Post("/idea", api.handlePostIdea)
-	r.Patch("/idea/{id}/deadline", api.handleDeadlineChange)
-
-	r.Get("/idea/{id}/position/{idx}", api.handleGetPosition)
-	r.Patch("/idea/{id}/position/{idx}/target", api.handleTargetPriceChange)
-	r.Patch("/idea/{id}/position/{idx}/amount", api.handleAmountChange)
+	r.Get("/position/{id}", api.handleGetPosition)
+	r.Post("/position", api.handlePostPosition)
+	r.Patch("/position/{id}/target", handleChange[invest.TargetPriceChange](api))
+	r.Patch("/position/{id}/amount", handleChange[invest.AmountChange](api))
+	r.Patch("/position/{id}/deadline", handleChange[invest.DeadlineChange](api))
 }

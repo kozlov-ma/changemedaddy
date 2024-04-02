@@ -1,5 +1,5 @@
 ### 1
-POST localhost/api/idea
+POST localhost/api/
 
 {
 "Positions":[{"Ticker":"MGNT","Kind":0,"InstrumentType":1,"RelAmount":100,"StartPrice":4000,"TargetPrice":800,"FixedProfitP":0,"Log":null}],

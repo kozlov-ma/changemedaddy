@@ -33,7 +33,7 @@ func (d *DB) AddPosition(pos invest.Position) (int64, error) {
 	return id, nil
 }
 
-func (d *DB) UpdatePosition(id int64, pos invest.Position) error {
+func (d *DB) PutPosition(id int64, pos invest.Position) error {
 	d.posLock.Lock()
 	defer d.posLock.Unlock()
 
@@ -53,7 +53,7 @@ func (d *DB) GetPosition(id int64) (pos invest.Position, err error) {
 
 	pos, ok := d.positions[id]
 	if !ok {
-		return pos, db.IdeaDoesNotExistError
+		return pos, db.PositionDoesNotExistError
 	}
 
 	return pos, nil

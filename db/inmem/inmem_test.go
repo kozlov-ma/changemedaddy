@@ -101,14 +101,14 @@ func TestDB_GetPosition(t *testing.T) {
 }
 
 func TestDB_UpdatePosition(t *testing.T) {
-	t.Run("UpdatePosition", func(t *testing.T) {
+	t.Run("PutPosition", func(t *testing.T) {
 		ok := t.Run("AddPosition", TestDB_AddPosition)
 		if !ok {
 			t.Skip("skipping because TestDB_AddPosition failed")
 		}
 	})
 
-	t.Run("UpdatePosition", func(t *testing.T) {
+	t.Run("PutPosition", func(t *testing.T) {
 		ok := t.Run("GetPosition", TestDB_GetPosition)
 		if !ok {
 			t.Skip("skipping because TestDB_GetPosition failed")
@@ -122,7 +122,7 @@ func TestDB_UpdatePosition(t *testing.T) {
 		id, _ = db.AddPosition(old)
 	)
 
-	err := db.UpdatePosition(id, new)
+	err := db.PutPosition(id, new)
 	if err != nil {
 		t.Fatal("couldn't update a position", err)
 	}

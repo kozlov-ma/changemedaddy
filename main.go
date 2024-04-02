@@ -3,17 +3,14 @@ package main
 import (
 	"changemedaddy/api"
 	"changemedaddy/db/inmem"
+	"github.com/go-playground/validator/v10"
+	"net/http"
 )
 
 func main() {
 	db := inmem.New()
-	api := api.API{
-		IdeaProvider:     db,
-		IdeaSaver:        db,
-		IdeaUpdater:      db,
-		PositionUpdater:  db,
-		PositionProvider: db,
-	}
+	v := validator.Validate{}
+	api := api.New(db, v)
 
-	api.RunServer()
+	http.ListenAndServe(":80", api.NewRouter())
 }

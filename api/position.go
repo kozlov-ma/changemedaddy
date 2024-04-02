@@ -14,24 +14,22 @@ import (
 
 // get position
 type PositionProvider interface {
-	GetPosition(ideaId int64, idx int) (invest.Position, error)
+	GetPosition(id int64) (pos invest.Position, err error)
 }
 
-// update position
-type PositionUpdater interface {
-	UpdatePosition(ideaId int64, idx int, pos invest.Position) error
+// add position
+type PositionAdder interface {
+	AddPosition(pos invest.Position) (id int64, err error)
 }
 
 func (api API) handleGetPosition(w http.ResponseWriter, r *http.Request) {
-	id, err1 := strconv.ParseInt(chi.URLParam(r, "id"), 10, 64)
-	idx, err2 := strconv.Atoi(chi.URLParam(r, "idx"))
-	if err1 != nil || err2 != nil {
+	id, err := strconv.ParseInt(chi.URLParam(r, "id"), 10, 64)
+	if err != nil {
 		w.WriteHeader(400)
-		fmt.Fprintf(w, "bad id or idx")
-		return
+		fmt.Fprintf(w, "bad id")
 	}
 
-	position, err := api.PositionProvider.GetPosition(id, idx)
+	position, err := api.db.GetPosition(id)
 	if errors.Is(err, db.PositionDoesNotExistError) {
 		w.WriteHeader(404)
 		return
@@ -41,50 +39,26 @@ func (api API) handleGetPosition(w http.ResponseWriter, r *http.Request) {
 	fmt.Fprintln(w, string(positionJson))
 }
 
-func (api API) handleTargetPriceChange(w http.ResponseWriter, r *http.Request) {
-	id, err1 := strconv.ParseInt(chi.URLParam(r, "id"), 10, 64)
-	idx, err2 := strconv.Atoi(chi.URLParam(r, "idx"))
-	if err1 != nil || err2 != nil {
+func (api API) handlePostPosition(w http.ResponseWriter, r *http.Request) {
+	var pos invest.Position
+	err := render.DecodeJSON(r.Body, &pos)
+	if err != nil {
 		w.WriteHeader(400)
-		fmt.Fprintf(w, "bad id or idx")
 		return
 	}
 
-	var ch invest.TargetPriceChange
-	_ = render.Decode(r, ch)
-
-	pos, _ := api.PositionProvider.GetPosition(id, idx)
-	pos = ch.Apply(pos)
-
-	err := api.PositionUpdater.UpdatePosition(id, idx, pos)
-	if errors.Is(err, db.PositionDoesNotExistError) {
-		w.WriteHeader(404)
-		return
-	}
-
-	fmt.Fprintf(w, "position updated")
-}
-
-func (api API) handleAmountChange(w http.ResponseWriter, r *http.Request) {
-	id, err1 := strconv.ParseInt(chi.URLParam(r, "id"), 10, 64)
-	idx, err2 := strconv.Atoi(chi.URLParam(r, "idx"))
-	if err1 != nil || err2 != nil {
+	err = api.validate.Struct(pos)
+	if err != nil || len(pos.Log) != 0 {
 		w.WriteHeader(400)
-		fmt.Fprintf(w, "bad id or idx")
 		return
 	}
 
-	var ch invest.AmountChange
-	_ = render.DecodeJSON(r.Body, &ch)
-
-	pos, _ := api.PositionProvider.GetPosition(id, idx)
-	pos = ch.Apply(pos)
-
-	err := api.PositionUpdater.UpdatePosition(id, idx, pos)
-	if errors.Is(err, db.PositionDoesNotExistError) {
-		w.WriteHeader(404)
+	id, err := api.db.AddPosition(pos)
+	if err != nil {
+		w.WriteHeader(500)
 		return
 	}
 
-	fmt.Fprintf(w, "position updated")
+	w.WriteHeader(200)
+	fmt.Fprintf(w, "done with id %v", id)
 }
