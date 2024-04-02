@@ -34,7 +34,7 @@ type Position struct {
 	// InstrumentType tells whether the asset is Shares, Futures, Bonds, etc.
 	InstrumentType InstrumentType `validate:"required,oneof=1 2"`
 	// RelAmount is amount of lots in a position.
-	RelAmount int `validate:"gte=0"`
+	RelAmount int
 	// StartPrice is a weighted average of all purchases or sales of the  security.
 	StartPrice float64 `validate:"required,gt=0"`
 	// TargetPrice is a price at which the author of the idea intends to close this position.
@@ -58,4 +58,15 @@ func (p Position) Status() PositionStatus {
 	}
 
 	return StatusOpen
+}
+
+func (k PositionKind) String() string {
+	switch k {
+	case KindLong:
+		return "LONG"
+	case KindShort:
+		return "SHORT"
+	default:
+		return "?"
+	}
 }
