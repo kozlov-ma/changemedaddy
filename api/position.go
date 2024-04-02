@@ -3,6 +3,7 @@ package api
 import (
 	"changemedaddy/db"
 	"changemedaddy/invest"
+	"context"
 	"encoding/json"
 	"errors"
 	"fmt"
@@ -14,12 +15,12 @@ import (
 
 // get position
 type PositionProvider interface {
-	GetPosition(id int64) (pos invest.Position, err error)
+	GetPosition(ctx context.Context, id int64) (pos invest.Position, err error)
 }
 
 // add position
 type PositionAdder interface {
-	AddPosition(pos invest.Position) (id int64, err error)
+	AddPosition(ctx context.Context, pos invest.Position) (id int64, err error)
 }
 
 func (api API) handleGetPosition(w http.ResponseWriter, r *http.Request) {
@@ -29,7 +30,7 @@ func (api API) handleGetPosition(w http.ResponseWriter, r *http.Request) {
 		fmt.Fprintf(w, "bad id")
 	}
 
-	position, err := api.db.GetPosition(id)
+	position, err := api.db.GetPosition(r.Context(), id)
 	if errors.Is(err, db.PositionDoesNotExistError) {
 		w.WriteHeader(404)
 		return
@@ -53,7 +54,7 @@ func (api API) handlePostPosition(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	id, err := api.db.AddPosition(pos)
+	id, err := api.db.AddPosition(r.Context(), pos)
 	if err != nil {
 		w.WriteHeader(500)
 		return

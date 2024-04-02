@@ -3,6 +3,7 @@ package inmem
 import (
 	"changemedaddy/db"
 	"changemedaddy/invest"
+	"context"
 	"github.com/go-playground/validator/v10"
 	"sync"
 )
@@ -21,7 +22,7 @@ func New() *DB {
 	}
 }
 
-func (d *DB) AddPosition(pos invest.Position) (int64, error) {
+func (d *DB) AddPosition(ctx context.Context, pos invest.Position) (int64, error) {
 	d.posLock.Lock()
 	defer d.posLock.Unlock()
 
@@ -33,7 +34,7 @@ func (d *DB) AddPosition(pos invest.Position) (int64, error) {
 	return id, nil
 }
 
-func (d *DB) PutPosition(id int64, pos invest.Position) error {
+func (d *DB) PutPosition(ctx context.Context, id int64, pos invest.Position) error {
 	d.posLock.Lock()
 	defer d.posLock.Unlock()
 
@@ -47,7 +48,7 @@ func (d *DB) PutPosition(id int64, pos invest.Position) error {
 	return nil
 }
 
-func (d *DB) GetPosition(id int64) (pos invest.Position, err error) {
+func (d *DB) GetPosition(ctx context.Context, id int64) (pos invest.Position, err error) {
 	d.posLock.RLock()
 	defer d.posLock.RUnlock()
 

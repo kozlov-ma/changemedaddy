@@ -3,6 +3,7 @@ package api
 import (
 	"changemedaddy/db"
 	"changemedaddy/invest"
+	"context"
 	"errors"
 	"fmt"
 	"github.com/go-chi/chi/v5"
@@ -13,7 +14,7 @@ import (
 
 // change existing position
 type PositionPutter interface {
-	PutPosition(id int64, pos invest.Position) error
+	PutPosition(ctx context.Context, id int64, pos invest.Position) error
 }
 
 func handleChange[T invest.PositionChange](api API) http.HandlerFunc {
@@ -30,7 +31,7 @@ func handleChange[T invest.PositionChange](api API) http.HandlerFunc {
 
 		_ = api.validate.Struct(ch)
 
-		pos, _ := api.db.GetPosition(id)
+		pos, _ := api.db.GetPosition(r.Context(), id)
 		err = ch.Check(pos)
 		if err != nil {
 			w.WriteHeader(400)
@@ -39,7 +40,7 @@ func handleChange[T invest.PositionChange](api API) http.HandlerFunc {
 		}
 
 		pos = ch.Apply(pos)
-		err = api.db.PutPosition(id, pos)
+		err = api.db.PutPosition(r.Context(), id, pos)
 		if errors.Is(err, db.PositionDoesNotExistError) {
 			w.WriteHeader(404)
 			return
