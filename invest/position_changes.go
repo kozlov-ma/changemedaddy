@@ -10,6 +10,10 @@ type TargetPriceChange struct {
 	NewTargetPrice float64   `validate:"required,gt=0"`
 }
 
+func (t TargetPriceChange) Type() string {
+	return "target_price"
+}
+
 func (t TargetPriceChange) When() time.Time {
 	return t.Time
 }
@@ -39,6 +43,10 @@ type AmountChange struct {
 	Time  time.Time `validate:"required"`
 	Delta int       `validate:"required"`
 	Price float64   `validate:"required,gt=0"`
+}
+
+func (a AmountChange) Type() string {
+	return "amount"
 }
 
 func (a AmountChange) When() time.Time {
@@ -93,6 +101,10 @@ func (a AmountChange) Check(p Position) error {
 type DeadlineChange struct {
 	Time        time.Time `validate:"required"`
 	NewDeadline time.Time `validate:"required,nefield=Time"`
+}
+
+func (d DeadlineChange) Type() string {
+	return "deadline"
 }
 
 func (d DeadlineChange) Apply(p Position) Position {

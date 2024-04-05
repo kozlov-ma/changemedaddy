@@ -16,6 +16,8 @@ type PositionChange interface {
 	// Check checks whether this specific PositionChange is valid for the specific Position.
 	// Returns an error if it is not valid, otherwise returns nil.
 	Check(Position) error
+	// Type returns a string type of this change, like "amount", "deadline", etc.
+	Type() string
 }
 
 func baseCheck(p Position, pc PositionChange) error {
