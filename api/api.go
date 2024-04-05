@@ -3,8 +3,9 @@ package api
 import (
 	"changemedaddy/invest"
 	"github.com/go-chi/chi/v5"
-	"github.com/go-chi/chi/v5/middleware"
 	"github.com/go-chi/render"
+	slogchi "github.com/samber/slog-chi"
+	"log/slog"
 )
 
 type DB interface {
@@ -14,18 +15,25 @@ type DB interface {
 }
 
 type API struct {
-	db DB
+	db  DB
+	log *slog.Logger
 }
 
-func New(db DB) *API {
-	return &API{db: db}
+func New(db DB, log *slog.Logger) *API {
+	log = log.With("package", "api")
+	return &API{db: db, log: log}
 }
 
 func (api API) NewRouter() chi.Router {
 	r := chi.NewRouter()
 
+	logConfig := slogchi.Config{
+		WithSpanID:  true,
+		WithTraceID: true,
+	}
+
 	r.Use(render.SetContentType(render.ContentTypeJSON))
-	r.Use(middleware.Logger)
+	r.Use(slogchi.NewWithConfig(api.log, logConfig))
 
 	r.Route("/api", api.router)
 
