@@ -40,7 +40,7 @@ func (d *DB) PutPosition(ctx context.Context, id int64, pos invest.Position) err
 
 	_, ok := d.positions[id]
 	if !ok {
-		return db.PositionDoesNotExistError
+		return db.ErrPositionDoesNotExist
 	}
 
 	d.positions[id] = pos
@@ -54,7 +54,7 @@ func (d *DB) GetPosition(ctx context.Context, id int64) (pos invest.Position, er
 
 	pos, ok := d.positions[id]
 	if !ok {
-		return pos, db.PositionDoesNotExistError
+		return pos, db.ErrPositionDoesNotExist
 	}
 
 	return pos, nil

@@ -5,7 +5,6 @@ import (
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/chi/v5/middleware"
 	"github.com/go-chi/render"
-	"github.com/go-playground/validator/v10"
 )
 
 type DB interface {
@@ -15,12 +14,11 @@ type DB interface {
 }
 
 type API struct {
-	db       DB
-	validate *validator.Validate
+	db DB
 }
 
-func New(db DB, validate *validator.Validate) *API {
-	return &API{db: db, validate: validate}
+func New(db DB) *API {
+	return &API{db: db}
 }
 
 func (api API) NewRouter() chi.Router {
@@ -29,12 +27,12 @@ func (api API) NewRouter() chi.Router {
 	r.Use(render.SetContentType(render.ContentTypeJSON))
 	r.Use(middleware.Logger)
 
-	r.Route("/api", api.Router)
+	r.Route("/api", api.router)
 
 	return r
 }
 
-func (api API) Router(r chi.Router) {
+func (api API) router(r chi.Router) {
 	r.Get("/position/{id}", api.handleGetPosition)
 	r.Post("/position", api.handlePostPosition)
 	r.Patch("/position/{id}/target", handleChange[invest.TargetPriceChange](api))

@@ -2,8 +2,6 @@ package invest
 
 import "time"
 
-const maxHoursSinceChange = 24
-
 // PositionChange represents a change that the author of the idea makes to one
 // of ideas position after their creation. For example, change the Position.TargetPrice.
 type PositionChange interface {
@@ -23,10 +21,6 @@ type PositionChange interface {
 func baseCheck(p Position, pc PositionChange) error {
 	if p.Status() == StatusClosed {
 		return CannotChangeClosedPosition
-	}
-
-	if time.Now().Sub(pc.When()).Hours() > maxHoursSinceChange {
-		return InvalidChangeTime
 	}
 
 	return nil

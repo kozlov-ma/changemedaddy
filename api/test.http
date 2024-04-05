@@ -2,16 +2,14 @@
 POST localhost/api/position
 
 {
-  "Ticker": "YNDX",
+  "Ticker": "MAGN",
   "Kind": 1,
   "InstrumentType": 1,
   "RelAmount": 100,
-  "StartPrice": 3800,
-  "TargetPrice": 4000,
-  "FixedProfitP": 0,
+  "StartPrice": 4000,
+  "TargetPrice": 8000,
   "Start": "2024-02-18T12:00:00+05:00",
-  "Deadline": "2024-04-28T14:41:30+05:00",
-  "Log": null
+  "Deadline": "2024-04-28T14:41:30+05:00"
 }
 
 
@@ -22,7 +20,7 @@ GET localhost/api/position/1
 ### 3
 PATCH localhost/api/position/1/deadline
 
-{"Time":"2038-03-28T22:54:38.63347+05:00","NewDeadline":"2038-03-28T22:54:38.63347+05:00"}
+{"Time":"2038-03-28T20:54:38.63347+05:00","NewDeadline":"2038-03-28T22:54:38.63347+05:00"}
 
 
 ### 4

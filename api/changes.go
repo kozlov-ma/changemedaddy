@@ -5,7 +5,6 @@ import (
 	"changemedaddy/invest"
 	"context"
 	"errors"
-	"fmt"
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/render"
 	"net/http"
@@ -21,31 +20,44 @@ func handleChange[T invest.PositionChange](api API) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		id, err := strconv.ParseInt(chi.URLParam(r, "id"), 10, 64)
 		if err != nil {
-			w.WriteHeader(400)
-			fmt.Fprintf(w, "bad id or idx")
+			render.Render(w, r, ErrInvalidRequest(err))
 			return
 		}
 
-		var ch T
-		_ = render.DecodeJSON(r.Body, &ch)
-
-		_ = api.validate.Struct(ch)
-
-		pos, _ := api.db.GetPosition(r.Context(), id)
-		err = ch.Check(pos)
-		if err != nil {
-			w.WriteHeader(400)
-			fmt.Fprintf(w, err.Error())
+		var change T
+		if err := render.DecodeJSON(r.Body, &change); err != nil {
+			render.Render(w, r, ErrInvalidRequest(err))
 			return
 		}
 
-		pos = ch.Apply(pos)
-		err = api.db.PutPosition(r.Context(), id, pos)
-		if errors.Is(err, db.PositionDoesNotExistError) {
-			w.WriteHeader(404)
+		if err := validate.Struct(change); err != nil {
+			render.Render(w, r, ErrInvalidRequest(err))
 			return
 		}
 
-		fmt.Fprintf(w, "position updated")
+		pos, err := api.db.GetPosition(r.Context(), id)
+		if errors.Is(err, db.ErrPositionDoesNotExist) {
+			render.Render(w, r, ErrNotFound)
+			return
+		} else if err != nil {
+			render.Render(w, r, ErrInternal(err))
+			return
+		}
+
+		if err := change.Check(pos); err != nil {
+			render.Render(w, r, ErrInvalidRequest(err))
+			return
+		}
+
+		pos = change.Apply(pos)
+
+		if err := api.db.PutPosition(r.Context(), id, pos); err != nil {
+			render.Render(w, r, ErrInternal(err))
+			return
+		}
+
+		if err := render.Render(w, r, api.NewPositionResponse(id, &pos)); err != nil {
+			render.Render(w, r, ErrRender(err))
+		}
 	}
 }

@@ -27,7 +27,7 @@ func (r RandomPositionGenerator) GetPosition(id int64, idx int) (invest.Position
 	}
 
 	if rand.IntN(10) == 7 {
-		return invest.Position{}, db.PositionDoesNotExistError
+		return invest.Position{}, db.ErrPositionDoesNotExist
 	}
 
 	return p, nil

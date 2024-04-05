@@ -5,6 +5,10 @@ import (
 	"net/http"
 )
 
+var (
+	ErrNotFound = &ErrResponse{HTTPStatusCode: 404, StatusText: "Resource not found."}
+)
+
 // ErrResponse renderer type for handling all sorts of errors.
 //
 // In the best case scenario, the excellent github.com/pkg/errors package
@@ -42,4 +46,11 @@ func ErrRender(err error) render.Renderer {
 	}
 }
 
-var ErrNotFound = &ErrResponse{HTTPStatusCode: 404, StatusText: "Resource not found."}
+func ErrInternal(err error) render.Renderer {
+	return &ErrResponse{
+		Err:            err,
+		HTTPStatusCode: 500,
+		StatusText:     "Service is unavailable.",
+		ErrorText:      err.Error(),
+	}
+}
