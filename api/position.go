@@ -3,6 +3,7 @@ package api
 import (
 	"changemedaddy/db"
 	"changemedaddy/invest"
+	"changemedaddy/market"
 	"context"
 	"errors"
 	"github.com/go-chi/chi/v5"
@@ -21,6 +22,10 @@ type PositionAdder interface {
 	AddPosition(ctx context.Context, pos invest.Position) (id int64, err error)
 }
 
+type MarketProvider interface {
+	Price(ctx context.Context, instrument invest.InstrumentType, ticker string) (float64, error)
+}
+
 func (api API) handleGetPosition(w http.ResponseWriter, r *http.Request) {
 	id, err := strconv.ParseInt(chi.URLParam(r, "id"), 10, 64)
 	if err != nil {
@@ -32,9 +37,18 @@ func (api API) handleGetPosition(w http.ResponseWriter, r *http.Request) {
 	if errors.Is(err, db.ErrPositionDoesNotExist) {
 		render.Render(w, r, ErrNotFound)
 		return
+	} else if err != nil {
+		render.Render(w, r, ErrInternal(err))
+		return
 	}
 
-	if err := render.Render(w, r, api.NewPositionResponse(id, &pos)); err != nil {
+	curPrice, err := api.market.Price(r.Context(), pos.InstrumentType, pos.Ticker)
+	if err != nil {
+		render.Render(w, r, ErrInternal(err))
+		return
+	}
+
+	if err := render.Render(w, r, api.NewPositionResponse(id, &pos, curPrice)); err != nil {
 		render.Render(w, r, ErrRender(err))
 	}
 }
@@ -48,12 +62,21 @@ func (api API) handlePostPosition(w http.ResponseWriter, r *http.Request) {
 
 	pos := pr.ToPosition()
 
+	curPrice, err := api.market.Price(r.Context(), pos.InstrumentType, pos.Ticker)
+	if errors.Is(err, market.ErrInstrumentDoesNotExist) {
+		render.Render(w, r, ErrInvalidRequest(err))
+		return
+	} else if err != nil {
+		render.Render(w, r, ErrInternal(err))
+		return
+	}
+
 	id, err := api.db.AddPosition(r.Context(), pos)
 	if err != nil {
 		render.Render(w, r, ErrInternal(err))
 	}
 
-	if err := render.Render(w, r, api.NewPositionResponse(id, &pos)); err != nil {
+	if err := render.Render(w, r, api.NewPositionResponse(id, &pos, curPrice)); err != nil {
 		render.Render(w, r, ErrRender(err))
 	}
 }

@@ -17,13 +17,14 @@ type DB interface {
 }
 
 type API struct {
-	db  DB
-	log *slog.Logger
+	db     DB
+	market MarketProvider
+	log    *slog.Logger
 }
 
-func New(db DB, log *slog.Logger) *API {
+func New(db DB, market MarketProvider, log *slog.Logger) *API {
 	log = log.With("package", "api")
-	return &API{db: db, log: log}
+	return &API{db: db, market: market, log: log}
 }
 
 func (api API) NewRouter() chi.Router {
@@ -31,8 +32,6 @@ func (api API) NewRouter() chi.Router {
 
 	logConfig := slogchi.Config{
 		WithRequestID: true,
-		WithSpanID:    true,
-		WithTraceID:   true,
 	}
 
 	r.Use(middleware.RequestID)

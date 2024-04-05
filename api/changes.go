@@ -56,7 +56,13 @@ func handleChange[T invest.PositionChange](api API) http.HandlerFunc {
 			return
 		}
 
-		if err := render.Render(w, r, api.NewPositionResponse(id, &pos)); err != nil {
+		curPrice, err := api.market.Price(r.Context(), pos.InstrumentType, pos.Ticker)
+		if err != nil {
+			render.Render(w, r, ErrInternal(err))
+			return
+		}
+
+		if err := render.Render(w, r, api.NewPositionResponse(id, &pos, curPrice)); err != nil {
 			render.Render(w, r, ErrRender(err))
 		}
 	}

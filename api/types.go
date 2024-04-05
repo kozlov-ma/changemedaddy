@@ -14,19 +14,20 @@ var (
 
 type PositionResponse struct {
 	ID             int64
-	Ticker         string                `validate:"required,min=1,max=12"`
-	Kind           invest.PositionKind   `validate:"required,oneof=1 2"`
-	InstrumentType invest.InstrumentType `validate:"required,oneof=1 2"`
+	Ticker         string
+	Kind           invest.PositionKind
+	InstrumentType invest.InstrumentType
 	RelAmount      int
-	StartPrice     float64 `validate:"required,gt=0"`
-	TargetPrice    float64 `validate:"required,gt=0"`
+	CurPrice       float64
+	StartPrice     float64
+	TargetPrice    float64
 	FixedProfitP   float64
-	Start          time.Time `validate:"required"`
-	Deadline       time.Time `validate:"required"`
+	Start          time.Time
+	Deadline       time.Time
 	Log            []ChangeResponse
 }
 
-func (api API) NewPositionResponse(id int64, pos *invest.Position) *PositionResponse {
+func (api API) NewPositionResponse(id int64, pos *invest.Position, curPrice float64) *PositionResponse {
 	log := make([]ChangeResponse, len(pos.Log))
 	for i, l := range pos.Log {
 		log[i] = NewChangeResponse(l)
@@ -38,6 +39,7 @@ func (api API) NewPositionResponse(id int64, pos *invest.Position) *PositionResp
 		Kind:           pos.Kind,
 		InstrumentType: pos.InstrumentType,
 		RelAmount:      pos.RelAmount,
+		CurPrice:       curPrice,
 		StartPrice:     pos.StartPrice,
 		TargetPrice:    pos.TargetPrice,
 		FixedProfitP:   pos.FixedProfitP,
