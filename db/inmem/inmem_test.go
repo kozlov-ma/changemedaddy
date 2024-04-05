@@ -2,6 +2,7 @@ package inmem
 
 import (
 	"changemedaddy/invest"
+	"context"
 	"reflect"
 	"testing"
 	"time"
@@ -39,7 +40,7 @@ func TestDB_AddPosition(t *testing.T) {
 	db := New()
 
 	pos1 := yndxTest()
-	firstId, err := db.AddPosition(pos1)
+	firstId, err := db.AddPosition(context.TODO(), pos1)
 	if err != nil {
 		t.Fatal("couldn't add a position to the database", pos1, err)
 	}
@@ -49,7 +50,7 @@ func TestDB_AddPosition(t *testing.T) {
 	}
 
 	pos2 := tcsgTest()
-	secondId, err := db.AddPosition(pos2)
+	secondId, err := db.AddPosition(context.TODO(), pos2)
 	if err != nil {
 		t.Fatal("couldn't add a position to the database", pos1, err)
 	}
@@ -73,11 +74,11 @@ func TestDB_GetPosition(t *testing.T) {
 
 	var (
 		db          = New()
-		firstId, _  = db.AddPosition(yndxTest())
-		secondId, _ = db.AddPosition(tcsgTest())
+		firstId, _  = db.AddPosition(context.TODO(), yndxTest())
+		secondId, _ = db.AddPosition(context.TODO(), tcsgTest())
 	)
 
-	pos1, err := db.GetPosition(firstId)
+	pos1, err := db.GetPosition(context.TODO(), firstId)
 	if err != nil {
 		t.Fatal("couldn't retrieve an added position", err)
 	}
@@ -86,7 +87,7 @@ func TestDB_GetPosition(t *testing.T) {
 		t.Error("want retrieved position equal to added, added", yndxTest(), "got", pos1)
 	}
 
-	pos2, err := db.GetPosition(secondId)
+	pos2, err := db.GetPosition(context.TODO(), secondId)
 	if err != nil {
 		t.Fatal("couldn't retrieve an added position", err)
 	}
@@ -119,15 +120,15 @@ func TestDB_UpdatePosition(t *testing.T) {
 		db    = New()
 		old   = yndxTest()
 		new   = tcsgTest()
-		id, _ = db.AddPosition(old)
+		id, _ = db.AddPosition(context.TODO(), old)
 	)
 
-	err := db.PutPosition(id, new)
+	err := db.PutPosition(context.TODO(), id, new)
 	if err != nil {
 		t.Fatal("couldn't update a position", err)
 	}
 
-	pos, err := db.GetPosition(id)
+	pos, err := db.GetPosition(context.TODO(), id)
 	if reflect.DeepEqual(pos, old) {
 		t.Error("want updated position different from old, got same", old, pos)
 	}
