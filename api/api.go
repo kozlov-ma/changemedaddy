@@ -41,20 +41,23 @@ func (api API) NewRouter() chi.Router {
 
 	r.Use(middleware.RequestID)
 	r.Use(middleware.RealIP)
-	r.Use(render.SetContentType(render.ContentTypeJSON))
 	r.Use(slogchi.NewWithConfig(api.log, logConfig))
 	r.Use(middleware.Timeout(4 * time.Second))
 	r.Use(middleware.Heartbeat("ping"))
 
-	r.Route("/api", api.router)
+	r.Route("/api", func(r chi.Router) {
+		r.Use(render.SetContentType(render.ContentTypeJSON))
+		r.Get("/position/{id}", api.handleGetPosition)
+		r.Post("/position", api.handlePostPosition)
+		r.Patch("/position/{id}/target", handleChange[invest.TargetPriceChange](api))
+		r.Patch("/position/{id}/amount", handleChange[invest.AmountChange](api))
+		r.Patch("/position/{id}/deadline", handleChange[invest.DeadlineChange](api))
+	})
+
+	r.Route("/position", func(r chi.Router) {
+		r.Use(render.SetContentType(render.ContentTypeHTML))
+		r.Get("/{id}", api.handleGetPosition)
+	})
 
 	return r
-}
-
-func (api API) router(r chi.Router) {
-	r.Get("/position/{id}", api.handleGetPosition)
-	r.Post("/position", api.handlePostPosition)
-	r.Patch("/position/{id}/target", handleChange[invest.TargetPriceChange](api))
-	r.Patch("/position/{id}/amount", handleChange[invest.AmountChange](api))
-	r.Patch("/position/{id}/deadline", handleChange[invest.DeadlineChange](api))
 }
