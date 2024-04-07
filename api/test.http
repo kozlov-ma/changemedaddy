@@ -1,0 +1,35 @@
+### 1
+POST localhost/api/position
+
+{
+  "Ticker": "MAGN",
+  "Kind": 1,
+  "InstrumentType": 1,
+  "RelAmount": 100,
+  "StartPrice": 4000,
+  "TargetPrice": 8000,
+  "Start": "2024-02-18T12:00:00+05:00",
+  "Deadline": "2024-04-28T14:41:30+05:00"
+}
+
+
+### 2
+GET localhost/api/position/1
+
+
+### 3
+PATCH localhost/api/position/1/deadline
+
+{"Time":"2038-03-28T20:54:38.63347+05:00","NewDeadline":"2038-03-28T22:54:38.63347+05:00"}
+
+
+### 4
+PATCH localhost/api/position/1/target
+
+{"Time":"2038-03-28T22:54:38.63347+05:00","NewTargetPrice":1000}
+
+
+### 5
+PATCH localhost/api/position/1/amount
+
+{"Time":"2038-03-28T22:54:38.63347+05:00", "Delta":-50, "Price":8000}

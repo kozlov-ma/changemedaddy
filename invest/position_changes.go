@@ -5,37 +5,13 @@ import (
 	"time"
 )
 
-const maxHoursSinceChange = 24
-
-// PositionChange represents a change that the author of the idea makes to one
-// of ideas position after their creation. For example, change the Position.TargetPrice.
-type PositionChange interface {
-	// Apply is a method that takes a Position and returns another Position
-	// with the change applied to it.
-	// The change must appear in the new Position's log.
-	Apply(Position) Position
-	// When is the time when this PositionChange occurred. Is intended for sorting.
-	When() time.Time
-	// Check checks whether this specific PositionChange is valid for the specific Position.
-	// Returns an error if it is not valid, otherwise returns nil.
-	Check(Position) error
-}
-
-func commonPCChecks(p Position, pc PositionChange) error {
-	if p.Status() == StatusClosed {
-		return CannotChangeClosedPosition
-	}
-
-	if time.Now().Sub(pc.When()).Hours() > maxHoursSinceChange {
-		return InvalidChangeTime
-	}
-
-	return nil
-}
-
 type TargetPriceChange struct {
-	Time           time.Time
-	NewTargetPrice float64
+	Time           time.Time `validate:"required"`
+	NewTargetPrice float64   `validate:"required,gt=0"`
+}
+
+func (t TargetPriceChange) Type() string {
+	return "target_price"
 }
 
 func (t TargetPriceChange) When() time.Time {
@@ -52,7 +28,7 @@ func (t TargetPriceChange) Apply(position Position) Position {
 }
 
 func (t TargetPriceChange) Check(p Position) error {
-	if err := commonPCChecks(p, t); err != nil {
+	if err := baseCheck(p, t); err != nil {
 		return err
 	}
 
@@ -64,9 +40,13 @@ func (t TargetPriceChange) Check(p Position) error {
 }
 
 type AmountChange struct {
-	Time  time.Time
-	Delta int
-	Price float64
+	Time  time.Time `validate:"required"`
+	Delta int       `validate:"required"`
+	Price float64   `validate:"required,gt=0"`
+}
+
+func (a AmountChange) Type() string {
+	return "amount"
 }
 
 func (a AmountChange) When() time.Time {
@@ -93,7 +73,7 @@ func (a AmountChange) Apply(position Position) Position {
 }
 
 func (a AmountChange) Check(p Position) error {
-	if err := commonPCChecks(p, a); err != nil {
+	if err := baseCheck(p, a); err != nil {
 		return err
 	}
 
@@ -113,6 +93,38 @@ func (a AmountChange) Check(p Position) error {
 	// If delta will lead to a long position being converted to short.
 	if p.RelAmount > 0 && a.Delta < (-p.RelAmount) {
 		return TooBigAbsDelta
+	}
+
+	return nil
+}
+
+type DeadlineChange struct {
+	Time        time.Time `validate:"required"`
+	NewDeadline time.Time `validate:"required,nefield=Time"`
+}
+
+func (d DeadlineChange) Type() string {
+	return "deadline"
+}
+
+func (d DeadlineChange) Apply(p Position) Position {
+	p.Log = append(p.Log, d)
+	p.Deadline = d.NewDeadline
+
+	return p
+}
+
+func (d DeadlineChange) When() time.Time {
+	return d.Time
+}
+
+func (d DeadlineChange) Check(p Position) error {
+	if err := baseCheck(p, d); err != nil {
+		return err
+	}
+
+	if time.Now().Sub(d.NewDeadline).Hours() >= 24 {
+		return InvalidDeadline
 	}
 
 	return nil

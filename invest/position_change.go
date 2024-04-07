@@ -1,0 +1,27 @@
+package invest
+
+import "time"
+
+// PositionChange represents a change that the author of the idea makes to one
+// of ideas position after their creation. For example, change the Position.TargetPrice.
+type PositionChange interface {
+	// Apply is a method that takes a Position and returns another Position
+	// with the change applied to it.
+	// The change must appear in the new Position's log.
+	Apply(Position) Position
+	// When is the time when this PositionChange occurred. Is intended for sorting.
+	When() time.Time
+	// Check checks whether this specific PositionChange is valid for the specific Position.
+	// Returns an error if it is not valid, otherwise returns nil.
+	Check(Position) error
+	// Type returns a string type of this change, like "amount", "deadline", etc.
+	Type() string
+}
+
+func baseCheck(p Position, pc PositionChange) error {
+	if p.Status() == StatusClosed {
+		return CannotChangeClosedPosition
+	}
+
+	return nil
+}

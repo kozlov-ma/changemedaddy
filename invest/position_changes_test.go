@@ -2,6 +2,7 @@ package invest
 
 import (
 	"errors"
+	"github.com/go-playground/validator/v10"
 	"math"
 	"testing"
 	"time"
@@ -12,6 +13,8 @@ func yndxTest() Position {
 		Ticker:         "YNDX",
 		Kind:           KindLong,
 		InstrumentType: TypeShares,
+		Start:          time.Date(2024, time.February, 18, 12, 0, 0, 0, time.Local),
+		Deadline:       time.Date(2024, time.April, 28, 14, 41, 30, 0, time.Local),
 		RelAmount:      100,
 		StartPrice:     3800,
 		TargetPrice:    4000,
@@ -21,16 +24,27 @@ func yndxTest() Position {
 // TestAmountChangeFixedProfit tests for correctness of recalculated Position.FixedProfit.
 func TestAmountChangeFixedProfit(t *testing.T) {
 	var (
-		long    = yndxTest()
-		soldAll = AmountChange{Time: time.Now(), Delta: -100, Price: 4000}
+		validate = validator.New()
+		long     = yndxTest()
+		soldAll  = AmountChange{Time: time.Now(), Delta: -100, Price: 4000}
 	)
 
-	err := soldAll.Check(long)
+	err := validate.Struct(long)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	err = soldAll.Check(long)
 	if err != nil {
 		t.Fatal("soldAll didn't pass checks but was correct, error:", err)
 	}
 
 	applied := soldAll.Apply(long)
+
+	err = validate.Struct(long)
+	if err != nil {
+		t.Fatal(err)
+	}
 
 	if applied.Status() != StatusClosed {
 		t.Error("soldAll; want StatusClosed, got", applied.Status())
