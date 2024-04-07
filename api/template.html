@@ -13,94 +13,24 @@
     <p>Дата открытия: {{.PositionResponse.Start}}</p>
     <p>Горизонт идеи: {{.PositionResponse.Deadline}}</p>
     <h2>Изменения</h2>
-<!--    {{range .}}-->
-<!--    <div>-->
-<!--        <p>Изменение: {{.Change}}</p>-->
-<!--        <p>Дата: {{.Date}}</p>-->
-<!--        <p>Новое значение: {{.NewValue}}</p>-->
-<!--        <p>Дельта: {{.Delta}}</p>-->
-<!--        <p>Цена: {{.Price}}</p>-->
-<!--    </div>-->
-<!--    {{end}}-->
+    {{range .PositionResponse.Log}}
+    <div>
+        {{if eq .Type "amount"}}
+        <p>Изменение стоимости:</p>
+        <p>Дата: {{.Change.Time}}</p>
+        <p>Дельта: {{.Change.Delta}}</p>
+        <p>Цена: {{.Change.Price}}</p>
+        {{else if eq .Type "deadline"}}
+        <p>Изменение дедлайна:</p>
+        <p>Дата: {{.Change.Time}}</p>
+        <p>Новый дедлайн: {{.Change.NewDeadline}}</p>
+        {{else if eq .Type "target_price"}}
+        <p>Изменение целевой цены:</p>
+        <p>Дата: {{.Change.Time}}</p>
+        <p>Новая целевая цена: {{.Change.NewTargetPrice}}</p>
+        {{end}}
+    </div>
+    {{end}}
 </div>
 </body>
 </html>
-
-
-<!--<!DOCTYPE html>-->
-<!--<html lang="en">-->
-<!--<head>-->
-<!--    <meta charset="UTF-8">-->
-<!--    <meta name="viewport" content="width=device-width, initial-scale=1.0">-->
-<!--    <title>Position Data</title>-->
-<!--</head>-->
-<!--<body>-->
-<!--<div id="position-container"></div>-->
-
-<!--<script>-->
-<!--    class Position {-->
-<!--        constructor(json) {-->
-<!--            console.log(json)-->
-
-<!--            this.id = json.id-->
-<!--            this.ticker = json.ticker-->
-<!--            this.kind = (json.kind === 1) ? 'LONG' : 'SHORT'-->
-<!--            this.instrumentType = (json.kind === 1) ? 'Акции' : 'Фьючерс'-->
-<!--            this.relAmount = json.relAmount-->
-<!--            this.curPrice = json.curPrice-->
-<!--            this.startPrice = json.startPrice-->
-<!--            this.targetPrice = json.targetPrice-->
-<!--            this.fixedProfitP = json.fixedProfitP-->
-<!--            this.start = json.start-->
-<!--            this.deadline = json.deadline-->
-<!--            this.log = json.log-->
-
-<!--            this.curProfit = Math.round((this.curPrice - this.startPrice) / this.startPrice * 10000) / 100;-->
-<!--            this.curProfitSign = this.curProfit >= 0 ? '+' : '-';-->
-
-<!--            this.allProfit = this.curProfit + this.fixedProfitP;-->
-<!--        }-->
-
-<!--        getLogsHtml() {-->
-<!--            if (!this.log || !Array.isArray(this.log)) {-->
-<!--                return '';-->
-<!--            }-->
-
-<!--            return this.log.map(log => `-->
-<!--            <div>-->
-<!--                <p>Изменение: ${log.type}</p>-->
-<!--                <p>Дата: ${log.change.time}</p>-->
-<!--                <p>Новое значение: ${log.change.newDeadline ? log.change.newDeadline : log.change.newTargetPrice}</p>-->
-<!--                <p>Дельта: ${log.change.delta}</p>-->
-<!--                <p>Цена: ${log.change.price}</p>-->
-<!--            </div>-->
-<!--        `).join('');-->
-<!--        }-->
-
-<!--        getPositionHtml() {-->
-<!--            return `-->
-<!--                    <div>-->
-<!--                        <h2>${this.kind} ${this.ticker}</h2>-->
-<!--                        <p>Текущая цена: ${this.curPrice} (${this.curProfitSign}${Math.abs(this.curProfit)}%)</p>-->
-<!--                        <p>Средняя: ${this.startPrice}</p>-->
-<!--                        <p>Доходность: ${this.allProfit}%</p>-->
-<!--                        <p>Дата открытия: ${this.start}</p>-->
-<!--                        <p>Горизонт идеи: ${this.deadline}</p>-->
-<!--                        <h2>Изменения</h2>-->
-<!--                        ${this.getLogsHtml()}-->
-<!--                    </div>-->
-<!--                `;-->
-<!--        }-->
-<!--    }-->
-
-<!--    fetch(`http://localhost:80/api/position/1`)-->
-<!--        .then(response => response.json())-->
-<!--        .then(data => {-->
-<!--            const position = new Position(data);-->
-<!--            const positionContainer = document.getElementById('position-container');-->
-<!--            positionContainer.innerHTML = position.getPositionHtml();-->
-<!--        })-->
-<!--        .catch(error => console.error(error));-->
-<!--</script>-->
-<!--</body>-->
-<!--</html>-->

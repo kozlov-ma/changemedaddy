@@ -7,14 +7,14 @@ import (
 	"path/filepath"
 )
 
-type PageContent struct {
+type PageData struct {
 	PositionResponse *PositionResponse
 	CurProfitSign    rune
 	CurProfitValue   float64
 	AllProfit        float64
 }
 
-func NewPageContent(pr *PositionResponse) *PageContent {
+func NewPageData(pr *PositionResponse) *PageData {
 	curProfit := math.Round((pr.CurPrice-pr.StartPrice)/pr.StartPrice*10000) / 100
 	var curProfitSign rune
 	if curProfit >= 0 {
@@ -23,7 +23,7 @@ func NewPageContent(pr *PositionResponse) *PageContent {
 		curProfitSign = '-'
 	}
 
-	p := PageContent{
+	p := PageData{
 		PositionResponse: pr,
 		CurProfitSign:    curProfitSign,
 		CurProfitValue:   math.Abs(curProfit),
@@ -32,7 +32,7 @@ func NewPageContent(pr *PositionResponse) *PageContent {
 	return &p
 }
 
-func (p *PageContent) Render(w http.ResponseWriter, r *http.Request) error {
+func (p *PageData) Render(w http.ResponseWriter, r *http.Request) error {
 	// TODO r не используется
 	// TODO вынести web
 	tmplPath := "api/template.html"
