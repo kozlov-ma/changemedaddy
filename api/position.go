@@ -48,7 +48,7 @@ func (api API) handleGetPosition(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if err := render.Render(w, r, api.NewPositionResponse(id, &pos, curPrice)); err != nil {
+	if err = render.Render(w, r, NewPage(api.NewPositionResponse(id, &pos, curPrice))); err != nil {
 		render.Render(w, r, ErrRender(err))
 	}
 }
