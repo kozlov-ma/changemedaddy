@@ -3,6 +3,7 @@ package api
 import (
 	"changemedaddy/db"
 	"changemedaddy/invest"
+	"changemedaddy/view"
 	"context"
 	"errors"
 	"github.com/go-chi/chi/v5"
@@ -62,7 +63,7 @@ func handleChange[T invest.PositionChange](api API) http.HandlerFunc {
 			return
 		}
 
-		if err := render.Render(w, r, NewPositionResponse(id, &pos, curPrice)); err != nil {
+		if err := render.Render(w, r, view.NewPositionResponse(id, &pos, curPrice)); err != nil {
 			render.Render(w, r, ErrRender(err))
 		}
 	}

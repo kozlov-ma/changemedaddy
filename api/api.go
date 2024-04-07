@@ -5,9 +5,14 @@ import (
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/chi/v5/middleware"
 	"github.com/go-chi/render"
+	"github.com/go-playground/validator/v10"
 	slogchi "github.com/samber/slog-chi"
 	"log/slog"
 	"time"
+)
+
+var (
+	validate = validator.New(validator.WithRequiredStructEnabled())
 )
 
 type DB interface {

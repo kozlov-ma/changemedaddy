@@ -1,20 +1,34 @@
-package api
+package web
 
 import (
+	"changemedaddy/view"
+	_ "embed"
 	"html/template"
 	"math"
 	"net/http"
-	"path/filepath"
 )
 
+//go:embed page.html
+var page string
+var pageTmpl = pageTemplate()
+
+func pageTemplate() *template.Template {
+	tmpl, err := template.New("tmpl").Parse(page)
+	if err != nil {
+		panic(err)
+	}
+
+	return tmpl
+}
+
 type PageData struct {
-	PositionResponse *PositionResponse
+	PositionResponse *view.PositionResponse
 	CurProfitSign    rune
 	CurProfitValue   float64
 	AllProfit        float64
 }
 
-func NewPageData(pr *PositionResponse) *PageData {
+func NewPageData(pr *view.PositionResponse) *PageData {
 	curProfit := math.Round((pr.CurPrice-pr.StartPrice)/pr.StartPrice*10000) / 100
 	var curProfitSign rune
 	if curProfit >= 0 {
@@ -33,17 +47,6 @@ func NewPageData(pr *PositionResponse) *PageData {
 }
 
 func (p *PageData) Render(w http.ResponseWriter, r *http.Request) error {
-	// TODO r не используется
-	// TODO вынести web
-	tmplPath := "api/template.html"
-	tmpl, err := template.ParseFiles(filepath.FromSlash(tmplPath))
-	if err != nil {
-		return err
-	}
-
 	// TODO почему-то в w пишется ещё инфа всякая в конце (os.Stdout чтобы проверить)
-	if err = tmpl.Execute(w, &p); err != nil {
-		return err
-	}
-	return nil
+	return pageTmpl.Execute(w, &p)
 }

@@ -4,6 +4,8 @@ import (
 	"changemedaddy/db"
 	"changemedaddy/invest"
 	"changemedaddy/market"
+	"changemedaddy/view"
+	"changemedaddy/web"
 	"context"
 	"errors"
 	"github.com/go-chi/chi/v5"
@@ -48,13 +50,13 @@ func (api API) handleGetPosition(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if err = render.Render(w, r, NewPageData(NewPositionResponse(id, &pos, curPrice))); err != nil {
+	if err = render.Render(w, r, web.NewPageData(view.NewPositionResponse(id, &pos, curPrice))); err != nil {
 		render.Render(w, r, ErrRender(err))
 	}
 }
 
 func (api API) handlePostPosition(w http.ResponseWriter, r *http.Request) {
-	var pr PositionRequest
+	var pr view.PositionRequest
 	if err := render.Bind(r, &pr); err != nil {
 		render.Render(w, r, ErrInvalidRequest(err))
 		return
@@ -76,7 +78,7 @@ func (api API) handlePostPosition(w http.ResponseWriter, r *http.Request) {
 		render.Render(w, r, ErrInternal(err))
 	}
 
-	if err := render.Render(w, r, NewPositionResponse(id, &pos, curPrice)); err != nil {
+	if err := render.Render(w, r, view.NewPositionResponse(id, &pos, curPrice)); err != nil {
 		render.Render(w, r, ErrRender(err))
 	}
 }
