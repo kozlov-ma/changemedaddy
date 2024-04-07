@@ -62,7 +62,7 @@ type PositionRequest struct {
 func (p *PositionRequest) Bind(r *http.Request) error {
 	p.Ticker = strings.ToUpper(p.Ticker)
 
-	if err := validate.Struct(p); err != nil {
+	if err := Validate.Struct(p); err != nil {
 		return err
 	}
 

@@ -19,7 +19,7 @@ func Run(market core.MarketProvider, db core.DB, log *slog.Logger) {
 
 	r := chi.NewRouter()
 	r.Mount("/api", api.NewRouter())
-	r.Mount("/web", web.NewRouter())
+	r.Mount("/", web.NewRouter())
 
 	http.ListenAndServe(":80", r)
 }

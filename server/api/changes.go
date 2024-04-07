@@ -25,7 +25,7 @@ func handleChange[T invest.PositionChange](api API) http.HandlerFunc {
 			return
 		}
 
-		if err = validate.Struct(change); err != nil {
+		if err = core.Validate.Struct(change); err != nil {
 			render.Render(w, r, core.ErrInvalidRequest(err))
 			return
 		}

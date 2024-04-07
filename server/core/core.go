@@ -7,7 +7,7 @@ import (
 )
 
 var (
-	validate = validator.New(validator.WithRequiredStructEnabled())
+	Validate = validator.New(validator.WithRequiredStructEnabled())
 )
 
 type MarketProvider interface {
