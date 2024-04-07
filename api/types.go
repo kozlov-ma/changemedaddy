@@ -27,7 +27,7 @@ type PositionResponse struct {
 	Log            []ChangeResponse
 }
 
-func (api API) NewPositionResponse(id int64, pos *invest.Position, curPrice float64) *PositionResponse {
+func NewPositionResponse(id int64, pos *invest.Position, curPrice float64) *PositionResponse {
 	log := make([]ChangeResponse, len(pos.Log))
 	for i, l := range pos.Log {
 		log[i] = NewChangeResponse(l)
