@@ -1,7 +1,7 @@
 package web
 
 import (
-	"changemedaddy/view"
+	"changemedaddy/server/core"
 	_ "embed"
 	"html/template"
 	"math"
@@ -9,25 +9,28 @@ import (
 
 //go:embed page.html
 var page string
-var PageTmpl = pageTemplate()
+var PageTmpl = getTemplate("page", page)
 
-func pageTemplate() *template.Template {
-	tmpl, err := template.New("tmpl").Parse(page)
+//go:embed error.html
+var errorPage string
+var ErrorTmpl = getTemplate("err", errorPage)
+
+func getTemplate(name string, content string) *template.Template {
+	tmpl, err := template.New(name).Parse(content)
 	if err != nil {
 		panic(err)
 	}
-
 	return tmpl
 }
 
 type PageData struct {
-	PositionResponse *view.PositionResponse
+	PositionResponse *core.PositionResponse
 	CurProfitSign    rune
 	CurProfitValue   float64
 	AllProfit        float64
 }
 
-func NewPageData(pr *view.PositionResponse) PageData {
+func NewPageData(pr *core.PositionResponse) PageData {
 	curProfit := math.Round((pr.CurPrice-pr.StartPrice)/pr.StartPrice*10000) / 100
 	var curProfitSign rune
 	if curProfit >= 0 {

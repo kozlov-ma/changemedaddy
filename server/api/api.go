@@ -2,6 +2,7 @@ package api
 
 import (
 	"changemedaddy/invest"
+	"changemedaddy/server/core"
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/chi/v5/middleware"
 	"github.com/go-chi/render"
@@ -15,19 +16,13 @@ var (
 	validate = validator.New(validator.WithRequiredStructEnabled())
 )
 
-type DB interface {
-	PositionProvider
-	PositionAdder
-	PositionPutter
-}
-
 type API struct {
-	db     DB
-	market MarketProvider
+	db     core.DB
+	market core.MarketProvider
 	log    *slog.Logger
 }
 
-func New(db DB, market MarketProvider, log *slog.Logger) *API {
+func New(db core.DB, market core.MarketProvider, log *slog.Logger) *API {
 	log = log.With("package", "api")
 	return &API{db: db, market: market, log: log}
 }
@@ -45,20 +40,13 @@ func (api API) NewRouter() chi.Router {
 	r.Use(middleware.Timeout(4 * time.Second))
 	r.Use(middleware.Heartbeat("ping"))
 
-	//api
-	r.Route("/api", func(r chi.Router) {
-		r.Use(render.SetContentType(render.ContentTypeJSON))
-		r.Get("/position/{id}", api.handleGetPosition)
-		r.Post("/position", api.handlePostPosition)
-		r.Patch("/position/{id}/target", handleChange[invest.TargetPriceChange](api))
-		r.Patch("/position/{id}/amount", handleChange[invest.AmountChange](api))
-		r.Patch("/position/{id}/deadline", handleChange[invest.DeadlineChange](api))
-	})
-
-	//web
 	r.Route("/position", func(r chi.Router) {
-		r.Use(render.SetContentType(render.ContentTypeHTML))
-		r.Get("/{id}", api.handleGetPage)
+		r.Use(render.SetContentType(render.ContentTypeJSON))
+		r.Get("/{id}", api.handleGetPosition)
+		r.Post("/", api.handlePostPosition)
+		r.Patch("/{id}/target", handleChange[invest.TargetPriceChange](api))
+		r.Patch("/{id}/amount", handleChange[invest.AmountChange](api))
+		r.Patch("/{id}/deadline", handleChange[invest.DeadlineChange](api))
 	})
 
 	return r

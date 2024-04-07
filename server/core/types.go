@@ -1,15 +1,10 @@
-package view
+package core
 
 import (
 	"changemedaddy/invest"
-	"github.com/go-playground/validator/v10"
 	"net/http"
 	"strings"
 	"time"
-)
-
-var (
-	validate = validator.New(validator.WithRequiredStructEnabled())
 )
 
 type PositionResponse struct {
