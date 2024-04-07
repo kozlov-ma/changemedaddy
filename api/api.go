@@ -45,6 +45,7 @@ func (api API) NewRouter() chi.Router {
 	r.Use(middleware.Timeout(4 * time.Second))
 	r.Use(middleware.Heartbeat("ping"))
 
+	//api
 	r.Route("/api", func(r chi.Router) {
 		r.Use(render.SetContentType(render.ContentTypeJSON))
 		r.Get("/position/{id}", api.handleGetPosition)
@@ -54,9 +55,10 @@ func (api API) NewRouter() chi.Router {
 		r.Patch("/position/{id}/deadline", handleChange[invest.DeadlineChange](api))
 	})
 
+	//web
 	r.Route("/position", func(r chi.Router) {
 		r.Use(render.SetContentType(render.ContentTypeHTML))
-		r.Get("/{id}", api.handleGetPosition)
+		r.Get("/{id}", api.handleGetPage)
 	})
 
 	return r

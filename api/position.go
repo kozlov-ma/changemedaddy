@@ -5,7 +5,6 @@ import (
 	"changemedaddy/invest"
 	"changemedaddy/market"
 	"changemedaddy/view"
-	"changemedaddy/web"
 	"context"
 	"errors"
 	"github.com/go-chi/chi/v5"
@@ -50,7 +49,7 @@ func (api API) handleGetPosition(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if err = render.Render(w, r, web.NewPageData(view.NewPositionResponse(id, &pos, curPrice))); err != nil {
+	if err := render.Render(w, r, view.NewPositionResponse(id, &pos, curPrice)); err != nil {
 		render.Render(w, r, ErrRender(err))
 	}
 }

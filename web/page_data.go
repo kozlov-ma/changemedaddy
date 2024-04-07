@@ -5,12 +5,11 @@ import (
 	_ "embed"
 	"html/template"
 	"math"
-	"net/http"
 )
 
 //go:embed page.html
 var page string
-var pageTmpl = pageTemplate()
+var PageTmpl = pageTemplate()
 
 func pageTemplate() *template.Template {
 	tmpl, err := template.New("tmpl").Parse(page)
@@ -28,7 +27,7 @@ type PageData struct {
 	AllProfit        float64
 }
 
-func NewPageData(pr *view.PositionResponse) *PageData {
+func NewPageData(pr *view.PositionResponse) PageData {
 	curProfit := math.Round((pr.CurPrice-pr.StartPrice)/pr.StartPrice*10000) / 100
 	var curProfitSign rune
 	if curProfit >= 0 {
@@ -43,10 +42,5 @@ func NewPageData(pr *view.PositionResponse) *PageData {
 		CurProfitValue:   math.Abs(curProfit),
 		AllProfit:        curProfit + pr.FixedProfitP,
 	}
-	return &p
-}
-
-func (p *PageData) Render(w http.ResponseWriter, r *http.Request) error {
-	// TODO почему-то в w пишется ещё инфа всякая в конце (os.Stdout чтобы проверить)
-	return pageTmpl.Execute(w, &p)
+	return p
 }
