@@ -1,15 +1,10 @@
-package api
+package core
 
 import (
 	"changemedaddy/invest"
-	"github.com/go-playground/validator/v10"
 	"net/http"
 	"strings"
 	"time"
-)
-
-var (
-	validate = validator.New(validator.WithRequiredStructEnabled())
 )
 
 type PositionResponse struct {
@@ -27,7 +22,7 @@ type PositionResponse struct {
 	Log            []ChangeResponse
 }
 
-func (api API) NewPositionResponse(id int64, pos *invest.Position, curPrice float64) *PositionResponse {
+func NewPositionResponse(id int64, pos *invest.Position, curPrice float64) *PositionResponse {
 	log := make([]ChangeResponse, len(pos.Log))
 	for i, l := range pos.Log {
 		log[i] = NewChangeResponse(l)
@@ -67,7 +62,7 @@ type PositionRequest struct {
 func (p *PositionRequest) Bind(r *http.Request) error {
 	p.Ticker = strings.ToUpper(p.Ticker)
 
-	if err := validate.Struct(p); err != nil {
+	if err := Validate.Struct(p); err != nil {
 		return err
 	}
 

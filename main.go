@@ -1,12 +1,11 @@
 package main
 
 import (
-	"changemedaddy/api"
 	"changemedaddy/db/inmem"
 	"changemedaddy/market/fake"
+	"changemedaddy/server"
 	"github.com/charmbracelet/log"
 	"log/slog"
-	"net/http"
 	"os"
 )
 
@@ -17,8 +16,6 @@ func main() {
 	log := slog.New(handler)
 
 	market := fake.NewMarket()
-	api := api.New(db, market, log)
 
-	log.Info("serving http")
-	http.ListenAndServe(":80", api.NewRouter())
+	server.Run(market, db, log)
 }
