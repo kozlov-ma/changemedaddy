@@ -7,6 +7,7 @@ import (
 	"github.com/go-chi/render"
 	slogchi "github.com/samber/slog-chi"
 	"log/slog"
+	"net/http"
 	"time"
 )
 
@@ -14,14 +15,14 @@ type Web struct {
 	db     core.DB
 	market core.MarketProvider
 	log    *slog.Logger
+
+	router chi.Router
 }
 
 func New(db core.DB, market core.MarketProvider, log *slog.Logger) *Web {
 	log = log.With("package", "api")
-	return &Web{db: db, market: market, log: log}
-}
+	web := &Web{db: db, market: market, log: log}
 
-func (web Web) NewRouter() chi.Router {
 	r := chi.NewRouter()
 
 	logConfig := slogchi.Config{
@@ -39,5 +40,15 @@ func (web Web) NewRouter() chi.Router {
 		r.Get("/{id}", web.handleGetPage)
 	})
 
-	return r
+	web.router = r
+
+	return web
+}
+
+func (web *Web) ServeHTTP(w http.ResponseWriter, r *http.Request) {
+	web.router.ServeHTTP(w, r)
+}
+
+func (web *Web) Pattern() string {
+	return "/"
 }

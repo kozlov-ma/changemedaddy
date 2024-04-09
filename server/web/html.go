@@ -9,7 +9,7 @@ import (
 	"strconv"
 )
 
-func (web Web) handleGetPage(w http.ResponseWriter, r *http.Request) {
+func (web *Web) handleGetPage(w http.ResponseWriter, r *http.Request) {
 	id, err := strconv.ParseInt(chi.URLParam(r, "id"), 10, 64)
 	if err != nil {
 		ErrorTmpl.Execute(w, core.ErrInvalidRequest(err))
