@@ -1,14 +1,16 @@
 package web
 
 import (
-	"changemedaddy/server/core"
+	"log/slog"
+	"net/http"
+	"time"
+
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/chi/v5/middleware"
 	"github.com/go-chi/render"
 	slogchi "github.com/samber/slog-chi"
-	"log/slog"
-	"net/http"
-	"time"
+
+	"changemedaddy/server/core"
 )
 
 type Web struct {

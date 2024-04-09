@@ -1,10 +1,11 @@
 package web
 
 import (
-	"changemedaddy/server/core"
 	_ "embed"
 	"html/template"
 	"math"
+
+	"changemedaddy/server/core"
 )
 
 //go:embed page.html

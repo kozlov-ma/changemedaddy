@@ -1,12 +1,14 @@
 package web
 
 import (
-	"changemedaddy/db"
-	"changemedaddy/server/core"
 	"errors"
-	"github.com/go-chi/chi/v5"
 	"net/http"
 	"strconv"
+
+	"github.com/go-chi/chi/v5"
+
+	"changemedaddy/db"
+	"changemedaddy/server/core"
 )
 
 func (web *Web) handleGetPage(w http.ResponseWriter, r *http.Request) {

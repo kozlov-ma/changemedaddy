@@ -2,10 +2,11 @@ package invest
 
 import (
 	"errors"
-	"github.com/go-playground/validator/v10"
 	"math"
 	"testing"
 	"time"
+
+	"github.com/go-playground/validator/v10"
 )
 
 func yndxTest() Position {

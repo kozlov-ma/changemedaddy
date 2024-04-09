@@ -1,11 +1,12 @@
 package inmem
 
 import (
-	"changemedaddy/invest"
 	"context"
 	"reflect"
 	"testing"
 	"time"
+
+	"changemedaddy/invest"
 )
 
 func yndxTest() invest.Position {

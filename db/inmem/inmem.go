@@ -1,10 +1,11 @@
 package inmem
 
 import (
-	"changemedaddy/db"
-	"changemedaddy/invest"
 	"context"
 	"sync"
+
+	"changemedaddy/db"
+	"changemedaddy/invest"
 )
 
 type DB struct {

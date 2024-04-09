@@ -1,10 +1,11 @@
 package core
 
 import (
-	"changemedaddy/invest"
 	"net/http"
 	"strings"
 	"time"
+
+	"changemedaddy/invest"
 )
 
 type PositionResponse struct {

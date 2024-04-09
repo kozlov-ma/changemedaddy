@@ -1,10 +1,11 @@
 package fake
 
 import (
-	"changemedaddy/invest"
-	"changemedaddy/market"
 	"context"
 	"math/rand"
+
+	"changemedaddy/invest"
+	"changemedaddy/market"
 )
 
 type instrument struct {

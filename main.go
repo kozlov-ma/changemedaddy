@@ -1,17 +1,19 @@
 package main
 
 import (
+	"log/slog"
+	"os"
+
+	charmlog "github.com/charmbracelet/log"
+	"go.uber.org/fx"
+	"go.uber.org/fx/fxevent"
+
 	"changemedaddy/db/inmem"
 	"changemedaddy/market/fake"
 	"changemedaddy/server"
 	"changemedaddy/server/api"
 	"changemedaddy/server/core"
 	"changemedaddy/server/web"
-	charmlog "github.com/charmbracelet/log"
-	"go.uber.org/fx"
-	"go.uber.org/fx/fxevent"
-	"log/slog"
-	"os"
 )
 
 func appLogger() *slog.Logger {

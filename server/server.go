@@ -2,12 +2,13 @@ package server
 
 import (
 	"context"
-	"github.com/charmbracelet/log"
-	"github.com/go-chi/chi/v5"
-	"go.uber.org/fx"
 	"log/slog"
 	"net"
 	"net/http"
+
+	"github.com/charmbracelet/log"
+	"github.com/go-chi/chi/v5"
+	"go.uber.org/fx"
 )
 
 type Router interface {

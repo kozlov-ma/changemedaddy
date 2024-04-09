@@ -1,9 +1,11 @@
 package core
 
 import (
-	"changemedaddy/invest"
 	"context"
+
 	"github.com/go-playground/validator/v10"
+
+	"changemedaddy/invest"
 )
 
 var (
