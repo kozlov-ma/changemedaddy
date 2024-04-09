@@ -11,7 +11,7 @@ import (
 	"strconv"
 )
 
-func (api API) handleGetPosition(w http.ResponseWriter, r *http.Request) {
+func (api *API) handleGetPosition(w http.ResponseWriter, r *http.Request) {
 	id, err := strconv.ParseInt(chi.URLParam(r, "id"), 10, 64)
 	if err != nil {
 		render.Render(w, r, core.ErrInvalidRequest(err))
@@ -38,7 +38,7 @@ func (api API) handleGetPosition(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-func (api API) handlePostPosition(w http.ResponseWriter, r *http.Request) {
+func (api *API) handlePostPosition(w http.ResponseWriter, r *http.Request) {
 	var pr core.PositionRequest
 	if err := render.Bind(r, &pr); err != nil {
 		render.Render(w, r, core.ErrInvalidRequest(err))

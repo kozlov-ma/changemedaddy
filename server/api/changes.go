@@ -11,7 +11,7 @@ import (
 	"strconv"
 )
 
-func handleChange[T invest.PositionChange](api API) http.HandlerFunc {
+func handleChange[T invest.PositionChange](api *API) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		id, err := strconv.ParseInt(chi.URLParam(r, "id"), 10, 64)
 		if err != nil {

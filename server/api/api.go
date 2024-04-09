@@ -8,6 +8,7 @@ import (
 	"github.com/go-chi/render"
 	slogchi "github.com/samber/slog-chi"
 	"log/slog"
+	"net/http"
 	"time"
 )
 
@@ -15,19 +16,27 @@ type API struct {
 	db     core.DB
 	market core.MarketProvider
 	log    *slog.Logger
+
+	router chi.Router
+}
+
+func (api *API) ServeHTTP(w http.ResponseWriter, r *http.Request) {
+	api.router.ServeHTTP(w, r)
+}
+
+func (api *API) Pattern() string {
+	return "/api"
 }
 
 func New(db core.DB, market core.MarketProvider, log *slog.Logger) *API {
-	log = log.With("package", "api")
-	return &API{db: db, market: market, log: log}
-}
-
-func (api API) NewRouter() chi.Router {
+	log = log.With("router", "api")
 	r := chi.NewRouter()
 
 	logConfig := slogchi.Config{
 		WithRequestID: true,
 	}
+
+	api := &API{db: db, market: market, log: log}
 
 	r.Use(middleware.RequestID)
 	r.Use(middleware.RealIP)
@@ -44,5 +53,7 @@ func (api API) NewRouter() chi.Router {
 		r.Patch("/{id}/deadline", handleChange[invest.DeadlineChange](api))
 	})
 
-	return r
+	api.router = r
+
+	return api
 }
