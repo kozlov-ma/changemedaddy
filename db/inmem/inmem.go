@@ -4,13 +4,10 @@ import (
 	"changemedaddy/db"
 	"changemedaddy/invest"
 	"context"
-	"github.com/go-playground/validator/v10"
 	"sync"
 )
 
 type DB struct {
-	validate validator.Validate
-
 	posLock   sync.RWMutex
 	posCtr    int64
 	positions map[int64]invest.Position

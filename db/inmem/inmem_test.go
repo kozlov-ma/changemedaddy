@@ -128,7 +128,7 @@ func TestDB_UpdatePosition(t *testing.T) {
 		t.Fatal("couldn't update a position", err)
 	}
 
-	pos, err := db.GetPosition(context.TODO(), id)
+	pos, _ := db.GetPosition(context.TODO(), id)
 	if reflect.DeepEqual(pos, old) {
 		t.Error("want updated position different from old, got same", old, pos)
 	}

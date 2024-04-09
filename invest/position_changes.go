@@ -123,7 +123,7 @@ func (d DeadlineChange) Check(p Position) error {
 		return err
 	}
 
-	if time.Now().Sub(d.NewDeadline).Hours() >= 24 {
+	if time.Since(d.NewDeadline).Hours() >= 24 {
 		return InvalidDeadline
 	}
 

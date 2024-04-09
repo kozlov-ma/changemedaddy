@@ -26,7 +26,6 @@ func NewServerMux(routes []Router) *chi.Mux {
 }
 
 func New(mux *chi.Mux, log *slog.Logger) *http.Server {
-	log = log.With("module", "server")
 	srv := &http.Server{Addr: ":80", Handler: mux}
 	return srv
 }
