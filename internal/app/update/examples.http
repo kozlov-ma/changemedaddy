@@ -1,0 +1,45 @@
+### 1
+POST localhost/api/v1/position
+
+{
+  "name": "Магнит темка жоская ребят!!!!",
+  "createdById": "MK",
+  "ticker": "MGNT",
+  "type": "long",
+  "targetPrice": 8000.000,
+  "lots": [
+   {
+    "amount": 300,
+    "price": 7741.0
+    }
+  ],
+  "Deadline": "2024 May 30"
+}
+
+### 2
+POST localhost/api/v1/updates/MK-magnit-temka-zhoskaia-rebiat
+
+{
+"type": "transaction",
+"delta": -100,
+"price": 8000
+}
+
+### 3
+POST localhost/api/v1/updates/MK-magnit-temka-zhoskaia-rebiat
+
+{
+"type": "deadline",
+"newDeadline": "2024 May 31"
+}
+
+### 4
+POST localhost/api/v1/updates/MK-magnit-temka-zhoskaia-rebiat
+
+{
+"type": "target",
+"targetPrice": 11000
+}
+
+### 3
+GET localhost/api/v1/position/MK-magnit-temka-zhoskaia-rebiat

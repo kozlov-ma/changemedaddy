@@ -1,17 +1,18 @@
 package core
 
 import (
-	"changemedaddy/invest"
 	"net/http"
 	"strings"
 	"time"
+
+	invest2 "changemedaddy/internal/pkg/invest"
 )
 
 type PositionResponse struct {
 	ID             int64
 	Ticker         string
-	Kind           invest.PositionKind
-	InstrumentType invest.InstrumentType
+	Kind           invest2.PositionKind
+	InstrumentType invest2.InstrumentType
 	RelAmount      int
 	CurPrice       float64
 	StartPrice     float64
@@ -22,7 +23,7 @@ type PositionResponse struct {
 	Log            []ChangeResponse
 }
 
-func NewPositionResponse(id int64, pos *invest.Position, curPrice float64) *PositionResponse {
+func NewPositionResponse(id int64, pos *invest2.Position, curPrice float64) *PositionResponse {
 	log := make([]ChangeResponse, len(pos.Log))
 	for i, l := range pos.Log {
 		log[i] = NewChangeResponse(l)
@@ -49,9 +50,9 @@ func (pr *PositionResponse) Render(w http.ResponseWriter, r *http.Request) error
 }
 
 type PositionRequest struct {
-	Ticker         string                `validate:"required,min=1,max=12"`
-	Kind           invest.PositionKind   `validate:"required,oneof=1 2"`
-	InstrumentType invest.InstrumentType `validate:"required,oneof=1 2"`
+	Ticker         string                 `validate:"required,min=1,max=12"`
+	Kind           invest2.PositionKind   `validate:"required,oneof=1 2"`
+	InstrumentType invest2.InstrumentType `validate:"required,oneof=1 2"`
 	RelAmount      int
 	StartPrice     float64   `validate:"required,gt=0"`
 	TargetPrice    float64   `validate:"required,gt=0"`
@@ -69,8 +70,8 @@ func (p *PositionRequest) Bind(r *http.Request) error {
 	return nil
 }
 
-func (p *PositionRequest) ToPosition() invest.Position {
-	return invest.Position{
+func (p *PositionRequest) ToPosition() invest2.Position {
+	return invest2.Position{
 		Ticker:         p.Ticker,
 		Kind:           p.Kind,
 		InstrumentType: p.InstrumentType,
@@ -86,10 +87,10 @@ func (p *PositionRequest) ToPosition() invest.Position {
 
 type ChangeResponse struct {
 	Type   string
-	Change invest.PositionChange
+	Change invest2.PositionChange
 }
 
-func NewChangeResponse(change invest.PositionChange) ChangeResponse {
+func NewChangeResponse(change invest2.PositionChange) ChangeResponse {
 	return ChangeResponse{
 		Type:   change.Type(),
 		Change: change,

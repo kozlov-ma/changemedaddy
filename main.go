@@ -1,21 +1,35 @@
 package main
 
 import (
-	"changemedaddy/db/inmem"
-	"changemedaddy/market/fake"
-	"changemedaddy/server"
-	"github.com/charmbracelet/log"
 	"log/slog"
+	"net/http"
 	"os"
+
+	charmlog "github.com/charmbracelet/log"
+	"github.com/go-chi/chi/v5"
+
+	"changemedaddy/internal/app/position"
+	posinmem "changemedaddy/internal/app/position/db/inmem"
+	"changemedaddy/internal/app/update"
+	updinmem "changemedaddy/internal/app/update/db/inmem"
 )
 
 func main() {
-	db := inmem.New()
-
-	handler := log.New(os.Stderr)
+	handler := charmlog.New(os.Stderr)
 	log := slog.New(handler)
 
-	market := fake.NewMarket()
+	posRepo := posinmem.NewRepository()
+	posSvc := position.NewService(log, posRepo)
+	posHandler := position.NewHandler(posSvc, log)
 
-	server.Run(market, db, log)
+	updRepo := updinmem.NewRepository()
+	updSvc := update.NewService(log, updRepo, posSvc)
+	updHandler := update.NewHandler(updSvc, posSvc, log)
+
+	r := chi.NewRouter()
+
+	r.Mount("/api/v1/position", posHandler.Router())
+	r.Mount("/api/v1/updates", updHandler.Router())
+
+	http.ListenAndServe(":80", r)
 }

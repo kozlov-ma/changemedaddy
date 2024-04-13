@@ -1,14 +1,16 @@
 package api
 
 import (
-	"changemedaddy/db"
-	"changemedaddy/market"
-	"changemedaddy/server/core"
 	"errors"
-	"github.com/go-chi/chi/v5"
-	"github.com/go-chi/render"
 	"net/http"
 	"strconv"
+
+	"github.com/go-chi/chi/v5"
+	"github.com/go-chi/render"
+
+	"changemedaddy/db"
+	"changemedaddy/internal/app/market"
+	"changemedaddy/server/core"
 )
 
 func (api API) handleGetPosition(w http.ResponseWriter, r *http.Request) {

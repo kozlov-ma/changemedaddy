@@ -2,7 +2,8 @@ package mock
 
 import (
 	"changemedaddy/db"
-	"changemedaddy/invest"
+	"changemedaddy/internal/pkg/invest"
+
 	"math/rand/v2"
 )
 

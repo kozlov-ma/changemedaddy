@@ -1,11 +1,13 @@
 package inmem
 
 import (
-	"changemedaddy/db"
-	"changemedaddy/invest"
 	"context"
-	"github.com/go-playground/validator/v10"
 	"sync"
+
+	"changemedaddy/db"
+	"changemedaddy/internal/pkg/invest"
+
+	"github.com/go-playground/validator/v10"
 )
 
 type DB struct {
