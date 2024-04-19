@@ -3,7 +3,7 @@ POST localhost/api/v1/position
 
 {
   "name": "Магнит темка жоская ребят!!!!",
-  "createdById": "MK",
+  "createdBy": "MK",
   "ticker": "MGNT",
   "type": "long",
   "targetPrice": 11000.000,
@@ -18,4 +18,4 @@ POST localhost/api/v1/position
 
 
 ### 2
-GET localhost/api/v1/position/MK-magnit-temka-zhoskaia-rebiat
+GET localhost/api/v1/position/MK/magnit-temka-zhoskaia-rebiat

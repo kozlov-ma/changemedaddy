@@ -1,6 +1,7 @@
 package inmem
 
 import (
+	"changemedaddy/internal/app/position"
 	"context"
 	"sync"
 	"sync/atomic"
@@ -13,7 +14,7 @@ type Repository struct {
 	m   sync.Map
 }
 
-func (r *Repository) FindByPositionID(ctx context.Context, id string) ([]*update.Update, error) {
+func (r *Repository) FindByPositionID(ctx context.Context, id int64) ([]*update.Update, error) {
 	updates, _ := r.m.Load(id)
 	if updates == nil {
 		return nil, nil
@@ -29,12 +30,12 @@ func (r *Repository) FindByPositionID(ctx context.Context, id string) ([]*update
 	return cpy, nil
 }
 
-func (r *Repository) Create(ctx context.Context, u *update.Update) (*update.Update, error) {
+func (r *Repository) Create(ctx context.Context, pos *position.Position, u *update.Update) (*update.Update, error) {
 	copied := *u
 	cpy := &copied
 
 	cpy.ID = r.ctr.Add(1)
-	r.m.Store(cpy.ID, cpy)
+	r.m.Store(pos.ID, cpy)
 
 	return cpy, nil
 }

@@ -10,8 +10,8 @@ import (
 )
 
 type Repository interface {
-	Create(ctx context.Context, u *Update) (*Update, error)
-	FindByPositionID(ctx context.Context, positionID string) ([]*Update, error)
+	Create(ctx context.Context, pos *position.Position, u *Update) (*Update, error)
+	FindByPositionID(ctx context.Context, id int64) ([]*Update, error)
 }
 
 type Service struct {
@@ -30,7 +30,7 @@ func NewService(log *slog.Logger, repo Repository, positions *position.Service) 
 
 func (s *Service) UpdatePosition(ctx context.Context, pos *position.Position, u *Update) (*position.Position, error) {
 	// TODO это всё нужно сделать в рамках одной транзакции. Понадобится поменять интерфейсы
-	u, err := s.repo.Create(ctx, u)
+	u, err := s.repo.Create(ctx, pos, u)
 	if err != nil {
 		s.log.Error("repository error", "error", err)
 	}
@@ -51,6 +51,6 @@ func (s *Service) FindByPosition(ctx context.Context, pos *position.Position) ([
 	return s.repo.FindByPositionID(ctx, pos.ID)
 }
 
-func (s *Service) Create(ctx context.Context, u *Update) (*Update, error) {
-	return s.repo.Create(ctx, u)
+func (s *Service) Create(ctx context.Context, pos *position.Position, u *Update) (*Update, error) {
+	return s.repo.Create(ctx, pos, u)
 }

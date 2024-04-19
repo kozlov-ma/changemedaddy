@@ -25,9 +25,9 @@ type (
 	// describes what was bought, how many, when, and what changes were made since then.
 	Position struct {
 		// ID is a unique identifier for the Position. Must be assigned by a Repository.
-		ID string
+		ID int64
 		// Who this Position belongs to.
-		CreatedByID string `json:"createdByID"`
+		CreatedBy string `json:"createdBy"`
 		// A Slug is a unique (within one creator) identifier for the Position.
 		Slug string `json:"slug"`
 		// A Ticker is a string code for the security (only shares(stocks) are supported!), like YNDX, GAZP.

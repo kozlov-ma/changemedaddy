@@ -19,7 +19,7 @@ import (
 )
 
 type service interface {
-	FindByID(ctx context.Context, id string) (*Position, error)
+	Find(ctx context.Context, analystSlug string, positionSlug string) (*Position, error)
 	Create(ctx context.Context, p *Position) (*Position, error)
 	Update(ctx context.Context, p *Position) (*Position, error)
 }
@@ -45,14 +45,14 @@ func (h *Handler) Router() chi.Router {
 	r.Use(render.SetContentType(render.ContentTypeJSON))
 
 	r.Route("/", func(r chi.Router) {
-		r.With(h.positionCtx).Get("/{positionID}", h.FindByID)
+		r.With(h.positionCtx).Get("/{analystSlug}/{positionSlug}", h.Find)
 		r.Post("/", h.Create)
 	})
 
 	return r
 }
 
-func (h *Handler) FindByID(w http.ResponseWriter, r *http.Request) {
+func (h *Handler) Find(w http.ResponseWriter, r *http.Request) {
 	position := r.Context().Value(positionCtxKey).(*Position)
 
 	if err := render.Render(w, r, position); err != nil {
@@ -62,7 +62,7 @@ func (h *Handler) FindByID(w http.ResponseWriter, r *http.Request) {
 }
 
 type positionCreateRequest struct {
-	CreatedByID    string          `json:"createdById"`
+	CreatedBy      string          `json:"createdBy"`
 	Name           string          `json:"name"`
 	Ticker         string          `json:"ticker"`
 	Type           Type            `json:"type"`
@@ -77,8 +77,8 @@ func (p *positionCreateRequest) Bind(r *http.Request) error {
 		return errors.New("wrong request body")
 	}
 
-	if p.CreatedByID == "" {
-		return errors.New("missing required field createdById")
+	if p.CreatedBy == "" {
+		return errors.New("missing required field createdBy")
 	}
 
 	if p.Name == "" {
@@ -112,7 +112,7 @@ func (p *positionCreateRequest) Bind(r *http.Request) error {
 
 func (p *positionCreateRequest) Position() *Position {
 	position := &Position{
-		CreatedByID: p.CreatedByID,
+		CreatedBy:   p.CreatedBy,
 		Slug:        slug.Make(p.Name),
 		Ticker:      p.Ticker,
 		Type:        p.Type,
@@ -157,8 +157,10 @@ func (h *Handler) positionCtx(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		var position *Position
 
-		if positionID := chi.URLParam(r, "positionID"); positionID != "" {
-			pos, err := h.srv.FindByID(r.Context(), positionID)
+		analystSlug := chi.URLParam(r, "analystSlug")
+		positionSlug := chi.URLParam(r, "positionSlug")
+		if analystSlug != "" && positionSlug != "" {
+			pos, err := h.srv.Find(r.Context(), analystSlug, positionSlug)
 			if err != nil {
 				render.Render(w, r, api.ErrService(err))
 				return

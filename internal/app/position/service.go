@@ -7,9 +7,9 @@ import (
 
 type (
 	Repository interface {
-		// FindByID returns a position by its ID. Note that every time a different
+		// Find returns a position. Note that every time a different
 		// copy of a Position is loaded. Returns nil if the position is not found.
-		FindByID(ctx context.Context, id string) (*Position, error)
+		Find(ctx context.Context, analystSlug string, positionSlug string) (*Position, error)
 
 		// Create creates a position in the repository, and assigns it a new ID.
 		// Returns a pointer to the new position with.
@@ -33,9 +33,9 @@ func NewService(log *slog.Logger, repo Repository) *Service {
 	}
 }
 
-// FindByID returns a position by its ID. Returns nil if the position is not found.
-func (s *Service) FindByID(ctx context.Context, id string) (*Position, error) {
-	p, err := s.repo.FindByID(ctx, id)
+// Find returns a position by its ID. Returns nil if the position is not found.
+func (s *Service) Find(ctx context.Context, analystSlug string, positionSlug string) (*Position, error) {
+	p, err := s.repo.Find(ctx, analystSlug, positionSlug)
 	if err != nil {
 		s.log.Error("repository error", "error", err)
 	}

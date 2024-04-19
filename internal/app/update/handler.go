@@ -18,13 +18,13 @@ import (
 )
 
 type service interface {
-	Create(ctx context.Context, u *Update) (*Update, error)
+	Create(ctx context.Context, pos *position.Position, u *Update) (*Update, error)
 	FindByPosition(ctx context.Context, pos *position.Position) ([]*Update, error)
 	UpdatePosition(ctx context.Context, pos *position.Position, u *Update) (*position.Position, error)
 }
 
 type positionService interface {
-	FindByID(ctx context.Context, id string) (*position.Position, error)
+	Find(ctx context.Context, analystSlug string, positionSlug string) (*position.Position, error)
 }
 
 type Handler struct {
@@ -50,9 +50,9 @@ func (h *Handler) Router() chi.Router {
 	r.Use(render.SetContentType(render.ContentTypeJSON))
 	r.Use(h.positionCtx)
 
-	r.Route("/{positionID}", func(r chi.Router) {
-		r.With(h.positionCtx).Get("/", h.List)
-		r.With(h.positionCtx).Post("/", h.Create)
+	r.Route("/", func(r chi.Router) {
+		r.With(h.positionCtx).Get("/{analystSlug}/{positionSlug}", h.List)
+		r.With(h.positionCtx).Post("/{analystSlug}/{positionSlug}", h.Create)
 	})
 
 	return r
@@ -164,8 +164,10 @@ func (h *Handler) positionCtx(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		var pos *position.Position
 
-		if positionID := chi.URLParam(r, "positionID"); positionID != "" {
-			p, err := h.posSrv.FindByID(r.Context(), positionID)
+		analystSlug := chi.URLParam(r, "analystSlug")
+		positionSlug := chi.URLParam(r, "positionSlug")
+		if analystSlug != "" && positionSlug != "" {
+			p, err := h.posSrv.Find(r.Context(), analystSlug, positionSlug)
 			if err != nil {
 				render.Render(w, r, api.ErrService(err))
 				return

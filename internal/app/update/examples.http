@@ -3,7 +3,7 @@ POST localhost/api/v1/position
 
 {
   "name": "Магнит темка жоская ребят!!!!",
-  "createdById": "MK",
+  "createdBy": "MK",
   "ticker": "MGNT",
   "type": "long",
   "targetPrice": 8000.000,
@@ -17,7 +17,7 @@ POST localhost/api/v1/position
 }
 
 ### 2
-POST localhost/api/v1/updates/MK-magnit-temka-zhoskaia-rebiat
+POST localhost/api/v1/updates/MK/magnit-temka-zhoskaia-rebiat
 
 {
 "type": "transaction",
@@ -26,7 +26,7 @@ POST localhost/api/v1/updates/MK-magnit-temka-zhoskaia-rebiat
 }
 
 ### 3
-POST localhost/api/v1/updates/MK-magnit-temka-zhoskaia-rebiat
+POST localhost/api/v1/updates/MK/magnit-temka-zhoskaia-rebiat
 
 {
 "type": "deadline",

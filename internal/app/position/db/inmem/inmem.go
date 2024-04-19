@@ -4,16 +4,18 @@ import (
 	"context"
 	"slices"
 	"sync"
+	"sync/atomic"
 
 	"changemedaddy/internal/app/position"
 )
 
 type Repository struct {
-	m sync.Map
+	ctr atomic.Int64
+	m   sync.Map
 }
 
-func (r *Repository) FindByID(ctx context.Context, id string) (*position.Position, error) {
-	p, _ := r.m.Load(id)
+func (r *Repository) Find(ctx context.Context, analystSlug string, positionSlug string) (*position.Position, error) {
+	p, _ := r.m.Load(analystSlug + positionSlug)
 	if p == nil {
 		return nil, nil
 	}
@@ -30,10 +32,10 @@ func (r *Repository) Create(ctx context.Context, p *position.Position) (*positio
 	copied := *p
 	cpy := &copied
 
-	cpy.ID = p.CreatedByID + "-" + p.Slug
+	cpy.ID = r.ctr.Add(1)
 	cpy.Lots = slices.Clone(p.Lots)
 
-	r.m.Store(cpy.ID, cpy)
+	r.m.Store(cpy.CreatedBy+cpy.Slug, cpy)
 
 	return cpy, nil
 }
@@ -48,7 +50,7 @@ func (r *Repository) Update(ctx context.Context, p *position.Position) (*positio
 	if !ok {
 		return nil, nil
 	}
-	r.m.Store(cpy.ID, cpy)
+	r.m.Store(cpy.CreatedBy+cpy.Slug, cpy)
 
 	return cpy, nil
 }
