@@ -13,6 +13,8 @@ type (
 
 	// Lot represents a single purchase or sale of a security.
 	Lot struct {
+		// CreatedAt is the time of Lot creation
+		CreatedAt time.Time `json:"createdAt"`
 		// Amount is the number of securities bought or sold.
 		Amount int `json:"amount"`
 		// Price is the price at which the securities in this Lot were bought or sold.

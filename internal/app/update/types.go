@@ -18,6 +18,9 @@ type (
 		// ID is a unique identifier for the Update.
 		ID int64 `json:"ID"`
 
+		// CreatedAt is the time of Update creation
+		CreatedAt time.Time `json:"createdAt"`
+
 		// Type is a type of the Update.
 		Type Type `json:"type"`
 
@@ -58,7 +61,7 @@ func (u *Update) applyTx(p *position.Position) (*position.Position, error) {
 
 	switch {
 	case p.Type == position.TypeLong && u.Delta > 0 || p.Type == position.TypeShort && u.Delta < 0:
-		p.Lots = append(p.Lots, position.Lot{Amount: u.Delta, Price: u.Price})
+		p.Lots = append(p.Lots, position.Lot{CreatedAt: u.CreatedAt, Amount: u.Delta, Price: u.Price})
 	case p.Type == position.TypeLong && u.Delta < 0 || p.Type == position.TypeShort && u.Delta > 0:
 		left := abs(u.Delta)
 		zeroedLots := 0
