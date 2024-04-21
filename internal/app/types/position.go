@@ -17,15 +17,16 @@ type (
 	}
 
 	Position struct {
-		ID           int             `json:"id" bson:"_id"`
-		CreatedBy    string          `json:"createdBy"`
-		Ticker       string          `json:"ticker"`
-		Type         Type            `json:"type"`
-		TargetPrice  decimal.Decimal `json:"targetPrice"`
-		Lots         []Lot           `json:"lots"`
-		FixedProfitP decimal.Decimal `json:"fixed_profit_p"`
-		CreatedAt    time.Time       `json:"createdAt"`
-		Deadline     time.Time       `json:"deadline"`
+		ID            int             `json:"id" bson:"_id"`
+		CreatedByName string          `json:"created_by_name"`
+		IdeaLink      string          `json:"idea_link"`
+		Ticker        string          `json:"ticker"`
+		Type          Type            `json:"type"`
+		TargetPrice   decimal.Decimal `json:"targetPrice"`
+		Lots          []Lot           `json:"lots"`
+		FixedProfitP  decimal.Decimal `json:"fixed_profit_p"`
+		CreatedAt     time.Time       `json:"createdAt"`
+		Deadline      time.Time       `json:"deadline"`
 	}
 )
 
