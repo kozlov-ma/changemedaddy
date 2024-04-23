@@ -9,9 +9,7 @@ type (
 		ID   int
 		Slug string
 
-		CreatedBy    Analyst
-		Position     Position
-		PositionInfo PositionInfo
+		Positions []Position
 
 		Deadline time.Time
 	}

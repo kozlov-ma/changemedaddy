@@ -16,9 +16,9 @@ type (
 		Ticker      string
 		Type        PositionType
 		Status      PositionStatus
-		Ticker      string
 		AvgPrice    decimal.Decimal
 		TargetPrice decimal.Decimal
+		IdeaPart    decimal.Decimal
 		OpenDate    time.Time
 	}
 )
@@ -29,6 +29,6 @@ const (
 )
 
 const (
-	PositionActive PositionStatus = "active"
-	PositionClosed PositionStatus = "closed"
+	StatusActive PositionStatus = "active"
+	StatusClosed PositionStatus = "closed"
 )
