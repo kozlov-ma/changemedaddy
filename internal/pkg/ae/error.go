@@ -1,4 +1,4 @@
-package apperr
+package ae
 
 import (
 	"net/http"
