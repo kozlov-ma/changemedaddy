@@ -1,9 +1,6 @@
 package idearepo
 
 import (
-	"changemedaddy/internal/model"
-	"changemedaddy/internal/pkg/apperr"
-	"changemedaddy/internal/service/idea"
 	"context"
 	"sync"
 )
