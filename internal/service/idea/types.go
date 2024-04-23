@@ -17,9 +17,10 @@ type (
 	}
 
 	CreateIdeaRequest struct {
-		Name      string                  `json:"name"`
-		Positions []CreatePositionRequest `json:"positions"`
-		Deadline  time.Time               `json:"deadline"`
+		Name       string                  `json:"name"`
+		Positions  []CreatePositionRequest `json:"positions"`
+		Deadline   time.Time               `json:"deadline"`
+		SourceLink string                  `json:"source_link"`
 	}
 
 	FindRequest struct {

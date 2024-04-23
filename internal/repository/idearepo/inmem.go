@@ -2,7 +2,7 @@ package idearepo
 
 import (
 	"changemedaddy/internal/model"
-	"changemedaddy/internal/pkg/fixable"
+	"changemedaddy/internal/pkg/apperr"
 	"changemedaddy/internal/service/idea"
 	"context"
 	"sync"
@@ -54,5 +54,5 @@ func (i *inmem) Update(_ context.Context, idea *model.Idea) error {
 		}
 	}
 
-	return fixable.ErrIdeaNotFound
+	return apperr.ErrIdeaNotFound
 }

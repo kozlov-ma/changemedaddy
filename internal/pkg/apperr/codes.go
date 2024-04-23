@@ -1,3 +1,3 @@
-package fixable
+package apperr
 
 type AppCode string

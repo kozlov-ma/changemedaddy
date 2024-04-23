@@ -1,8 +1,6 @@
 package model
 
 import (
-	"time"
-
 	"github.com/shopspring/decimal"
 )
 
@@ -19,7 +17,6 @@ type (
 		AvgPrice    decimal.Decimal
 		TargetPrice decimal.Decimal
 		IdeaPart    decimal.Decimal
-		OpenDate    time.Time
 	}
 )
 

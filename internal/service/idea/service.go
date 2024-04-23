@@ -51,6 +51,7 @@ func (s *service) Create(ctx context.Context, req CreateIdeaRequest) (*model.Ide
 		Slug:      s.slug.Slug(req.Name), // TODO validate unique
 		Positions: pp,
 		Deadline:  req.Deadline, // TODO validate
+		OpenDate:  time.Now(),
 	}
 
 	if err := s.repo.Create(ctx, i); err != nil {
@@ -80,7 +81,6 @@ func (s *service) createPositions(ctx context.Context, rr []CreatePositionReques
 			AvgPrice:    p.AvgPrice,        // TODO validate
 			TargetPrice: p.TargetPrice,     // TODO validate
 			IdeaPart:    decimal.Decimal{}, // do not forget
-			OpenDate:    time.Now(),
 		}
 
 		partsSum = partsSum.Add(decimal.NewFromInt(int64(p.IdeaPart)))

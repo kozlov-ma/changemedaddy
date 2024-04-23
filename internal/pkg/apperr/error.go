@@ -1,4 +1,4 @@
-package fixable
+package apperr
 
 import (
 	"net/http"
@@ -7,10 +7,9 @@ import (
 )
 
 type Error struct {
-	Err      error          `json:"-"`
-	AppCode  AppCode        `json:"app_code"`
-	HTTPCode int            `json:"-"`
-	Fixes    map[FixKey]Fix `json:"fixes"`
+	Err      error   `json:"-"`
+	AppCode  AppCode `json:"app_code"`
+	HTTPCode int     `json:"-"`
 }
 
 func (e *Error) Render(r *http.Request) error {

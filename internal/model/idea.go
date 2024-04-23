@@ -11,6 +11,9 @@ type (
 
 		Positions []Position
 
+		SourceLink string
+
 		Deadline time.Time
+		OpenDate time.Time
 	}
 )
