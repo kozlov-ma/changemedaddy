@@ -11,7 +11,7 @@ type (
 	CreatePositionRequest struct {
 		Ticker      string             `json:"ticker"`
 		Type        model.PositionType `json:"type"`
-		AvgPrice    decimal.Decimal    `json:"avg_price"`
+		StartPrice  decimal.Decimal    `json:"start_price"`
 		TargetPrice decimal.Decimal    `json:"target_price"`
 		IdeaPart    int                `json:"idea_part"`
 	}

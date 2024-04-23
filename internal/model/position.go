@@ -14,7 +14,7 @@ type (
 		Ticker      string
 		Type        PositionType
 		Status      PositionStatus
-		AvgPrice    decimal.Decimal
+		StartPrice  decimal.Decimal
 		TargetPrice decimal.Decimal
 		IdeaPart    decimal.Decimal
 	}
