@@ -1,35 +1,42 @@
 package main
 
 import (
+	"changemedaddy/internal/model"
+	"changemedaddy/internal/pkg/slugger"
+	"changemedaddy/internal/repository/idearepo"
+	"changemedaddy/internal/service/idea"
+	"context"
 	"log/slog"
-	"net/http"
 	"os"
+	"time"
 
-	charmlog "github.com/charmbracelet/log"
-	"github.com/go-chi/chi/v5"
-
-	"changemedaddy/internal/app/position"
-	posinmem "changemedaddy/internal/app/position/db/inmem"
-	"changemedaddy/internal/app/update"
-	updinmem "changemedaddy/internal/app/update/db/inmem"
+	"github.com/shopspring/decimal"
 )
 
 func main() {
-	handler := charmlog.New(os.Stderr)
+	handler := slog.NewJSONHandler(os.Stdout, &slog.HandlerOptions{
+		AddSource: true,
+		Level:     slog.LevelDebug,
+	})
 	log := slog.New(handler)
 
-	posRepo := posinmem.NewRepository()
-	posSvc := position.NewService(log, posRepo)
-	posHandler := position.NewHandler(posSvc, log)
+	svc := idea.NewService(slugger.Slugger{}, idearepo.NewInMem(), log)
+	svc.Create(context.WithValue(context.TODO(), "requestID", "228"), idea.CreateIdeaRequest{
+		Name: "Магнит темка",
+		Positions: []idea.CreatePositionRequest{
+			{
+				Ticker:      "MGNT",
+				Type:        model.PositionLong,
+				AvgPrice:    decimal.NewFromInt(7741),
+				TargetPrice: decimal.NewFromInt(11000),
+				IdeaPart:    100,
+			},
+		},
+		Deadline: time.Now().Add(41 * 24 * time.Hour),
+	})
 
-	updRepo := updinmem.NewRepository()
-	updSvc := update.NewService(log, updRepo, posSvc)
-	updHandler := update.NewHandler(updSvc, posSvc, log)
-
-	r := chi.NewRouter()
-
-	r.Mount("/api/v1/position", posHandler.Router())
-	r.Mount("/api/v1/updates", updHandler.Router())
-
-	http.ListenAndServe(":80", r)
+	svc.FindOne(context.Background(), idea.FindRequest{
+		ID:   313131,
+		Slug: "",
+	})
 }
