@@ -17,7 +17,7 @@ func NewFakeService() *fakeService {
 func (s *fakeService) Instrument(ctx context.Context, ticker string) (instrument.Instrument, error) {
 	if ticker == "MGNT" {
 		return instrument.Instrument{
-			Name:   "Magnet",
+			Name:   "Магнит",
 			Ticker: "MGNT",
 		}, nil
 	}
