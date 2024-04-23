@@ -67,12 +67,13 @@ func (s *service) Page(ctx context.Context, req FindPageRequest) (*Page, error) 
 
 		assert.That(instr != nil, fmt.Sprintf("instrument for trusted ticker %q was not found", p.Ticker))
 
-		profitP = profitP.Add(p.)
+		profitP = profitP.Add(instr.CurPrice.Sub(p.TargetPrice).Div(p.StartPrice).Mul(decimal.NewFromInt(100)))
 		pp = append(pp, Position{
 			Name:        instr.Name,
 			Ticker:      instr.Ticker,
 			CurPrice:    instr.CurPrice.String(),
-			StartPrice:  p.AvgPrice.String(),
+			ProfitP:     profitP.String(),
+			StartPrice:  p.StartPrice.String(),
 			TargetPrice: p.TargetPrice.String(),
 		})
 	}

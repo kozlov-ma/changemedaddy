@@ -27,7 +27,7 @@ func main() {
 			{
 				Ticker:      "MGNT",
 				Type:        model.PositionLong,
-				AvgPrice:    decimal.NewFromInt(7741),
+				StartPrice:  decimal.NewFromInt(7741),
 				TargetPrice: decimal.NewFromInt(11000),
 				IdeaPart:    100,
 			},

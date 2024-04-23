@@ -78,7 +78,7 @@ func (s *service) createPositions(ctx context.Context, rr []CreatePositionReques
 			Ticker:      p.Ticker, // TODO validate that is real
 			Type:        p.Type,   // TODO validate
 			Status:      model.StatusActive,
-			AvgPrice:    p.AvgPrice,        // TODO validate
+			StartPrice:  p.StartPrice,      // TODO validate
 			TargetPrice: p.TargetPrice,     // TODO validate
 			IdeaPart:    decimal.Decimal{}, // do not forget
 		}
