@@ -1,7 +1,7 @@
 package market
 
 import (
-	"changemedaddy/internal/model"
+	"changemedaddy/internal/domain/instrument"
 	"context"
 
 	"github.com/shopspring/decimal"
@@ -14,14 +14,21 @@ func NewFakeService() *fakeService {
 	return &fakeService{}
 }
 
-func (s *fakeService) Instrument(ctx context.Context, ticker string) (*model.Instrument, error) {
+func (s *fakeService) Instrument(ctx context.Context, ticker string) (instrument.Instrument, error) {
 	if ticker == "MGNT" {
-		return &model.Instrument{
-			Name:     "Magnet",
-			Ticker:   "MGNT",
-			CurPrice: decimal.NewFromInt(8241),
+		return instrument.Instrument{
+			Name:   "Magnet",
+			Ticker: "MGNT",
 		}, nil
 	}
 
-	return nil, nil
+	return instrument.Instrument{}, ErrInstrumentNotFound
+}
+
+func (s *fakeService) Price(ctx context.Context, i *instrument.Instrument) (decimal.Decimal, error) {
+	if i.Ticker == "MGNT" {
+		return decimal.NewFromFloat(100), nil
+	}
+
+	return decimal.Zero, ErrInstrumentNotFound
 }

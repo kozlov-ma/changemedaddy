@@ -1,10 +1,8 @@
 package main
 
 import (
-	"changemedaddy/internal/model"
 	"changemedaddy/internal/pkg/slugger"
 	"changemedaddy/internal/repository/idearepo"
-	"changemedaddy/internal/service/idea"
 	"context"
 	"log/slog"
 	"os"
