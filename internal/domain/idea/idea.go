@@ -15,7 +15,7 @@ type (
 		CreatedBySlug string
 		Slug          string
 
-		Positions []position.Position
+		Positions []*position.Position
 
 		SourceLink string
 
