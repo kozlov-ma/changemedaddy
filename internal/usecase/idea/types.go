@@ -18,11 +18,11 @@ type (
 	}
 
 	CreateIdeaRequest struct {
-		Name        string                  `json:"name"`
-		CreatedByID int                     `json:"created_by_slug"`
-		Positions   []CreatePositionRequest `json:"positions"`
-		Deadline    time.Time               `json:"deadline"`
-		SourceLink  string                  `json:"source_link"`
+		Name          string                  `json:"name"`
+		CreatedBySlug string                  `json:"created_by_slug"`
+		Positions     []CreatePositionRequest `json:"positions"`
+		Deadline      time.Time               `json:"deadline"`
+		SourceLink    string                  `json:"source_link"`
 	}
 
 	FindRequest struct {

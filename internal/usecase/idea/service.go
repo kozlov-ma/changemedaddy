@@ -64,10 +64,12 @@ func (s *service) Create(ctx context.Context, req CreateIdeaRequest) (*idea.Idea
 	}
 
 	i := &idea.Idea{
-		Slug:      s.slug.Slug(req.Name),
-		Positions: pp,
-		Deadline:  req.Deadline, // TODO validate
-		OpenDate:  time.Now(),
+		CreatedBySlug: req.CreatedBySlug,
+		Slug:          s.slug.Slug(req.Name),
+		Positions:     pp,
+		SourceLink:    req.SourceLink,
+		Deadline:      req.Deadline,
+		OpenDate:      time.Now(),
 	}
 
 	if err := s.ideas.Create(ctx, i); err != nil {
@@ -80,20 +82,21 @@ func (s *service) Create(ctx context.Context, req CreateIdeaRequest) (*idea.Idea
 }
 
 func (s *service) createPositions(ctx context.Context, rr []CreatePositionRequest) ([]position.Position, error) {
-	ctx, _ = context.WithTimeout(ctx, svcTimeout)
+	ctx, cancel := context.WithTimeout(ctx, svcTimeout)
+	defer cancel()
 
 	var (
 		pp    = make(chan position.Position, len(rr))
 		parts = make(chan int, len(rr))
 	)
 
-	eg, ctx := errgroup.WithContext(ctx)
+	eg, ectx := errgroup.WithContext(ctx)
 	for i, p := range rr {
 		i, p := i, p
 		eg.Go(func() error {
-			instr, err := s.instr.Instrument(ctx, p.Ticker)
+			instr, err := s.instr.Instrument(ectx, p.Ticker)
 			if err != nil {
-				s.log.InfoContext(ctx, "couldn't get instrument", "err", err)
+				s.log.InfoContext(ectx, "couldn't get instrument", "err", err)
 				return err
 			}
 
@@ -150,7 +153,7 @@ func (s *service) Page(ctx context.Context, req FindRequest) (*IdeaResponse, err
 		s.log.ErrorContext(ctx, "couldn't find idea", "err", err)
 		return nil, fmt.Errorf("couldn't find idea: %w", err)
 	} else if i == nil {
-		s.log.DebugContext(ctx, "couldn't find idea", "slug", req.Slug)
+		s.log.DebugContext(ctx, "couldn't find idea", "analystSlug", req.CreatedBySlug, "slug", req.Slug)
 		return nil, nil
 	}
 

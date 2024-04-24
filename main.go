@@ -3,10 +3,10 @@ package main
 import (
 	"changemedaddy/internal/domain/position"
 	"changemedaddy/internal/pkg/slugger"
+	"changemedaddy/internal/repository/analystrepo"
 	"changemedaddy/internal/repository/idearepo"
-	"changemedaddy/internal/service/analyst"
 	"changemedaddy/internal/service/market"
-	"changemedaddy/internal/usecase/idea"
+	uidea "changemedaddy/internal/usecase/idea"
 	"context"
 	"fmt"
 	"log/slog"
@@ -23,10 +23,11 @@ func main() {
 	})
 	log := slog.New(handler)
 
-	svc := idea.NewService(slugger.Slugger{}, idearepo.NewMongoRep(), market.NewFakeService(), analyst.NewFakeService(), log)
-	svc.Create(context.WithValue(context.TODO(), "requestID", "228"), idea.CreateIdeaRequest{
-		Name: "Магнит темка",
-		Positions: []idea.CreatePositionRequest{
+	svc := uidea.NewService(slugger.Slugger{}, idearepo.NewInMem(), market.NewFakeService(), analystrepo.NewFake(), log)
+	idea, err := svc.Create(context.TODO(), uidea.CreateIdeaRequest{
+		Name:          "Магнит Пацанский!!",
+		CreatedBySlug: "cumming-soon",
+		Positions: []uidea.CreatePositionRequest{
 			{
 				Ticker:      "MGNT",
 				Type:        position.Long,
@@ -35,12 +36,14 @@ func main() {
 				IdeaPart:    100,
 			},
 		},
-		Deadline: time.Now().Add(41 * 24 * time.Hour),
+		Deadline:   time.Now().AddDate(0, 1, 10),
+		SourceLink: "megaanalitik3000s.ex",
 	})
 
-	res, err := svc.Page(context.Background(), idea.FindRequest{
-		CreatedBySlug: "cumming-soon",
-		Slug:          "magnit-temka",
+	idear, err := svc.Page(context.TODO(), uidea.FindRequest{
+		Slug:          idea.Slug,
+		CreatedBySlug: idea.CreatedBySlug,
 	})
-	fmt.Print(res, err)
+
+	fmt.Println(idear, err)
 }
