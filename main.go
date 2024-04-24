@@ -3,6 +3,9 @@ package main
 import (
 	"changemedaddy/internal/pkg/slugger"
 	"changemedaddy/internal/repository/idearepo"
+	"changemedaddy/internal/service/analyst"
+	"changemedaddy/internal/service/market"
+	"changemedaddy/internal/usecase/idea"
 	"context"
 	"log/slog"
 	"os"
@@ -18,7 +21,7 @@ func main() {
 	})
 	log := slog.New(handler)
 
-	svc := idea.NewService(slugger.Slugger{}, idearepo.NewInMem(), log)
+	svc := idea.NewService(slugger.Slugger{}, idearepo.NewMongoRep(), market.NewFakeService(), analyst.NewFakeService(), log)
 	svc.Create(context.WithValue(context.TODO(), "requestID", "228"), idea.CreateIdeaRequest{
 		Name: "Магнит темка",
 		Positions: []idea.CreatePositionRequest{
