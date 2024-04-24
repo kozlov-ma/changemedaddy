@@ -12,15 +12,15 @@ import (
 
 type (
 	Idea struct {
-		CreatedBySlug string
-		Slug          string
+		CreatedBySlug string `bson:"created_by_slug"`
+		Slug          string `bson:"slug"`
 
-		Positions []position.Position
+		Positions []position.Position `bson:"positions"`
 
-		SourceLink string
+		SourceLink string `bson:"source_link"`
 
-		Deadline time.Time
-		OpenDate time.Time
+		Deadline time.Time `bson:"deadline"`
+		OpenDate time.Time `bson:"open_date"`
 	}
 )
 

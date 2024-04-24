@@ -1,12 +1,14 @@
 package main
 
 import (
+	"changemedaddy/internal/domain/position"
 	"changemedaddy/internal/pkg/slugger"
 	"changemedaddy/internal/repository/idearepo"
 	"changemedaddy/internal/service/analyst"
 	"changemedaddy/internal/service/market"
 	"changemedaddy/internal/usecase/idea"
 	"context"
+	"fmt"
 	"log/slog"
 	"os"
 	"time"
@@ -27,7 +29,7 @@ func main() {
 		Positions: []idea.CreatePositionRequest{
 			{
 				Ticker:      "MGNT",
-				Type:        model.PositionLong,
+				Type:        position.Long,
 				StartPrice:  decimal.NewFromInt(7741),
 				TargetPrice: decimal.NewFromInt(11000),
 				IdeaPart:    100,
@@ -36,8 +38,9 @@ func main() {
 		Deadline: time.Now().Add(41 * 24 * time.Hour),
 	})
 
-	svc.FindOne(context.Background(), idea.FindRequest{
-		ID:   313131,
-		Slug: "",
+	res, err := svc.Page(context.Background(), idea.FindRequest{
+		CreatedBySlug: "cumming-soon",
+		Slug:          "magnit-temka",
 	})
+	fmt.Print(res, err)
 }

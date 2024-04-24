@@ -11,7 +11,7 @@ import (
 )
 
 const (
-	connectionString = "mongodb://localhost:27017"
+	connectionString = "mongodb://127.0.0.1:27017/?directConnection=true&serverSelectionTimeoutMS=2000&appName=mongosh+2.2.4"
 	dbName           = "changemedaddy"
 	collectionName   = "idea"
 	queryTimeout     = 10 * time.Second
@@ -54,7 +54,7 @@ func (r *MongoRep) FindOne(ctx context.Context, analystSlug, ideaSlug string) (*
 	defer cancel()
 
 	var idea idea.Idea
-	filter := bson.M{"analystSlug": analystSlug, "ideaSlug": ideaSlug}
+	filter := bson.M{"created_by_slug": analystSlug, "slug": ideaSlug}
 	err := r.ideas.FindOne(ctxWithTimeout, filter).Decode(&idea)
 	if err != nil {
 		return nil, ErrIdeaFinding
