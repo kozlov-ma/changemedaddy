@@ -22,7 +22,7 @@ func (s *fakeService) Instrument(ctx context.Context, ticker string) (instrument
 		}, nil
 	}
 
-	return instrument.Instrument{}, ErrInstrumentNotFound
+	return instrument.Instrument{}, instrument.ErrNotFound
 }
 
 func (s *fakeService) Price(ctx context.Context, i *instrument.Instrument) (decimal.Decimal, error) {
@@ -30,5 +30,5 @@ func (s *fakeService) Price(ctx context.Context, i *instrument.Instrument) (deci
 		return decimal.NewFromFloat(100), nil
 	}
 
-	return decimal.Zero, ErrInstrumentNotFound
+	return decimal.Zero, instrument.ErrNotFound
 }

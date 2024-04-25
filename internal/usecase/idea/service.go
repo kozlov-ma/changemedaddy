@@ -81,12 +81,12 @@ func (s *service) Create(ctx context.Context, req CreateIdeaRequest) (*idea.Idea
 	return i, nil
 }
 
-func (s *service) createPositions(ctx context.Context, rr []CreatePositionRequest) ([]position.Position, error) {
+func (s *service) createPositions(ctx context.Context, rr []CreatePositionRequest) ([]*position.Position, error) {
 	ctx, cancel := context.WithTimeout(ctx, svcTimeout)
 	defer cancel()
 
 	var (
-		pp    = make(chan position.Position, len(rr))
+		pp    = make(chan *position.Position, len(rr))
 		parts = make(chan int, len(rr))
 	)
 
@@ -100,8 +100,8 @@ func (s *service) createPositions(ctx context.Context, rr []CreatePositionReques
 				return err
 			}
 
-			pp <- position.Position{
-				ID:          i,
+			pp <- &position.Position{
+				Idx:         i,
 				Instrument:  instr,
 				Type:        p.Type,
 				Status:      position.Active,
@@ -121,7 +121,7 @@ func (s *service) createPositions(ctx context.Context, rr []CreatePositionReques
 	close(pp)
 	close(parts)
 
-	positions := make([]position.Position, 0, len(pp))
+	positions := make([]*position.Position, 0, len(pp))
 	var partsSum decimal.Decimal
 	for len(pp) > 0 && len(parts) > 0 {
 		positions = append(positions, <-pp)
@@ -176,7 +176,7 @@ func (s *service) Page(ctx context.Context, req FindRequest) (*IdeaResponse, err
 			profitP := price.Sub(p.StartPrice).Div(p.StartPrice).Mul(decimal.NewFromInt(100))
 
 			ir.Positions[j] = PositionResponse{
-				Position: &p,
+				Position: p,
 				ProfitP:  profitP,
 				CurPrice: price,
 			}

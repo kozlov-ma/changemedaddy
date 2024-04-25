@@ -15,7 +15,7 @@ type (
 		CreatedBySlug string `bson:"created_by_slug"`
 		Slug          string `bson:"slug"`
 
-		Positions []position.Position `bson:"positions"`
+		Positions []*position.Position `bson:"positions"`
 
 		SourceLink string `bson:"source_link"`
 

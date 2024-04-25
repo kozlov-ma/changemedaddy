@@ -14,7 +14,7 @@ type (
 	Status string
 
 	Position struct {
-		ID          int                   `bson:"_id"`
+		Idx         int                   `bson:"idx"`
 		Instrument  instrument.Instrument `bson:"instrument"`
 		Type        Type                  `bson:"type"`
 		Status      Status                `bson:"status"`
