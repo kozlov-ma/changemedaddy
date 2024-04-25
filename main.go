@@ -13,7 +13,7 @@ import (
 	"os"
 	"time"
 
-	"github.com/shopspring/decimal"
+	"github.com/greatcloak/decimal"
 )
 
 func main() {
@@ -23,7 +23,7 @@ func main() {
 	})
 	log := slog.New(handler)
 
-	svc := uidea.NewService(slugger.Slugger{}, idearepo.NewMongoRep(), market.NewFakeService(), analystrepo.NewFake(), log)
+	svc := uidea.NewService(slugger.Slugger{}, idearepo.NewMongoRep(context.TODO()), market.NewFakeService(), analystrepo.NewFake(), log)
 	idea, err := svc.Create(context.TODO(), uidea.CreateIdeaRequest{
 		Name:          "Магнит Пацанский!!",
 		CreatedBySlug: "cumming-soon",

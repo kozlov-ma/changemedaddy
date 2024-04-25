@@ -4,7 +4,7 @@ import (
 	"changemedaddy/internal/pkg/assert"
 	"context"
 
-	"github.com/shopspring/decimal"
+	"github.com/greatcloak/decimal"
 )
 
 type Instrument struct {

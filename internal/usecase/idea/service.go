@@ -10,7 +10,7 @@ import (
 	"log/slog"
 	"time"
 
-	"github.com/shopspring/decimal"
+	"github.com/greatcloak/decimal"
 	"golang.org/x/sync/errgroup"
 )
 

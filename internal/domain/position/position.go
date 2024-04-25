@@ -5,7 +5,7 @@ import (
 	"changemedaddy/internal/domain/instrument"
 	"context"
 
-	"github.com/shopspring/decimal"
+	"github.com/greatcloak/decimal"
 )
 
 type (

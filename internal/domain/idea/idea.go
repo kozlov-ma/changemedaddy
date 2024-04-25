@@ -6,7 +6,7 @@ import (
 	"context"
 	"time"
 
-	"github.com/shopspring/decimal"
+	"github.com/greatcloak/decimal"
 	"golang.org/x/sync/errgroup"
 )
 

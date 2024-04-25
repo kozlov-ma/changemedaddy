@@ -5,7 +5,7 @@ import (
 	"changemedaddy/internal/domain/position"
 	"time"
 
-	"github.com/shopspring/decimal"
+	"github.com/greatcloak/decimal"
 )
 
 type (
