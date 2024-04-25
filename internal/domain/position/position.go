@@ -1,7 +1,6 @@
 package position
 
 import (
-	"changemedaddy/internal/domain"
 	"changemedaddy/internal/domain/instrument"
 	"context"
 
@@ -43,7 +42,7 @@ func (p *Position) ProfitP(ctx context.Context, mp marketProvider) (decimal.Deci
 		return decimal.Zero, nil
 	}
 	if p.Status == Closed {
-		return decimal.Zero, domain.ErrClosedPositionModified
+		return decimal.Zero, ErrClosedPositionModified
 	}
 
 	curPrice, err := p.Instrument.Price(ctx, mp)
