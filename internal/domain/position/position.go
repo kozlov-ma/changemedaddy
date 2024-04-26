@@ -13,13 +13,13 @@ type (
 	Status string
 
 	Position struct {
-		Idx         int                   `bson:"idx"`
-		Instrument  instrument.Instrument `bson:"instrument"`
-		Type        Type                  `bson:"type"`
-		Status      Status                `bson:"status"`
-		StartPrice  decimal.Decimal       `bson:"start_price"`
-		TargetPrice decimal.Decimal       `bson:"target_price"`
-		IdeaPart    decimal.Decimal       `bson:"idea_part"`
+		Idx         int                    `bson:"idx"`
+		Instrument  *instrument.Instrument `bson:"instrument"`
+		Type        Type                   `bson:"type"`
+		Status      Status                 `bson:"status"`
+		StartPrice  decimal.Decimal        `bson:"start_price"`
+		TargetPrice decimal.Decimal        `bson:"target_price"`
+		IdeaPart    decimal.Decimal        `bson:"idea_part"`
 	}
 )
 

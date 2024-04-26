@@ -5,8 +5,8 @@ import (
 	"changemedaddy/internal/pkg/slugger"
 	"changemedaddy/internal/repository/analystrepo"
 	"changemedaddy/internal/repository/idearepo"
+	uidea "changemedaddy/internal/service/idea"
 	"changemedaddy/internal/service/market"
-	uidea "changemedaddy/internal/usecase/idea"
 	"context"
 	"fmt"
 	"log/slog"
@@ -42,7 +42,7 @@ func main() {
 
 	idear, err := svc.Page(context.TODO(), uidea.FindRequest{
 		Slug:          idea.Slug,
-		CreatedBySlug: idea.CreatedBySlug,
+		CreatedBySlug: idea.Analyst.Slug,
 	})
 
 	fmt.Println(idear, err)

@@ -25,7 +25,7 @@ type ideaRepository interface {
 
 type marketProvider interface {
 	Price(ctx context.Context, i *instrument.Instrument) (decimal.Decimal, error)
-	Instrument(ctx context.Context, ticker string) (instrument.Instrument, error)
+	Instrument(ctx context.Context, ticker string) (*instrument.Instrument, error)
 }
 
 type analystProvider interface {
@@ -54,30 +54,34 @@ func NewService(slug slugger, repo ideaRepository, instr marketProvider, analyst
 }
 
 func (s *service) Create(ctx context.Context, req CreateIdeaRequest) (*idea.Idea, error) {
+
 	ctx, cancel := context.WithTimeout(ctx, svcTimeout)
 	defer cancel()
 
+	analyst, err := s.analyst.FindBySlug(ctx, req.CreatedBySlug)
+	if err != nil {
+		return nil, fmt.Errorf("couldn't get analyst: %w", err)
+	}
+
 	pp, err := s.createPositions(ctx, req.Positions)
 	if err != nil {
-		s.log.InfoContext(ctx, "couldn't create positions", "err", err)
 		return nil, fmt.Errorf("couldn't create positions: %w", err)
 	}
 
 	i := &idea.Idea{
-		CreatedBySlug: req.CreatedBySlug,
-		Slug:          s.slug.Slug(req.Name),
-		Positions:     pp,
-		SourceLink:    req.SourceLink,
-		Deadline:      req.Deadline,
-		OpenDate:      time.Now(),
+		Analyst:    analyst,
+		Slug:       s.slug.Slug(req.Name),
+		Positions:  pp,
+		SourceLink: req.SourceLink,
+		Deadline:   req.Deadline,
+		OpenDate:   time.Now(),
 	}
 
 	if err := s.ideas.Create(ctx, i); err != nil {
-		s.log.ErrorContext(ctx, "couldn't save idea", "err", err)
-		return nil, fmt.Errorf("couldn't save idea: %w", err)
+		return nil, fmt.Errorf("couldn't create idea: %w", err)
 	}
 
-	s.log.DebugContext(ctx, "created new idea", "analystSlug", i.CreatedBySlug, "slug", i.Slug)
+	s.log.DebugContext(ctx, "created new idea", "analystSlug", analyst.Slug, "slug", i.Slug)
 	return i, nil
 }
 
@@ -96,8 +100,7 @@ func (s *service) createPositions(ctx context.Context, rr []CreatePositionReques
 		eg.Go(func() error {
 			instr, err := s.instr.Instrument(ectx, p.Ticker)
 			if err != nil {
-				s.log.InfoContext(ectx, "couldn't get instrument", "err", err)
-				return err
+				return fmt.Errorf("couldn't find instrument: %w", err)
 			}
 
 			pp <- &position.Position{
@@ -115,7 +118,6 @@ func (s *service) createPositions(ctx context.Context, rr []CreatePositionReques
 	}
 	err := eg.Wait()
 	if err != nil {
-		s.log.InfoContext(ctx, "couldn't create positions", "err", err)
 		return nil, fmt.Errorf("couldn't create positions: %w", err)
 	}
 	close(pp)
@@ -148,7 +150,7 @@ func (s *service) Page(ctx context.Context, req FindRequest) (*IdeaResponse, err
 		return nil, nil
 	}
 
-	i, err := analyst.IdeaBySlug(ctx, s.ideas, req.Slug)
+	i, err := s.ideas.FindOne(ctx, analyst.Slug, req.Slug)
 	if err != nil {
 		s.log.ErrorContext(ctx, "couldn't find idea", "err", err)
 		return nil, fmt.Errorf("couldn't find idea: %w", err)

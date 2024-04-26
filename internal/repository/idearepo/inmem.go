@@ -28,7 +28,7 @@ func (i *inmem) FindOne(_ context.Context, analystSlug, ideaSlug string) (*idea.
 	defer i.mu.RUnlock()
 
 	for _, i := range i.ideas {
-		if i.CreatedBySlug == analystSlug && i.Slug == ideaSlug {
+		if i.Analyst.Slug == analystSlug && i.Slug == ideaSlug {
 			return i, nil
 		}
 	}

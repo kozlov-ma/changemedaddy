@@ -1,6 +1,7 @@
 package idea
 
 import (
+	"changemedaddy/internal/domain/analyst"
 	"changemedaddy/internal/domain/instrument"
 	"changemedaddy/internal/domain/position"
 	"context"
@@ -12,8 +13,9 @@ import (
 
 type (
 	Idea struct {
-		CreatedBySlug string `bson:"created_by_slug"`
-		Slug          string `bson:"slug"`
+		Slug string `bson:"slug"`
+
+		Analyst *analyst.Analyst `bson:"analyst"`
 
 		Positions []*position.Position `bson:"positions"`
 

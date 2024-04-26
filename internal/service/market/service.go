@@ -14,15 +14,15 @@ func NewFakeService() *fakeService {
 	return &fakeService{}
 }
 
-func (s *fakeService) Instrument(ctx context.Context, ticker string) (instrument.Instrument, error) {
+func (s *fakeService) Instrument(ctx context.Context, ticker string) (*instrument.Instrument, error) {
 	if ticker == "MGNT" {
-		return instrument.Instrument{
+		return &instrument.Instrument{
 			Name:   "Магнит",
 			Ticker: "MGNT",
 		}, nil
 	}
 
-	return instrument.Instrument{}, instrument.ErrNotFound
+	return &instrument.Instrument{}, instrument.ErrNotFound
 }
 
 func (s *fakeService) Price(ctx context.Context, i *instrument.Instrument) (decimal.Decimal, error) {
