@@ -1,7 +1,6 @@
 package position
 
 import (
-	"changemedaddy/internal/domain/analyst"
 	"changemedaddy/internal/domain/instrument"
 	"changemedaddy/internal/pkg/assert"
 	"context"
@@ -17,16 +16,16 @@ type (
 	Status string
 
 	Position struct {
-		ID          int                    `bson:"_id"`
-		Autor       *analyst.Analyst       `bson:"analyst"`
-		Instrument  *instrument.Instrument `bson:"instrument"`
-		Type        Type                   `bson:"type"`
-		Status      Status                 `bson:"status"`
-		OpenPrice   decimal.Decimal        `bson:"open_price"`
-		TargetPrice decimal.Decimal        `bson:"target_price"`
-		ClosedPrice decimal.Decimal        `bson:"closed_price"`
-		Deadline    time.Time              `bson:"deadline"`
-		OpenDate    time.Time              `bson:"open_date"`
+		ID int
+		// Author      *analyst.Analyst
+		Instrument  *instrument.Instrument
+		Type        Type
+		Status      Status
+		OpenPrice   decimal.Decimal
+		TargetPrice decimal.Decimal
+		ClosedPrice decimal.Decimal
+		Deadline    time.Time
+		OpenDate    time.Time
 	}
 )
 
@@ -42,6 +41,51 @@ const (
 
 type priceProvider interface {
 	Price(ctx context.Context, i *instrument.Instrument) (decimal.Decimal, error)
+}
+
+type instrumentProvider interface {
+	Find(ctx context.Context, ticker string) (*instrument.Instrument, error)
+}
+
+type marketProvider interface {
+	priceProvider
+	instrumentProvider
+}
+
+type PositionOptions struct {
+	Ticker      string          `json:"ticker"`
+	Type        Type            `json:"type"`
+	TargetPrice decimal.Decimal `json:"target_price"`
+	Deadline    time.Time       `json:"deadline"`
+}
+
+func NewPosition(ctx context.Context, mp marketProvider, ps positionSaver, opt PositionOptions) (*Position, error) {
+	i, err := mp.Find(ctx, opt.Ticker)
+	if err != nil {
+		return nil, fmt.Errorf("couldn't get instrument: %w", err)
+	}
+
+	price, err := i.Price(ctx, mp)
+	if err != nil {
+		return nil, fmt.Errorf("couldn't get instrument (%q) price: %w", i.Ticker, err)
+	}
+
+	pos := &Position{
+		Instrument:  i,
+		Type:        opt.Type,
+		Status:      Active,
+		OpenPrice:   price,
+		TargetPrice: opt.TargetPrice,
+		Deadline:    opt.Deadline,
+		OpenDate:    time.Now(),
+	}
+
+	err = ps.Save(ctx, pos)
+	if err != nil {
+		return nil, fmt.Errorf("couldn't save position: %w", err)
+	}
+
+	return pos, nil
 }
 
 type Quoted struct {
@@ -66,7 +110,7 @@ var (
 	negOne = decimal.NewFromInt(-1)
 )
 
-func (q *Quoted) Profit(ctx context.Context) decimal.Decimal {
+func (q Quoted) Profit(ctx context.Context) decimal.Decimal {
 	var mul decimal.Decimal
 	if q.Type == Long {
 		mul = one
@@ -95,18 +139,16 @@ type positionUpdater interface {
 	Update(ctx context.Context, p *Position) error
 }
 
-func (p *Position) Close(ctx context.Context, atPrice decimal.Decimal, pu positionUpdater) error {
-	assert.That(atPrice.GreaterThan(decimal.Zero), "non-positive price in trusted data")
+func (q Quoted) Close(ctx context.Context, pu positionUpdater) error {
+	q.Status = Closed
+	q.ClosedPrice = q.Instrument.Price
 
-	p.Status = Closed
-	p.ClosedPrice = atPrice
-
-	err := pu.Update(ctx, p)
-	if err == nil {
+	err := pu.Update(ctx, q.Position)
+	if err == nil { // TODO test this
 		return nil
 	}
 
-	p.Status = Active
+	q.Status = Active
 	return fmt.Errorf("couldn't save position: %w", err)
 }
 
