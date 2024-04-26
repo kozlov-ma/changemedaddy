@@ -1,6 +1,7 @@
 package analyst
 
 type Analyst struct {
-	Slug string
-	Name string
+	ID   int    `bson:"id"`
+	Slug string `bson:"slug"`
+	Name string `bson:"name"`
 }
