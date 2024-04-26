@@ -1,6 +1,15 @@
 package main
 
+import (
+	"changemedaddy/internal/api"
+	"changemedaddy/internal/repository/positionrepo"
+	"changemedaddy/internal/service/market"
+)
+
 func main() {
+
+	api.RunServer(positionrepo.NewInMem(), market.NewFakeService())
+
 	// handler := slog.NewJSONHandler(os.Stdout, &slog.HandlerOptions{
 	// 	AddSource: true,
 	// 	Level:     slog.LevelDebug,
@@ -8,7 +17,7 @@ func main() {
 	// log := slog.New(handler)
 
 	// svc := uidea.NewService(slugger.Slugger{}, idearepo.NewInMem(), market.NewFakeService(), analystrepo.NewFake(), log)
-	// idea, err := svc.Create(context.TODO(), uidea.CreateIdeaRequest{
+	// idea, err := svc.Save(context.TODO(), uidea.CreateIdeaRequest{
 	// 	Name:          "Магнит Пацанский!!",
 	// 	CreatedBySlug: "cumming-soon",
 	// 	Positions: []uidea.CreatePositionRequest{

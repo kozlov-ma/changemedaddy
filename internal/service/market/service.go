@@ -14,7 +14,7 @@ func NewFakeService() *fakeService {
 	return &fakeService{}
 }
 
-func (s *fakeService) Instrument(ctx context.Context, ticker string) (*instrument.Instrument, error) {
+func (s *fakeService) Find(ctx context.Context, ticker string) (*instrument.Instrument, error) {
 	if ticker == "MGNT" {
 		return &instrument.Instrument{
 			Name:   "Магнит",

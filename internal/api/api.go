@@ -31,8 +31,18 @@ type handler struct {
 	mp  marketProvider
 }
 
-func (h *handler) quotedPosition(c echo.Context) error {
-	idS := c.Param("positionID")
+func RunServer(pos positionRepo, mp marketProvider) {
+	r := echo.New()
+	h := handler{pos, mp}
+
+	r.GET("/position/id", h.getPosition)
+	r.POST("/position", h.createPosition)
+
+	r.Logger.Fatal(r.Start(":8080"))
+}
+
+func (h *handler) getPosition(c echo.Context) error {
+	idS := c.Param("id")
 	id, err := strconv.Atoi(idS)
 	if err != nil {
 		return c.NoContent(http.StatusNotFound)
@@ -54,7 +64,8 @@ func (h *handler) quotedPosition(c echo.Context) error {
 
 func (h *handler) createPosition(c echo.Context) error {
 	var opt position.PositionOptions
-	if err := c.Bind(opt); err != nil {
+	if err := c.Bind(&opt); err != nil {
+		panic(err)
 		return c.NoContent(http.StatusBadRequest)
 	}
 

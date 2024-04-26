@@ -7,7 +7,6 @@ import (
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
-	"log"
 	"time"
 )
 
@@ -39,7 +38,7 @@ func NewMongoRep(ctx context.Context) *mongoRep {
 
 	_, err = collection.Indexes().CreateOne(ctx, indexModel)
 	if err != nil {
-		log.Fatal(err)
+		panic(err)
 	}
 
 	return &mongoRep{ideas: collection}

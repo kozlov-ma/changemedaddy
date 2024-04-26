@@ -15,7 +15,7 @@ func NewInMem() *inmem {
 	return &inmem{}
 }
 
-func (i *inmem) Create(_ context.Context, p *position.Position) error {
+func (i *inmem) Save(_ context.Context, p *position.Position) error {
 	i.mu.Lock()
 	defer i.mu.Unlock()
 
@@ -25,7 +25,7 @@ func (i *inmem) Create(_ context.Context, p *position.Position) error {
 	return nil
 }
 
-func (i *inmem) Get(_ context.Context, id int) (*position.Position, error) {
+func (i *inmem) Find(_ context.Context, id int) (*position.Position, error) {
 	i.mu.RLock()
 	defer i.mu.RUnlock()
 
@@ -34,4 +34,16 @@ func (i *inmem) Get(_ context.Context, id int) (*position.Position, error) {
 	}
 
 	return i.pp[id], nil
+}
+
+func (i *inmem) Update(_ context.Context, p *position.Position) error {
+	i.mu.Lock()
+	defer i.mu.Unlock()
+
+	if p.ID < 0 || p.ID >= len(i.pp) {
+		return position.ErrNotFound
+	}
+
+	i.pp[p.ID] = p
+	return nil
 }
