@@ -35,7 +35,7 @@ func RunServer(pos positionRepo, mp marketProvider) {
 	r := echo.New()
 	h := handler{pos, mp}
 
-	r.GET("/position/id", h.getPosition)
+	r.GET("/position/:id", h.getPosition)
 	r.POST("/position", h.createPosition)
 
 	r.Logger.Fatal(r.Start(":8080"))

@@ -1,5 +1,6 @@
 ### 1
 POST localhost:8080/position
+Content-Type: application/json
 
 {
   "ticker": "MGNT",
