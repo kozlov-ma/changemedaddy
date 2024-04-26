@@ -3,6 +3,7 @@ package api
 import (
 	"changemedaddy/internal/domain/instrument"
 	"changemedaddy/internal/domain/position"
+	"changemedaddy/web"
 	"context"
 	"errors"
 	"fmt"
@@ -33,6 +34,11 @@ type handler struct {
 
 func RunServer(pos positionRepo, mp marketProvider) {
 	r := echo.New()
+
+	tmpl := web.NewTmpls()
+	r.Renderer = tmpl
+	r.Static("/static", "web/static")
+
 	h := handler{pos, mp}
 
 	r.GET("/position/:id", h.getPosition)
@@ -59,13 +65,12 @@ func (h *handler) getPosition(c echo.Context) error {
 		return fmt.Errorf("couldn't get quoted position: %w", err)
 	}
 
-	return c.JSON(http.StatusOK, q)
+	return c.Render(http.StatusOK, web.FilenamePageHTML, q)
 }
 
 func (h *handler) createPosition(c echo.Context) error {
 	var opt position.PositionOptions
 	if err := c.Bind(&opt); err != nil {
-		panic(err)
 		return c.NoContent(http.StatusBadRequest)
 	}
 

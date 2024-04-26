@@ -5,7 +5,7 @@
         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
         <title>position</title>
         <script src="https://cdn.tailwindcss.com"></script>
-        <script src="index.js"></script>
+        <script src="/static/index.js"></script>
     </head>
 
     <template id="position-info-template">
@@ -111,13 +111,13 @@
                     </div>
                 </div>
             </div>
+        </div>
     </template>
 
     <body>
-        <idea-component by="Михаил Козлов" opendate="30 Марта 2024" deadline="до 31 Мая 2024">
-            <h2 class="text-2xl font-bold m-8 mt-8 mb-2">Открытые позиции</h2>
-            <position-component name="Магнит" ticker="MGNT" curprice="8088.8" startprice="7741.0" opendate="2 Апреля 2024" target="10500"></position-component>
-            <position-component name="Циан АДР" ticker="CIAN" curprice="873.6" startprice="767" opendate="2 Апреля 2024" target="900"></position-component>
-        </idea-component>
+    <idea-component by="Михаил Козлов" opendate="30 Марта 2024" deadline="до 31 Мая 2024">
+        <h2 class="text-2xl font-bold m-8 mt-8 mb-2">Открытые позиции</h2>
+        <position-component name="{{.Instrument.Name}}" ticker="{{.Instrument.Ticker}}" curprice="{{.Instrument.Price}}" startprice="{{.OpenPrice}}" opendate="{{.OpenDate}}" target="{{.TargetPrice}}"></position-component>
+    </idea-component>
     </body>
 </html>
