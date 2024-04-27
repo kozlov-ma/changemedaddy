@@ -58,7 +58,7 @@ type marketProvider interface {
 	instrumentProvider
 }
 
-type PositionOptions struct {
+type CreationOptions struct {
 	Ticker      string          `json:"ticker"`
 	Type        Type            `json:"type"`
 	TargetPrice decimal.Decimal `json:"target_price"`
@@ -66,7 +66,7 @@ type PositionOptions struct {
 	IdeaPartP   decimal.Decimal `json:"idea_part_p"`
 }
 
-func NewPosition(ctx context.Context, mp marketProvider, ps positionSaver, opt PositionOptions) (*Position, error) {
+func New(ctx context.Context, mp marketProvider, ps positionSaver, opt CreationOptions) (*Position, error) {
 	i, err := mp.Find(ctx, opt.Ticker)
 	if err != nil {
 		return nil, fmt.Errorf("couldn't get instrument: %w", err)

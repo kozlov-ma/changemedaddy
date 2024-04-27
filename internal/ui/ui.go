@@ -1,6 +1,8 @@
 package ui
 
 import (
+	"changemedaddy/internal/pkg/assert"
+	"fmt"
 	"html/template"
 
 	"github.com/Masterminds/sprig"
@@ -9,9 +11,7 @@ import (
 
 func mustTemplate(s string) template.Template {
 	t, err := template.New("").Funcs(sprig.FuncMap()).Parse(s)
-	if err != nil {
-		panic(err)
-	}
+	assert.That(err == nil, fmt.Sprintf("couldn't parse template %q: %v", s, err))
 
 	return *t
 }

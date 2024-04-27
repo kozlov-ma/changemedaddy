@@ -1,6 +1,7 @@
 package idea
 
 import (
+	"changemedaddy/internal/pkg/assert"
 	"context"
 	"fmt"
 
@@ -28,14 +29,17 @@ func (i *Idea) Save(ctx context.Context, is ideaSaver) error {
 	return is.Save(ctx, i)
 }
 
-type IdeaOptions struct {
+type CreationOptions struct {
 	Name        string
 	AuthorName  string
 	SourceLink  string
 	PositionIDs []int
 }
 
-func NewIdea(ctx context.Context, is ideaSaver, opt IdeaOptions) (*Idea, error) {
+func New(ctx context.Context, is ideaSaver, opt CreationOptions) (*Idea, error) {
+	assert.That(len(opt.Name) > 0, "empty idea name in trusted data")
+	assert.That(len(opt.PositionIDs) > 0, "no positions in trusted IdeaOptions data")
+
 	i := &Idea{
 		Name:        opt.Name,
 		Slug:        slug.Make(opt.Name),

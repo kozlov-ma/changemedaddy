@@ -20,7 +20,7 @@ func main() {
 	ideaRepo := idearepo.NewInMem()
 	mp := market.NewFakeService()
 
-	p, err := position.NewPosition(context.Background(), mp, posRepo, position.PositionOptions{
+	p, err := position.New(context.Background(), mp, posRepo, position.CreationOptions{
 		Ticker:      "MGNT",
 		Type:        position.Long,
 		TargetPrice: decimal.NewFromInt(11000),
@@ -32,7 +32,7 @@ func main() {
 		panic(err)
 	}
 
-	_, err = idea.NewIdea(context.Background(), ideaRepo, idea.IdeaOptions{
+	_, err = idea.New(context.Background(), ideaRepo, idea.CreationOptions{
 		Name:        "MgntToTheMoon",
 		AuthorName:  "Михаил Козлов",
 		SourceLink:  "https://en.uncyclopedia.co",
