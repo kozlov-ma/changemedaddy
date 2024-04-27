@@ -35,3 +35,15 @@ func (i *inmem) Find(_ context.Context, id int) (*idea.Idea, error) {
 
 	return i.ii[id], nil
 }
+
+func (i *inmem) Update(_ context.Context, p *idea.Idea) error {
+	i.mu.Lock()
+	defer i.mu.Unlock()
+
+	if p.ID < 0 || p.ID >= len(i.ii) {
+		return idea.ErrNotFound
+	}
+
+	i.ii[p.ID] = p
+	return nil
+}

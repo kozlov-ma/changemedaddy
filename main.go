@@ -10,7 +10,6 @@ import (
 	"context"
 	"log/slog"
 	"os"
-	"time"
 
 	"github.com/greatcloak/decimal"
 )
@@ -24,7 +23,7 @@ func main() {
 		Ticker:      "MGNT",
 		Type:        position.Long,
 		TargetPrice: decimal.NewFromInt(11000),
-		Deadline:    time.Now().AddDate(0, 1, 10),
+		Deadline:    "2024-05-31",
 		IdeaPartP:   decimal.NewFromInt(100),
 	})
 

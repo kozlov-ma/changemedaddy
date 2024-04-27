@@ -1,11 +1,14 @@
 package idea
 
 import (
+	"changemedaddy/internal/domain/instrument"
+	"changemedaddy/internal/domain/position"
 	"changemedaddy/internal/pkg/assert"
 	"context"
 	"fmt"
 
 	"github.com/gosimple/slug"
+	"github.com/greatcloak/decimal"
 )
 
 type Idea struct {
@@ -54,6 +57,43 @@ func New(ctx context.Context, is ideaSaver, opt CreationOptions) (*Idea, error) 
 	}
 
 	return i, nil
+}
+
+type positionSaver interface {
+	Save(ctx context.Context, p *position.Position) error
+}
+
+type priceProvider interface {
+	Price(ctx context.Context, i *instrument.Instrument) (decimal.Decimal, error)
+}
+
+type instrumentProvider interface {
+	Find(ctx context.Context, ticker string) (*instrument.Instrument, error)
+}
+
+type marketProvider interface {
+	priceProvider
+	instrumentProvider
+}
+
+type ideaUpdater interface {
+	Update(ctx context.Context, i *Idea) error
+}
+
+func (i *Idea) NewPosition(ctx context.Context, mp marketProvider, ps positionSaver, iu ideaUpdater, opt position.CreationOptions) (*position.Position, error) {
+	p, err := position.New(ctx, mp, ps, opt)
+	if err != nil {
+		return nil, fmt.Errorf("couldn't create position (for idea id %v): %w", i.ID, err)
+	}
+
+	i.PositionIDs = append(i.PositionIDs, p.ID)
+
+	if err := iu.Update(ctx, i); err != nil {
+		i.PositionIDs = i.PositionIDs[:len(i.PositionIDs)-1]
+		return nil, fmt.Errorf("couldn't update idea (id %v): %w", i.ID, err)
+	}
+
+	return p, nil
 }
 
 // type WithProfit struct {

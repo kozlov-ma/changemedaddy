@@ -4,11 +4,13 @@ import (
 	"changemedaddy/internal/aggregate/idea"
 	"changemedaddy/internal/domain/instrument"
 	"changemedaddy/internal/domain/position"
+	"changemedaddy/internal/ui"
 	"context"
 	"log/slog"
 
 	"github.com/greatcloak/decimal"
 	"github.com/labstack/echo/v4"
+	slogecho "github.com/samber/slog-echo"
 )
 
 type (
@@ -20,6 +22,7 @@ type (
 
 	ideaRepo interface {
 		Save(ctx context.Context, i *idea.Idea) error
+		Update(ctx context.Context, i *idea.Idea) error
 		Find(ctx context.Context, id int) (*idea.Idea, error)
 	}
 
@@ -39,8 +42,15 @@ type handler struct {
 func (h *handler) MustEcho() *echo.Echo {
 	e := echo.New()
 
-	e.GET("/position/:id", h.getPosition)
-	e.GET("/idea/:id", h.getIdea)
+	e.Use(slogecho.New(h.log))
+	ui.NewRenderer().Register(e)
+
+	ie := e.Group("/idea", h.ideaMiddleware)
+	ie.GET("/:ideaID", h.getIdea)
+	ie.GET("/:ideaID/new_position", h.positionForm)
+	ie.POST("/:ideaID/position", h.addPosition)
+
+	e.GET("/position/:positionID", h.getPosition)
 
 	return e
 }

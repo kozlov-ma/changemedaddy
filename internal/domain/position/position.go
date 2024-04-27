@@ -59,11 +59,11 @@ type marketProvider interface {
 }
 
 type CreationOptions struct {
-	Ticker      string          `json:"ticker"`
-	Type        Type            `json:"type"`
-	TargetPrice decimal.Decimal `json:"target_price"`
-	Deadline    time.Time       `json:"deadline"`
-	IdeaPartP   decimal.Decimal `json:"idea_part_p"`
+	Ticker      string          `form:"ticker"`
+	Type        Type            `form:"type"`
+	TargetPrice decimal.Decimal `form:"target_price"`
+	Deadline    string          `form:"deadline"`
+	IdeaPartP   decimal.Decimal `form:"idea_part_p"`
 }
 
 func New(ctx context.Context, mp marketProvider, ps positionSaver, opt CreationOptions) (*Position, error) {
@@ -77,13 +77,18 @@ func New(ctx context.Context, mp marketProvider, ps positionSaver, opt CreationO
 		return nil, fmt.Errorf("couldn't get instrument (%q) price: %w", i.Ticker, err)
 	}
 
+	deadline, err := time.Parse("2006-01-02", opt.Deadline)
+	if err != nil {
+		return nil, fmt.Errorf("couldn't parse deadline: %w", err)
+	}
+
 	pos := &Position{
 		Instrument:  i,
 		Type:        opt.Type,
 		Status:      Active,
 		OpenPrice:   wp.Price,
 		TargetPrice: opt.TargetPrice,
-		Deadline:    opt.Deadline,
+		Deadline:    deadline,
 		OpenDate:    time.Now(),
 		IdeaPartP:   opt.IdeaPartP,
 	}

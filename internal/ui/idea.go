@@ -29,10 +29,6 @@ func Idea(i *idea.Idea) IdeaComponent {
 	}
 }
 
-//go:embed template/idea.html
-var s_ideaTemplate string
-var ideaTemplate = mustTemplate(s_ideaTemplate)
-
-func (ic IdeaComponent) Render(c echo.Context) error {
-	return ideaTemplate.Execute(c.Response().Writer, ic)
+func (i IdeaComponent) Render(c echo.Context) error {
+	return c.Render(200, "idea.html", i)
 }

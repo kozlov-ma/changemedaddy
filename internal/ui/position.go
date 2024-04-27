@@ -66,10 +66,6 @@ func Position(p position.WithProfit) PositionComponent {
 	}
 }
 
-//go:embed template/position.html
-var s_positionTemplate string
-var positionTemplate = mustTemplate(s_positionTemplate)
-
 func (pc PositionComponent) Render(c echo.Context) error {
-	return positionTemplate.Execute(c.Response().Writer, pc)
+	return c.Render(200, "position.html", pc)
 }
