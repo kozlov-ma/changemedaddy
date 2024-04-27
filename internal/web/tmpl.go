@@ -8,7 +8,8 @@ import (
 )
 
 const (
-	FilenamePageHTML = "index.html"
+	PageHTMLFilename      = "index.html"
+	ErrorPageHTMLFilename = "error.html"
 )
 
 type tmpls struct {

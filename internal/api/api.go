@@ -55,17 +55,26 @@ func (h *handler) getPosition(c echo.Context) error {
 	}
 	p, err := h.pos.Find(c.Request().Context(), id)
 	if errors.Is(err, position.ErrNotFound) {
-		return echo.NewHTTPError(http.StatusNotFound, "position not found")
+		return c.Render(http.StatusNotFound, web.ErrorPageHTMLFilename, map[string]interface{}{
+			"Header": "Позиция не найдена",
+			"Error":  err,
+		})
 	} else if err != nil {
-		return fmt.Errorf("couldn't get position: %w", err)
+		return c.Render(http.StatusInternalServerError, web.ErrorPageHTMLFilename, map[string]interface{}{
+			"Header": "Не можем получить позицию",
+			"Error":  err,
+		})
 	}
 
 	q, err := p.Quote(c.Request().Context(), h.mp)
 	if err != nil {
-		return fmt.Errorf("couldn't get quoted position: %w", err)
+		return c.Render(http.StatusInternalServerError, web.ErrorPageHTMLFilename, map[string]interface{}{
+			"Header": "Не можем получить цену позиции",
+			"Error":  err,
+		})
 	}
 
-	return c.Render(http.StatusOK, web.FilenamePageHTML, q)
+	return c.Render(http.StatusOK, web.PageHTMLFilename, q)
 }
 
 func (h *handler) createPosition(c echo.Context) error {
