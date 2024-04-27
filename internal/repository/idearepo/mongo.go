@@ -17,11 +17,11 @@ const (
 	queryTimeout     = time.Second
 )
 
-type mongoRep struct {
+type mongoRepo struct {
 	ideas *mongo.Collection
 }
 
-func NewMongoRep(ctx context.Context) *mongoRep {
+func NewMongoRepo(ctx context.Context) *mongoRepo {
 	client, err := mongo.Connect(ctx, options.Client().ApplyURI(connectionString))
 	if err != nil {
 		panic(err)
@@ -41,14 +41,14 @@ func NewMongoRep(ctx context.Context) *mongoRep {
 		panic(err)
 	}
 
-	return &mongoRep{ideas: collection}
+	return &mongoRepo{ideas: collection}
 }
 
-func (r *mongoRep) Create(ctx context.Context, idea *idea.Idea) error {
-	ctxWithTimeout, cancel := context.WithTimeout(ctx, queryTimeout)
+func (r *mongoRepo) Create(ctx context.Context, idea *idea.Idea) error {
+	ctx, cancel := context.WithTimeout(ctx, queryTimeout)
 	defer cancel()
 
-	_, err := r.ideas.InsertOne(ctxWithTimeout, idea)
+	_, err := r.ideas.InsertOne(ctx, idea)
 
 	if err != nil {
 		return fmt.Errorf("could't insert the idea to repo: %w", err)
@@ -56,13 +56,13 @@ func (r *mongoRep) Create(ctx context.Context, idea *idea.Idea) error {
 	return nil
 }
 
-func (r *mongoRep) FindOne(ctx context.Context, analystSlug, ideaSlug string) (*idea.Idea, error) {
-	ctxWithTimeout, cancel := context.WithTimeout(ctx, queryTimeout)
+func (r *mongoRepo) FindOne(ctx context.Context, analystSlug, ideaSlug string) (*idea.Idea, error) {
+	ctx, cancel := context.WithTimeout(ctx, queryTimeout)
 	defer cancel()
 
 	var idea idea.Idea
 	filter := bson.M{"created_by_slug": analystSlug, "slug": ideaSlug}
-	err := r.ideas.FindOne(ctxWithTimeout, filter).Decode(&idea)
+	err := r.ideas.FindOne(ctx, filter).Decode(&idea)
 	if err != nil {
 		return nil, fmt.Errorf("could't find one idea: %w", err)
 	}

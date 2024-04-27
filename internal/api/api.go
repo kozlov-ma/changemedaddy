@@ -3,7 +3,7 @@ package api
 import (
 	"changemedaddy/internal/domain/instrument"
 	"changemedaddy/internal/domain/position"
-	"changemedaddy/web"
+	"changemedaddy/internal/web"
 	"context"
 	"errors"
 	"fmt"
