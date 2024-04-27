@@ -18,14 +18,20 @@ type (
 	Position struct {
 		ID int
 		// Author      *analyst.Analyst
-		Instrument  *instrument.Instrument
-		Type        Type
-		Status      Status
+
+		Instrument *instrument.Instrument
+
+		Type   Type
+		Status Status
+
 		OpenPrice   decimal.Decimal
 		TargetPrice decimal.Decimal
 		ClosedPrice decimal.Decimal
-		Deadline    time.Time
-		OpenDate    time.Time
+
+		Deadline time.Time
+		OpenDate time.Time
+
+		IdeaPartP decimal.Decimal
 	}
 )
 
@@ -57,6 +63,7 @@ type PositionOptions struct {
 	Type        Type            `json:"type"`
 	TargetPrice decimal.Decimal `json:"target_price"`
 	Deadline    time.Time       `json:"deadline"`
+	IdeaPartP   decimal.Decimal `json:"idea_part_p"`
 }
 
 func NewPosition(ctx context.Context, mp marketProvider, ps positionSaver, opt PositionOptions) (*Position, error) {
@@ -78,6 +85,7 @@ func NewPosition(ctx context.Context, mp marketProvider, ps positionSaver, opt P
 		TargetPrice: opt.TargetPrice,
 		Deadline:    opt.Deadline,
 		OpenDate:    time.Now(),
+		IdeaPartP:   opt.IdeaPartP,
 	}
 
 	err = ps.Save(ctx, pos)

@@ -1,0 +1,46 @@
+<!doctype html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>position</title>
+        <script src="https://cdn.tailwindcss.com"></script>
+        <script src="https://unpkg.com/htmx.org@1.9.12"></script>
+    </head>
+
+    <body>
+        <div>
+            <div class="flex-1 flex items-center justify-center">
+                <div class="w-full px-4 sm:px-6 lg:px-8">
+                    <div class="bg-white rounded-lg shadow-md p-6">
+                        <div class="flex items-center justify-between mb-4">
+                            <h2 class="text-3xl font-bold mb-4 mt-2">
+                                {{ .Name }}
+                            </h2>
+                        </div>
+                        <div class="ideainfo grid grid-cols-2 gap-4 mb-6"></div>
+                        <div class="flex items-center justify-between">
+                            <p class="by text-gray-500">by {{ .AuthorName }}</p>
+                            <a
+                                class="inline-flex items-center justify-center whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 h-10 px-4 py-2"
+                                href="{{ .SourceLink }}"
+                            >
+                                Посмотреть Идею
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div>
+            {{ range $id := .PositionIDs }}
+            <div
+                hx-get="/position/{{ $id }}"
+                hx-trigger="load"
+                hx-swap="outerHTML"
+            ></div>
+            {{ end }}
+        </div>
+    </body>
+</html>

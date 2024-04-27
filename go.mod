@@ -12,6 +12,7 @@ require (
 	github.com/Masterminds/goutils v1.1.1 // indirect
 	github.com/Masterminds/semver v1.5.0 // indirect
 	github.com/google/uuid v1.1.1 // indirect
+	github.com/gosimple/unidecode v1.0.1 // indirect
 	github.com/huandu/xstrings v1.3.3 // indirect
 	github.com/imdario/mergo v0.3.11 // indirect
 	github.com/labstack/gommon v0.4.2 // indirect
@@ -28,6 +29,8 @@ require (
 
 require (
 	github.com/golang/snappy v0.0.1 // indirect
+	github.com/goodsign/monday v1.0.2
+	github.com/gosimple/slug v1.14.0
 	github.com/klauspost/compress v1.13.6 // indirect
 	github.com/labstack/echo/v4 v4.12.0
 	github.com/montanaflynn/stats v0.0.0-20171201202039-1bf9dbcd8cbe // indirect
