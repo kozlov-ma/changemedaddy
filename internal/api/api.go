@@ -3,6 +3,7 @@ package api
 import (
 	"changemedaddy/internal/domain/instrument"
 	"changemedaddy/internal/domain/position"
+	"changemedaddy/internal/pkg/template"
 	"changemedaddy/internal/web"
 	"context"
 	"errors"
@@ -33,18 +34,32 @@ type handler struct {
 }
 
 func RunServer(pos positionRepo, mp marketProvider) {
-	r := echo.New()
+	e := echo.New()
 
-	tmpl := web.NewTmpls()
-	r.Renderer = tmpl
-	r.Static("/static", "web/static")
+	e.Renderer = template.New("web/templates/*.html")
+
+	e.Static("/static", "web/static")
 
 	h := handler{pos, mp}
 
-	r.GET("/position/:id", h.getPosition)
-	r.POST("/position", h.createPosition)
+	e.HTTPErrorHandler = func(err error, c echo.Context) {
+		code := http.StatusInternalServerError
+		if he, ok := err.(*echo.HTTPError); ok {
+			code = he.Code
+		}
+		c.Logger().Error(err)
+		c.String(code, "fuckin error")
+	}
 
-	r.Logger.Fatal(r.Start(":8080"))
+	e.GET("/position/:id", h.getPosition)
+	e.POST("/position", h.createPosition)
+
+	component := e.Group("/component")
+	component.GET("/position_fields/:index", positionFields)
+
+	e.GET("/new_idea", newIdea)
+
+	e.Logger.Fatal(e.Start(":8080"))
 }
 
 func (h *handler) getPosition(c echo.Context) error {
@@ -66,7 +81,7 @@ func (h *handler) getPosition(c echo.Context) error {
 		})
 	}
 
-	q, err := p.Quote(c.Request().Context(), h.mp)
+	wp, err := p.WithProfit(c.Request().Context(), h.mp)
 	if err != nil {
 		return c.Render(http.StatusInternalServerError, web.ErrorPageHTMLFilename, map[string]interface{}{
 			"Header": "Не можем получить цену позиции",
@@ -74,7 +89,7 @@ func (h *handler) getPosition(c echo.Context) error {
 		})
 	}
 
-	return c.Render(http.StatusOK, web.PageHTMLFilename, q)
+	return c.Render(http.StatusOK, web.PageHTMLFilename, wp)
 }
 
 func (h *handler) createPosition(c echo.Context) error {
@@ -89,4 +104,17 @@ func (h *handler) createPosition(c echo.Context) error {
 	}
 
 	return c.JSON(http.StatusCreated, pos)
+}
+
+func positionFields(c echo.Context) error {
+	idx, err := strconv.Atoi(c.Param("index"))
+	if err != nil {
+		return c.String(http.StatusBadRequest, "invalid index")
+	}
+
+	return c.Render(http.StatusOK, "position_fields.html", idx)
+}
+
+func newIdea(c echo.Context) error {
+	return c.Render(http.StatusOK, "new_idea.html", nil)
 }

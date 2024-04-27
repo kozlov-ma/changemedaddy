@@ -1,0 +1,23 @@
+<!doctype html>
+<html lang="ru">
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>Новая Инвестидея</title>
+        <link rel="stylesheet" href="style.css" />
+    </head>
+    <body>
+        <script src="https://unpkg.com/htmx.org@1.9.12"></script>
+        <div>
+            <form>
+                <button
+                    hx-get="/component/position_fields/0"
+                    hx-swap="outerHTML"
+                    hx-target="this"
+                >
+                    Добавить Позицию
+                </button>
+            </form>
+        </div>
+    </body>
+</html>

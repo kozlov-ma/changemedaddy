@@ -65,7 +65,7 @@ func NewPosition(ctx context.Context, mp marketProvider, ps positionSaver, opt P
 		return nil, fmt.Errorf("couldn't get instrument: %w", err)
 	}
 
-	price, err := i.Price(ctx, mp)
+	wp, err := i.WithPrice(ctx, mp)
 	if err != nil {
 		return nil, fmt.Errorf("couldn't get instrument (%q) price: %w", i.Ticker, err)
 	}
@@ -74,7 +74,7 @@ func NewPosition(ctx context.Context, mp marketProvider, ps positionSaver, opt P
 		Instrument:  i,
 		Type:        opt.Type,
 		Status:      Active,
-		OpenPrice:   price,
+		OpenPrice:   wp.Price,
 		TargetPrice: opt.TargetPrice,
 		Deadline:    opt.Deadline,
 		OpenDate:    time.Now(),
@@ -88,20 +88,41 @@ func NewPosition(ctx context.Context, mp marketProvider, ps positionSaver, opt P
 	return pos, nil
 }
 
-type Quoted struct {
+type WithProfit struct {
 	*Position
-	Instrument *instrument.Quoted
+	Instrument *instrument.WithPrice
+	ProfitP    decimal.Decimal
 }
 
-func (p *Position) Quote(ctx context.Context, pp priceProvider) (Quoted, error) {
-	q, err := p.Instrument.Quote(ctx, pp)
+func (p *Position) WithProfit(ctx context.Context, pp priceProvider) (WithProfit, error) {
+	wp, err := p.Instrument.WithPrice(ctx, pp)
 	if err != nil {
-		return Quoted{}, fmt.Errorf("couldn't get instrument quote: %w", err)
+		return WithProfit{}, fmt.Errorf("couldn't get instrument quote: %w", err)
 	}
 
-	return Quoted{
+	var (
+		mul     decimal.Decimal
+		profitP decimal.Decimal
+	)
+	if p.Type == Long {
+		mul = one
+	} else if p.Type == Short {
+		mul = negOne
+	} else {
+		panic(fmt.Sprintf("unknown position type %q in trusted data", p.Type))
+	}
+
+	if p.Status == Closed {
+		profitP = p.ClosedPrice.Sub(p.OpenPrice).Mul(mul)
+	} else {
+
+		profitP = wp.Price.Sub(p.OpenPrice).Mul(mul)
+	}
+
+	return WithProfit{
 		Position:   p,
-		Instrument: &q,
+		Instrument: &wp,
+		ProfitP:    profitP,
 	}, nil
 }
 
@@ -109,23 +130,6 @@ var (
 	one    = decimal.NewFromInt(1)
 	negOne = decimal.NewFromInt(-1)
 )
-
-func (q Quoted) Profit(ctx context.Context) decimal.Decimal {
-	var mul decimal.Decimal
-	if q.Type == Long {
-		mul = one
-	} else if q.Type == Short {
-		mul = negOne
-	} else {
-		panic(fmt.Sprintf("unknown position type %q in trusted data", q.Type))
-	}
-
-	if q.Status == Closed {
-		return q.ClosedPrice.Sub(q.OpenPrice).Mul(mul)
-	}
-
-	return q.Instrument.Price.Sub(q.OpenPrice).Mul(mul)
-}
 
 type positionSaver interface {
 	Save(ctx context.Context, p *Position) error
@@ -139,16 +143,16 @@ type positionUpdater interface {
 	Update(ctx context.Context, p *Position) error
 }
 
-func (q Quoted) Close(ctx context.Context, pu positionUpdater) error {
-	q.Status = Closed
-	q.ClosedPrice = q.Instrument.Price
+func (wp WithProfit) Close(ctx context.Context, pu positionUpdater) error {
+	wp.Status = Closed
+	wp.ClosedPrice = wp.Instrument.Price
 
-	err := pu.Update(ctx, q.Position)
-	if err == nil { // TODO test this
+	err := pu.Update(ctx, wp.Position)
+	if err == nil {
 		return nil
 	}
 
-	q.Status = Active
+	wp.Status = Active
 	return fmt.Errorf("couldn't save position: %w", err)
 }
 

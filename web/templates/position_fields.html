@@ -1,0 +1,36 @@
+<div>
+    <fieldset>
+        <table>
+            <tr>
+                <th>Тикер</th>
+                <td><input name="{{ . }}:ticker" type="text" /></td>
+            </tr>
+            <tr>
+                <th>Тип позиции</th>
+                <td>
+                    <select name="{{ . }}:type">
+                        <option value="long">Long</option>
+                        <option value="short">Short</option>
+                    </select>
+                </td>
+            </tr>
+            <tr>
+                <th>Целевая цена</th>
+                <td>
+                    <input name="{{ . }}:target" type="number" step="any" />
+                </td>
+            </tr>
+            <tr>
+                <th>Дедлайн</th>
+                <td><input name="{{ . }}:deadline" type="date" /></td>
+            </tr>
+        </table>
+    </fieldset>
+</div>
+<button
+    hx-get="/component/position_fields/{{ . | add 1 }}"
+    hx-swap="outerHTML"
+    hx-target="this"
+>
+    Добавить Позицию
+</button>

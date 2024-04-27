@@ -12,8 +12,8 @@ type Instrument struct {
 	Ticker string
 }
 
-type Quoted struct {
-	Instrument
+type WithPrice struct {
+	*Instrument
 	Price decimal.Decimal
 }
 
@@ -21,18 +21,14 @@ type priceProvider interface {
 	Price(ctx context.Context, i *Instrument) (decimal.Decimal, error)
 }
 
-func (i *Instrument) Price(ctx context.Context, pp priceProvider) (decimal.Decimal, error) {
-	return pp.Price(ctx, i)
-}
-
-func (i *Instrument) Quote(ctx context.Context, pp priceProvider) (Quoted, error) {
-	price, err := i.Price(ctx, pp)
+func (i *Instrument) WithPrice(ctx context.Context, pp priceProvider) (WithPrice, error) {
+	price, err := pp.Price(ctx, i)
 	if err != nil {
-		return Quoted{}, fmt.Errorf("couldn't get instrument price: %w", err)
+		return WithPrice{}, fmt.Errorf("couldn't get instrument price: %w", err)
 	}
 
-	return Quoted{
-		Instrument: *i,
+	return WithPrice{
+		Instrument: i,
 		Price:      price,
 	}, nil
 }
