@@ -4,6 +4,7 @@ import (
 	"changemedaddy/internal/domain/instrument"
 	"changemedaddy/internal/pkg/assert"
 	"context"
+	"errors"
 	"fmt"
 	"time"
 
@@ -59,17 +60,40 @@ type marketProvider interface {
 }
 
 type CreationOptions struct {
-	Ticker      string          `form:"ticker"`
-	Type        Type            `form:"type"`
-	TargetPrice decimal.Decimal `form:"target_price"`
-	Deadline    string          `form:"deadline"`
-	IdeaPartP   decimal.Decimal `form:"idea_part_p"`
+	Ticker      string `form:"ticker"`
+	Type        Type   `form:"type"`
+	TargetPrice string `form:"target_price"`
+	Deadline    string `form:"deadline"`
 }
 
 func New(ctx context.Context, mp marketProvider, ps positionSaver, opt CreationOptions) (*Position, error) {
+	var parseError error
+
 	i, err := mp.Find(ctx, opt.Ticker)
-	if err != nil {
+	if errors.Is(instrument.ErrNotFound, err) {
+		parseError = errors.Join(parseError, err, ErrTicker)
+	} else if err != nil {
 		return nil, fmt.Errorf("couldn't get instrument: %w", err)
+	}
+
+	if opt.Type != Long && opt.Type != Short {
+		parseError = errors.Join(parseError, ErrParseType)
+	}
+
+	tp, err := decimal.NewFromString(opt.TargetPrice)
+	if err != nil || tp.LessThan(decimal.Zero) {
+		parseError = errors.Join(parseError, err, ErrTargerPrice)
+	}
+
+	deadline, err := time.Parse("2.01.2006", opt.Deadline)
+	if err != nil {
+		parseError = errors.Join(parseError, err, ErrParseDeadline)
+	} else if deadline.Before(time.Now()) {
+		parseError = errors.Join(parseError, ErrParseDeadline)
+	}
+
+	if parseError != nil {
+		return nil, parseError
 	}
 
 	wp, err := i.WithPrice(ctx, mp)
@@ -77,20 +101,14 @@ func New(ctx context.Context, mp marketProvider, ps positionSaver, opt CreationO
 		return nil, fmt.Errorf("couldn't get instrument (%q) price: %w", i.Ticker, err)
 	}
 
-	deadline, err := time.Parse("2006-01-02", opt.Deadline)
-	if err != nil {
-		return nil, fmt.Errorf("couldn't parse deadline: %w", err)
-	}
-
 	pos := &Position{
 		Instrument:  i,
 		Type:        opt.Type,
 		Status:      Active,
 		OpenPrice:   wp.Price,
-		TargetPrice: opt.TargetPrice,
+		TargetPrice: tp,
 		Deadline:    deadline,
 		OpenDate:    time.Now(),
-		IdeaPartP:   opt.IdeaPartP,
 	}
 
 	err = ps.Save(ctx, pos)

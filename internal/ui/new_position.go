@@ -8,6 +8,17 @@ import (
 
 type PositionForm struct {
 	IdeaID int
+
+	PrevTicker  string
+	WrongTicker bool
+
+	PrevTarget  string
+	WrongTarget bool
+
+	WrongType bool
+
+	PrevDeadline  string
+	WrongDeadline bool
 }
 
 func NewPosition(ideaID int) PositionForm {

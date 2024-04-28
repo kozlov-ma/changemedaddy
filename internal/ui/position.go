@@ -33,9 +33,6 @@ type PositionComponent struct {
 
 	Deadline string
 	OpenDate string
-
-	IncludePart bool
-	IdeaPartP   string
 }
 
 func Position(p position.WithProfit) PositionComponent {
@@ -56,13 +53,10 @@ func Position(p position.WithProfit) PositionComponent {
 
 		TargetPrice: p.TargetPrice,
 		Change:      withSign(p.TargetPrice.Sub(p.Instrument.Price)),
-		ChangeP:     withSign(p.TargetPrice.Sub(p.Instrument.Price).Div(p.Instrument.Price).Mul(decimal.NewFromInt(100))),
+		ChangeP:     withSign(p.TargetPrice.Sub(p.Instrument.Price).Div(p.Instrument.Price).Mul(decimal.NewFromInt(100)).Round(2)),
 
 		Deadline: monday.Format(p.Deadline, "2 January 2006", monday.LocaleRuRU),
 		OpenDate: monday.Format(p.OpenDate, "2 January 2006", monday.LocaleRuRU),
-
-		IncludePart: p.IdeaPartP.LessThan(decimal.NewFromInt(100)),
-		IdeaPartP:   p.IdeaPartP.Round(2).String(),
 	}
 }
 

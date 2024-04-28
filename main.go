@@ -10,8 +10,6 @@ import (
 	"context"
 	"log/slog"
 	"os"
-
-	"github.com/greatcloak/decimal"
 )
 
 func main() {
@@ -22,9 +20,8 @@ func main() {
 	p, err := position.New(context.Background(), mp, posRepo, position.CreationOptions{
 		Ticker:      "MGNT",
 		Type:        position.Long,
-		TargetPrice: decimal.NewFromInt(11000),
-		Deadline:    "2024-05-31",
-		IdeaPartP:   decimal.NewFromInt(100),
+		TargetPrice: "11000",
+		Deadline:    "31.05.2024",
 	})
 
 	if err != nil {

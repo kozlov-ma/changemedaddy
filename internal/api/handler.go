@@ -52,6 +52,8 @@ func (h *handler) MustEcho() *echo.Echo {
 
 	e.GET("/position/:positionID", h.getPosition)
 
+	e.GET("/empty", func(c echo.Context) error { return c.NoContent(200) })
+
 	return e
 }
 

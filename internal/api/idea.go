@@ -51,7 +51,19 @@ func (h *handler) addPosition(c echo.Context) error {
 
 	i := c.Get("idea").(*idea.Idea)
 	p, err := i.NewPosition(c.Request().Context(), h.mp, h.pos, h.ir, opt)
-	if err != nil {
+	if errors.Is(err, position.ErrTicker) || errors.Is(err, position.ErrParseType) || errors.Is(err, position.ErrTargerPrice) || errors.Is(err, position.ErrParseDeadline) {
+		pf := ui.PositionForm{
+			IdeaID:        i.ID,
+			PrevTicker:    opt.Ticker,
+			WrongTicker:   errors.Is(err, position.ErrTicker),
+			PrevTarget:    opt.TargetPrice,
+			WrongTarget:   errors.Is(err, position.ErrTargerPrice),
+			WrongType:     errors.Is(err, position.ErrParseType),
+			PrevDeadline:  opt.Deadline,
+			WrongDeadline: errors.Is(err, position.ErrParseDeadline),
+		}
+		return pf.Render(c)
+	} else if err != nil {
 		h.log.Error("couldn't create position", "err", err)
 		ui.Render500(c)
 		return err
