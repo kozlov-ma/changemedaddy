@@ -1,6 +1,12 @@
+const DayInSeconds = 86400
+
 const turquoise = '#03866a'
 const red = '#dc2020'
 const lightGrey = "rgba(140,137,137,0.2)"
+
+function getTimeInSecondsFromString(s) {
+    return new Date(s).getTime() / 1000
+}
 
 const currentLocale = window.navigator.languages[0];
 const myPriceFormatter = Intl.NumberFormat(currentLocale, {
@@ -8,7 +14,8 @@ const myPriceFormatter = Intl.NumberFormat(currentLocale, {
     currency: 'RUB',
 }).format;
 
-const chart = LightweightCharts.createChart(document.getElementById('chart-container'), {
+const chartContainer = document.getElementById('chart-container')
+const chart = LightweightCharts.createChart(chartContainer, {
     grid: {
         vertLines: {color: lightGrey},
         horzLines: {color: lightGrey},
@@ -20,11 +27,16 @@ const chart = LightweightCharts.createChart(document.getElementById('chart-conta
     localization: {
         priceFormatter: myPriceFormatter,
     },
+    timeScale: {
+        // fixLeftEdge: true,
+        // fixRightEdge: true,
+        // lockVisibleTimeRangeOnResize: true,
+    }
 });
 
 chart.priceScale("right").applyOptions({
     borderVisible: false,
-    autoScale: false, // disables auto scaling based on visible content
+    autoScale: false,
     scaleMargins: {
         top: 0.1,
         bottom: 0.2,
@@ -81,6 +93,13 @@ const data = generateRandomData(100);
 
 series.setData(data);
 
+startRangeString = data.length >= 60 ? data[data.length - 60]['time'] : data[0]['time']
+endRangeString = data[data.length - 1]['time']
+chart.timeScale().setVisibleRange({
+    from: getTimeInSecondsFromString(startRangeString),
+    to: getTimeInSecondsFromString(endRangeString),
+});
+
 function scrollToNow() {
     chart.timeScale().scrollToRealTime();
 }
@@ -90,3 +109,10 @@ scrollToNow();
 document.getElementById('scrollBtn').addEventListener('click', () => {
     scrollToNow();
 });
+
+const chartResizeListener = () => {
+    const { width, height } = chartContainer.getBoundingClientRect();
+    chart.resize(width, height);
+};
+
+window.addEventListener("resize", chartResizeListener);
