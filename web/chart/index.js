@@ -21,9 +21,6 @@ const chart = LightweightCharts.createChart(chartContainer, {
         vertLines: {color: lightGrey},
         horzLines: {color: lightGrey},
     },
-    crosshair: {
-        mode: LightweightCharts.CrosshairMode.Normal,
-    },
     height: 600,
     localization: {
         priceFormatter: myPriceFormatter,
