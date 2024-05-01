@@ -27,11 +27,6 @@ const chart = LightweightCharts.createChart(chartContainer, {
     localization: {
         priceFormatter: myPriceFormatter,
     },
-    timeScale: {
-        // fixLeftEdge: true,
-        // fixRightEdge: true,
-        // lockVisibleTimeRangeOnResize: true,
-    }
 });
 
 chart.priceScale("right").applyOptions({
