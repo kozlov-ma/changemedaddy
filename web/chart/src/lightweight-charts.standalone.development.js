@@ -1,20 +1,43 @@
 import {
-    isNumber, isInteger, isString,
-    isBoolean, clone, notNull,
-    undefinedIfNull, assert, ensure,
-    ensureNotNull, ensureDefined, merge,
-    subtract, add, divide, clamp,
-    isBaseDecimal, equal, min, greaterOrEqual,
+    assert,
+    clamp,
+    clone,
+    ensure,
+    ensureDefined,
+    ensureNotNull,
+    equal,
+    greaterOrEqual,
+    isBaseDecimal,
+    isBoolean,
+    isInteger,
+    isNumber,
+    isString,
+    merge,
+    min,
+    notNull,
+    undefinedIfNull,
 } from './utils'
 import {
-    setLineStyle, drawHorizontalLine, drawVerticalLine,
-    strokeInPixel, applyAlpha, generateContrastColors,
-    gradientColorAtPercent, fillRectInnerBorder, clearRect,
-    drawRoundRectWithInnerBorder, clearRectWithGradient, walkLine
+    applyAlpha,
+    clearRect,
+    clearRectWithGradient,
+    drawHorizontalLine,
+    drawRoundRectWithInnerBorder,
+    drawVerticalLine,
+    fillRectInnerBorder,
+    generateContrastColors,
+    gradientColorAtPercent,
+    setLineStyle,
+    strokeInPixel,
+    walkLine
 } from './paint'
 import {
-    PriceFormatter, PercentageFormatter, VolumeFormatter,
-    DateTimeFormatter, DateFormatter, defaultTickMarkFormatter
+    DateFormatter,
+    DateTimeFormatter,
+    defaultTickMarkFormatter,
+    PercentageFormatter,
+    PriceFormatter,
+    VolumeFormatter
 } from './formatter.js'
 
 'use strict';
@@ -29,81 +52,11 @@ import {
 
 
 
-class CompositeRenderer {
-    constructor() {
-        this._private__renderers = [];
-    }
-
-    _internal_setRenderers(renderers) {
-        this._private__renderers = renderers;
-    }
-
-    _internal_draw(target, isHovered, hitTestData) {
-        this._private__renderers.forEach((r) => {
-            r._internal_draw(target, isHovered, hitTestData);
-        });
-    }
-}
 
 class BitmapCoordinatesPaneRenderer {
     _internal_draw(target, isHovered, hitTestData) {
         target.useBitmapCoordinateSpace((scope) => this._internal__drawImpl(scope, isHovered, hitTestData));
     }
-}
-
-class PaneRendererMarks extends BitmapCoordinatesPaneRenderer {
-    constructor() {
-        super(...arguments);
-        this._internal__data = null;
-    }
-
-    _internal_setData(data) {
-        this._internal__data = data;
-    }
-
-    _internal__drawImpl({context: ctx, horizontalPixelRatio, verticalPixelRatio}) {
-        if (this._internal__data === null || this._internal__data._internal_visibleRange === null) {
-            return;
-        }
-        const visibleRange = this._internal__data._internal_visibleRange;
-        const data = this._internal__data;
-        const tickWidth = Math.max(1, Math.floor(horizontalPixelRatio));
-        const correction = (tickWidth % 2) / 2;
-        const draw = (radiusMedia) => {
-            ctx.beginPath();
-            for (let i = visibleRange.to - 1; i >= visibleRange.from; --i) {
-                const point = data._internal_items[i];
-                const centerX = Math.round(point._internal_x * horizontalPixelRatio) + correction; // correct x coordinate only
-                const centerY = point._internal_y * verticalPixelRatio;
-                const radius = radiusMedia * verticalPixelRatio + correction;
-                ctx.moveTo(centerX, centerY);
-                ctx.arc(centerX, centerY, radius, 0, Math.PI * 2);
-            }
-            ctx.fill();
-        };
-        if (data._internal_lineWidth > 0) {
-            ctx.fillStyle = data._internal_backColor;
-            draw(data._internal_radius + data._internal_lineWidth);
-        }
-        ctx.fillStyle = data._internal_lineColor;
-        draw(data._internal_radius);
-    }
-}
-
-function createEmptyMarkerData() {
-    return {
-        _internal_items: [{
-            _internal_x: 0,
-            _internal_y: 0,
-            _internal_time: 0,
-            _internal_price: 0,
-        }],
-        _internal_lineColor: '',
-        _internal_backColor: '',
-        _internal_radius: 0,
-        _internal_lineWidth: 0,
-        _internal_visibleRange: null,
-    };
 }
 
 
@@ -1017,7 +970,7 @@ class LinePaneViewBase extends SeriesPaneViewBase {
         super(series, model, true);
     }
 
-    _internal__convertToCoordinates(priceScale, timeScale, firstValue) {
+    _internal__convertToCoordinates(priceScale, timeScale, firstValue) { // don't delete
         timeScale._internal_indexesToCoordinates(this._internal__items, undefinedIfNull(this._internal__itemsVisibleRange));
         priceScale._internal_pointsArrayToCoordinates(this._internal__items, firstValue, undefinedIfNull(this._internal__itemsVisibleRange));
     }
@@ -1031,7 +984,7 @@ class LinePaneViewBase extends SeriesPaneViewBase {
         };
     }
 
-    _internal__fillRawPoints() {
+    _internal__fillRawPoints() {  // don't delete
         const colorer = this._internal__series._internal_barColorer();
         this._internal__items = this._internal__series._internal_bars()._internal_rows().map((row) => {
             const value = row._internal_value[3 /* PlotRowValueIndex.Close */];
@@ -1785,7 +1738,7 @@ class SeriesPriceAxisView extends PriceAxisView {
         this._private__source = source;
     }
 
-    _internal__updateRendererData(axisRendererData, paneRendererData, commonRendererData) {
+    _internal__updateRendererData(axisRendererData, paneRendererData, commonRendererData) { // don't delete
         axisRendererData._internal_visible = false;
         paneRendererData._internal_visible = false;
         const source = this._private__source;
@@ -2102,7 +2055,7 @@ class PriceRangeImpl {
         return new PriceRangeImpl(computeFiniteResult(Math.min, this._internal_minValue(), anotherRange._internal_minValue(), -Infinity), computeFiniteResult(Math.max, this._internal_maxValue(), anotherRange._internal_maxValue(), Infinity));
     }
 
-    _internal_scaleAroundCenter(coeff) {
+    _internal_scaleAroundCenter(coeff) { // don't delete
         if (!isNumber(coeff)) {
             return;
         }
@@ -2119,7 +2072,7 @@ class PriceRangeImpl {
         this._private__minValue = center + minDelta;
     }
 
-    _internal_shift(delta) {
+    _internal_shift(delta) { // don't delete
         if (!isNumber(delta)) {
             return;
         }
@@ -2165,70 +2118,6 @@ class AutoscaleInfoImpl {
 
     static _internal_fromRaw(raw) {
         return (raw === null) ? null : new AutoscaleInfoImpl(PriceRangeImpl._internal_fromRaw(raw.priceRange), raw.margins);
-    }
-}
-
-class CustomPriceLinePaneView extends SeriesHorizontalLinePaneView {
-    constructor(series) {
-        super(series);
-    }
-}
-
-class CustomPriceLinePriceAxisView extends PriceAxisView {
-    constructor(series) {
-        super();
-        this._private__series = series;
-    }
-}
-
-class CustomPriceLine {
-    constructor(series, options) {
-        this._private__series = series;
-        this._private__options = options;
-        this._private__priceLineView = new CustomPriceLinePaneView(series);
-        this._private__priceAxisView = new CustomPriceLinePriceAxisView(series);
-        this._private__panePriceAxisView = new PanePriceAxisView(this._private__priceAxisView, series, series._internal_model());
-    }
-
-    _internal_applyOptions(options) {
-        merge(this._private__options, options);
-        this._internal_update();
-        this._private__series._internal_model()._internal_lightUpdate();
-    }
-
-    _internal_options() {
-        return this._private__options;
-    }
-
-    _internal_paneView() {
-        return this._private__priceLineView;
-    }
-
-    _internal_labelPaneView() {
-        return this._private__panePriceAxisView;
-    }
-
-    _internal_priceAxisView() {
-        return this._private__priceAxisView;
-    }
-
-    _internal_update() {
-        this._private__priceLineView._internal_update();
-        this._private__priceAxisView._internal_update();
-    }
-
-    _internal_yCoord() {
-        const series = this._private__series;
-        const priceScale = series._internal_priceScale();
-        const timeScale = series._internal_model()._internal_timeScale();
-        if (timeScale._internal_isEmpty() || priceScale._internal_isEmpty()) {
-            return null;
-        }
-        const firstValue = series._internal_firstValue();
-        if (firstValue === null) {
-            return null;
-        }
-        return priceScale._internal_priceToCoordinate(this._private__options.price, firstValue._internal_value);
     }
 }
 
@@ -2925,23 +2814,6 @@ class Series extends PriceDataSource {
         return this._private__data;
     }
 
-    _internal_dataAt(time) {
-        const prices = this._private__data._internal_valueAt(time);
-        if (prices === null) {
-            return null;
-        }
-        if (this._private__seriesType === 'Bar' || this._private__seriesType === 'Candlestick' || this._private__seriesType === 'Custom') {
-            return {
-                _internal_open: prices._internal_value[0 /* PlotRowValueIndex.Open */],
-                _internal_high: prices._internal_value[1 /* PlotRowValueIndex.High */],
-                _internal_low: prices._internal_value[2 /* PlotRowValueIndex.Low */],
-                _internal_close: prices._internal_value[3 /* PlotRowValueIndex.Close */],
-            };
-        } else {
-            return prices._internal_value[3 /* PlotRowValueIndex.Close */];
-        }
-    }
-
     _internal_topPaneViews(pane) {
         const res = [];
         extractPrimitivePaneViews(this._private__primitives, primitivePaneViewsExtractor, 'top', res);
@@ -3098,7 +2970,7 @@ class Series extends PriceDataSource {
     }
 
     _internal_customSeriesPlotValuesBuilder() {
-        if (this._private__paneView instanceof SeriesCustomPaneView === false) {
+        if (!(this._private__paneView instanceof SeriesCustomPaneView)) {
             return undefined;
         }
         return (data) => {
@@ -3107,7 +2979,7 @@ class Series extends PriceDataSource {
     }
 
     _internal_customSeriesWhitespaceCheck() {
-        if (this._private__paneView instanceof SeriesCustomPaneView === false) {
+        if (!(this._private__paneView instanceof SeriesCustomPaneView)) {
             return undefined;
         }
         return (data) => {
@@ -3814,8 +3686,7 @@ class PriceScale {
                 logical = transformFn(point._internal_price, baseValue);
             }
             const invCoordinate = bh + hmm * (logical - min);
-            const coordinate = isInverted ? invCoordinate : this._private__height - 1 - invCoordinate;
-            point._internal_y = coordinate;
+            point._internal_y = isInverted ? invCoordinate : this._private__height - 1 - invCoordinate;
         }
     }
 
@@ -4175,8 +4046,7 @@ class PriceScale {
         const range = ensureNotNull(this._internal_priceRange());
         const invCoordinate = this._private__bottomMarginPx() +
             (this._internal_internalHeight() - 1) * (logical - range._internal_minValue()) / range._internal_length();
-        const coordinate = this._internal_invertedCoordinate(invCoordinate);
-        return coordinate;
+        return this._internal_invertedCoordinate(invCoordinate);
     }
 
     _private__coordinateToLogical(coordinate, baseValue) {
@@ -4975,10 +4845,6 @@ class TimeScale {
         return this._private__width === 0 || this._private__points.length === 0 || this._private__baseIndexOrNull === null;
     }
 
-    _internal_hasPoints() {
-        return this._private__points.length > 0;
-    }
-
     // strict range: integer indices of the bars in the visible range rounded in more wide direction
     _internal_visibleStrictRange() {
         this._private__updateVisibleRange();
@@ -4988,17 +4854,6 @@ class TimeScale {
     _internal_visibleLogicalRange() {
         this._private__updateVisibleRange();
         return this._private__visibleRange._internal_logicalRange();
-    }
-
-    _internal_timeRangeForLogicalRange(range) {
-        const from = Math.round(range.from);
-        const to = Math.round(range.to);
-        const firstIndex = ensureNotNull(this._private__firstIndex());
-        const lastIndex = ensureNotNull(this._private__lastIndex());
-        return {
-            from: ensureNotNull(this._internal_indexToTimeScalePoint(Math.max(firstIndex, from))),
-            to: ensureNotNull(this._internal_indexToTimeScalePoint(Math.min(lastIndex, to))),
-        };
     }
 
     _internal_logicalRangeForTimeRange(range) {
@@ -5028,11 +4883,9 @@ class TimeScale {
         this._private__width = newWidth;
         this._private__visibleRangeInvalidated = true;
         if (this._private__options.lockVisibleTimeRangeOnResize && oldWidth !== 0) {
-            // recalculate bar spacing
-            const newBarSpacing = this._private__barSpacing * newWidth / oldWidth;
-            this._private__barSpacing = newBarSpacing;
+            this._private__barSpacing = this._private__barSpacing * newWidth / oldWidth;
         }
-        // if time scale is scrolled to the end of data and we have fixed right edge
+        // if timescale is scrolled to the end of data and we have fixed right edge
         // keep left edge instead of right
         // we need it to avoid "shaking" if the last bar visibility affects time scale width
         if (this._private__options.fixLeftEdge) {
@@ -5056,8 +4909,7 @@ class TimeScale {
         }
         const baseIndex = this._internal_baseIndex();
         const deltaFromRight = baseIndex + this._private__rightOffset - index;
-        const coordinate = this._private__width - (deltaFromRight + 0.5) * this._private__barSpacing - 1;
-        return coordinate;
+        return this._private__width - (deltaFromRight + 0.5) * this._private__barSpacing - 1;
     }
 
     _internal_indexesToCoordinates(points, visibleRange) {
@@ -5067,8 +4919,7 @@ class TimeScale {
         for (let i = indexFrom; i < indexTo; i++) {
             const index = points[i]._internal_time;
             const deltaFromRight = baseIndex + this._private__rightOffset - index;
-            const coordinate = this._private__width - (deltaFromRight + 0.5) * this._private__barSpacing - 1;
-            points[i]._internal_x = coordinate;
+            points[i]._internal_x = this._private__width - (deltaFromRight + 0.5) * this._private__barSpacing - 1;
         }
     }
 
@@ -6139,17 +5990,6 @@ class ChartModel {
         return series;
     }
 
-    _internal_removeSeries(series) {
-        const pane = this._internal_paneForSource(series);
-        const seriesIndex = this._private__serieses.indexOf(series);
-        assert(seriesIndex !== -1, 'Series not found');
-        this._private__serieses.splice(seriesIndex, 1);
-        ensureNotNull(pane)._internal_removeDataSource(series);
-        if (series._internal_destroy) {
-            series._internal_destroy();
-        }
-    }
-
     _internal_moveSeriesToScale(series, targetScaleId) {
         const pane = ensureNotNull(this._internal_paneForSource(series));
         pane._internal_removeDataSource(series);
@@ -6323,22 +6163,10 @@ function precisionByMinMove(minMove) {
     return i;
 }
 
-/**
- * Check if a time value is a business day object.
- *
- * @param time - The time to check.
- * @returns `true` if `time` is a {@link BusinessDay} object, false otherwise.
- */
 function isBusinessDay(time) {
     return !isNumber(time) && !isString(time);
 }
 
-/**
- * Check if a time value is a UTC timestamp number.
- *
- * @param time - The time to check.
- * @returns `true` if `time` is a {@link UTCTimestamp} number, false otherwise.
- */
 function isUTCTimestamp(time) {
     return isNumber(time);
 }
@@ -6570,8 +6398,7 @@ class HorzScaleBehaviorTime {
     }
 
     formatHorzItem(item) {
-        const tp = item;
-        return this._private__dateTimeFormatter._internal_format(new Date(tp._internal_timestamp * 1000));
+        return this._private__dateTimeFormatter._internal_format(new Date(item._internal_timestamp * 1000));
     }
 
     formatTickmark(tickMark, localizationOptions) {
@@ -6738,14 +6565,6 @@ var DevicePixelContentBoxBinding = /** @class */ (function () {
         this.canvasElement.style.width = "".concat(this._canvasElementClientSize.width, "px");
         this.canvasElement.style.height = "".concat(this._canvasElementClientSize.height, "px");
         this._invalidateBitmapSize();
-    };
-    DevicePixelContentBoxBinding.prototype.subscribeBitmapSizeChanged = function (listener) {
-        this._bitmapSizeChangedListeners.push(listener);
-    };
-    DevicePixelContentBoxBinding.prototype.unsubscribeBitmapSizeChanged = function (listener) {
-        this._bitmapSizeChangedListeners = this._bitmapSizeChangedListeners.filter(function (l) {
-            return l !== listener;
-        });
     };
     Object.defineProperty(DevicePixelContentBoxBinding.prototype, "suggestedBitmapSize", {
         get: function () {
@@ -7095,7 +6914,7 @@ function speedPxPerMSec(pos1, pos2, maxSpeed) {
 
 function durationMSec(speed, dumpingCoeff) {
     const lnDumpingCoeff = Math.log(dumpingCoeff);
-    return Math.log((1 /* Constants.EpsilonDistance */ * lnDumpingCoeff) / -speed) / (lnDumpingCoeff);
+    return Math.log(-speed / (lnDumpingCoeff)) / (lnDumpingCoeff);
 }
 
 class KineticAnimation {
@@ -8878,17 +8697,6 @@ class PaneWidget {
         }
     }
 
-    _internal_getBitmapSize() {
-        return this._private__canvasBinding.bitmapSize;
-    }
-
-    _internal_drawBitmap(ctx, x, y) {
-        const bitmapSize = this._internal_getBitmapSize();
-        if (bitmapSize.width > 0 && bitmapSize.height > 0) {
-            ctx.drawImage(this._private__canvasBinding.canvasElement, x, y);
-        }
-    }
-
     _internal_paint(type) {
         if (type === 0 /* InvalidationLevel.None */) {
             return;
@@ -9250,17 +9058,6 @@ class PriceAxisStub {
         }
     }
 
-    _internal_getBitmapSize() {
-        return this._private__canvasBinding.bitmapSize;
-    }
-
-    _internal_drawBitmap(ctx, x, y) {
-        const bitmapSize = this._internal_getBitmapSize();
-        if (bitmapSize.width > 0 && bitmapSize.height > 0) {
-            ctx.drawImage(this._private__canvasBinding.canvasElement, x, y);
-        }
-    }
-
     _private__drawBorder({context: ctx, bitmapSize, horizontalPixelRatio, verticalPixelRatio}) {
         if (!this._private__borderVisible()) {
             return;
@@ -9370,14 +9167,6 @@ class TimeAxisWidget {
         return this._private__element;
     }
 
-    _internal_leftStub() {
-        return this._private__leftStub;
-    }
-
-    _internal_rightStub() {
-        return this._private__rightStub;
-    }
-
     _internal_mouseDownEvent(event) {
         if (this._private__mouseDown) {
             return;
@@ -9453,10 +9242,6 @@ class TimeAxisWidget {
         return this._private__size;
     }
 
-    _internal_sizeChanged() {
-        return this._private__sizeChanged;
-    }
-
     _internal_setSizes(timeAxisSize, leftStubWidth, rightStubWidth) {
         if (!equalSizes(this._private__size, timeAxisSize)) {
             this._private__size = timeAxisSize;
@@ -9491,17 +9276,6 @@ class TimeAxisWidget {
     _internal_update() {
         // this call has side-effect - it regenerates marks on the time scale
         this._private__chart._internal_model()._internal_timeScale()._internal_marks();
-    }
-
-    _internal_getBitmapSize() {
-        return this._private__canvasBinding.bitmapSize;
-    }
-
-    _internal_drawBitmap(ctx, x, y) {
-        const bitmapSize = this._internal_getBitmapSize();
-        if (bitmapSize.width > 0 && bitmapSize.height > 0) {
-            ctx.drawImage(this._private__canvasBinding.canvasElement, x, y);
-        }
     }
 
     _internal_paint(type) {
@@ -9740,7 +9514,6 @@ class ChartWidget {
         this._private__crosshairMoved = new Delegate();
         this._private__observer = null;
         this._private__cursorStyleOverride = null;
-        this._private__container = container;
         this._private__options = options;
         this._private__horzScaleBehavior = horzScaleBehavior;
         this._private__element = document.createElement('div');
@@ -9788,10 +9561,6 @@ class ChartWidget {
 
     _internal_options() {
         return this._private__options;
-    }
-
-    _internal_paneWidgets() {
-        return this._private__paneWidgets;
     }
 
     _internal_timeAxisWidget() {
@@ -9928,95 +9697,6 @@ class ChartWidget {
         }
     }
 
-    /**
-     * Traverses the widget's layout (pane and axis child widgets),
-     * draws the screenshot (if rendering context is passed) and returns the screenshot bitmap size
-     *
-     * @param ctx - if passed, used to draw the screenshot of widget
-     * @returns screenshot bitmap size
-     */
-    _private__traverseLayout(ctx) {
-        let totalWidth = 0;
-        let totalHeight = 0;
-        const firstPane = this._private__paneWidgets[0];
-        const drawPriceAxises = (position, targetX) => {
-            let targetY = 0;
-            for (let paneIndex = 0; paneIndex < this._private__paneWidgets.length; paneIndex++) {
-                const paneWidget = this._private__paneWidgets[paneIndex];
-                const priceAxisWidget = ensureNotNull(position === 'left' ? paneWidget._internal_leftPriceAxisWidget() : paneWidget._internal_rightPriceAxisWidget());
-                const bitmapSize = priceAxisWidget._internal_getBitmapSize();
-                if (ctx !== null) {
-                    priceAxisWidget._internal_drawBitmap(ctx, targetX, targetY);
-                }
-                targetY += bitmapSize.height;
-                // if (paneIndex < this._paneWidgets.length - 1) {
-                // 	const separator = this._paneSeparators[paneIndex];
-                // 	const separatorBitmapSize = separator.getBitmapSize();
-                // 	if (ctx !== null) {
-                // 		separator.drawBitmap(ctx, targetX, targetY);
-                // 	}
-                // 	targetY += separatorBitmapSize.height;
-                // }
-            }
-        };
-        // draw left price scale if exists
-        if (this._private__isLeftAxisVisible()) {
-            drawPriceAxises('left', 0);
-            const leftAxisBitmapWidth = ensureNotNull(firstPane._internal_leftPriceAxisWidget())._internal_getBitmapSize().width;
-            totalWidth += leftAxisBitmapWidth;
-        }
-        for (let paneIndex = 0; paneIndex < this._private__paneWidgets.length; paneIndex++) {
-            const paneWidget = this._private__paneWidgets[paneIndex];
-            const bitmapSize = paneWidget._internal_getBitmapSize();
-            if (ctx !== null) {
-                paneWidget._internal_drawBitmap(ctx, totalWidth, totalHeight);
-            }
-            totalHeight += bitmapSize.height;
-            // if (paneIndex < this._paneWidgets.length - 1) {
-            // 	const separator = this._paneSeparators[paneIndex];
-            // 	const separatorBitmapSize = separator.getBitmapSize();
-            // 	if (ctx !== null) {
-            // 		separator.drawBitmap(ctx, totalWidth, totalHeight);
-            // 	}
-            // 	totalHeight += separatorBitmapSize.height;
-            // }
-        }
-        const firstPaneBitmapWidth = firstPane._internal_getBitmapSize().width;
-        totalWidth += firstPaneBitmapWidth;
-        // draw right price scale if exists
-        if (this._private__isRightAxisVisible()) {
-            drawPriceAxises('right', totalWidth);
-            const rightAxisBitmapWidth = ensureNotNull(firstPane._internal_rightPriceAxisWidget())._internal_getBitmapSize().width;
-            totalWidth += rightAxisBitmapWidth;
-        }
-        const drawStub = (position, targetX, targetY) => {
-            const stub = ensureNotNull(position === 'left' ? this._private__timeAxisWidget._internal_leftStub() : this._private__timeAxisWidget._internal_rightStub());
-            stub._internal_drawBitmap(ensureNotNull(ctx), targetX, targetY);
-        };
-        // draw time scale and stubs
-        if (this._private__options.timeScale.visible) {
-            const timeAxisBitmapSize = this._private__timeAxisWidget._internal_getBitmapSize();
-            if (ctx !== null) {
-                let targetX = 0;
-                if (this._private__isLeftAxisVisible()) {
-                    drawStub('left', targetX, totalHeight);
-                    targetX = ensureNotNull(firstPane._internal_leftPriceAxisWidget())._internal_getBitmapSize().width;
-                }
-                this._private__timeAxisWidget._internal_drawBitmap(ctx, targetX, totalHeight);
-                targetX += timeAxisBitmapSize.width;
-                if (this._private__isRightAxisVisible()) {
-                    drawStub('right', targetX, totalHeight);
-                }
-            }
-            totalHeight += timeAxisBitmapSize.height;
-        }
-        return size({
-            width: totalWidth,
-            height: totalHeight,
-        });
-    }
-
-    // eslint-disable-next-line complexity
     _private__adjustSizeImpl() {
         let totalStretch = 0;
         let leftPriceAxisWidth = 0;
@@ -10338,8 +10018,7 @@ class ChartWidget {
     }
 
     _private__updateTimeAxisVisibility() {
-        const display = this._private__options.timeScale.visible ? '' : 'none';
-        this._private__timeAxisWidget._internal_getElement().style.display = display;
+        this._private__timeAxisWidget._internal_getElement().style.display = this._private__options.timeScale.visible ? '' : 'none';
     }
 
     _private__isLeftAxisVisible() {
@@ -10365,14 +10044,22 @@ function isFulfilledData(data) {
 }
 
 function __rest(s, e) {
-    var t = {};
-    for (var p in s) if (Object.prototype.hasOwnProperty.call(s, p) && e.indexOf(p) < 0)
+    let i;
+    let p;
+    const t = {};
+    for (p in s) if (Object.prototype.hasOwnProperty.call(s, p) && e.indexOf(p) < 0)
         t[p] = s[p];
     if (s != null && typeof Object.getOwnPropertySymbols === "function")
-        for (var i = 0, p = Object.getOwnPropertySymbols(s); i < p.length; i++) {
-            if (e.indexOf(p[i]) < 0 && Object.prototype.propertyIsEnumerable.call(s, p[i]))
-                t[p[i]] = s[p[i]];
+        {
+            i = 0;
         }
+    {
+        p = Object.getOwnPropertySymbols(s);
+        for (; i < p.length; i++) {
+                    if (e.indexOf(p[i]) < 0 && Object.prototype.propertyIsEnumerable.call(s, p[i]))
+                        t[p[i]] = s[p[i]];
+                }
+    }
     return t;
 }
 
@@ -10477,7 +10164,7 @@ function getCustomSeriesPlotRow(time, index, item, originalTime, dataToPlotRow) 
     const min = Math.min(...values);
     const last = values[values.length - 1];
     const value = [last, max, min, last];
-    const _a = item, {time: excludedTime, color} = _a, data = __rest(_a, ["time", "color"]);
+    const _a = item, {color} = _a, data = __rest(_a, ["time", "color"]);
     return {
         _internal_index: index,
         _internal_time: time,
@@ -10567,12 +10254,6 @@ function timeScalePointTime(mergedPointData) {
         }
     });
     return ensureDefined(result);
-}
-
-function saveOriginalTime(data) {
-    if (data._internal_originalTime === undefined) {
-        data._internal_originalTime = data.time;
-    }
 }
 
 class DataLayer {
