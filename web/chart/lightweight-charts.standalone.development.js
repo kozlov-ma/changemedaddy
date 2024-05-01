@@ -116,168 +116,6 @@
         return ensureNotNull(ensureDefined(value));
     }
 
-    /**
-     * Compile time check for never
-     */
-    function ensureNever(value) {
-    }
-
-    /**
-     * Note this object should be explicitly marked as public so that dts-bundle-generator does not mangle the property names.
-     *
-     * @public
-     * @see https://developer.mozilla.org/en-US/docs/Web/CSS/color_value
-     */
-    const namedColorRgbHexStrings = {
-        // The order of properties in this Record is not important for the internal logic.
-        // It's just GZIPped better when props follows this order.
-        // Please add new colors to the end of the record.
-        khaki: '#f0e68c',
-        azure: '#f0ffff',
-        aliceblue: '#f0f8ff',
-        ghostwhite: '#f8f8ff',
-        gold: '#ffd700',
-        goldenrod: '#daa520',
-        gainsboro: '#dcdcdc',
-        gray: '#808080',
-        green: '#008000',
-        honeydew: '#f0fff0',
-        floralwhite: '#fffaf0',
-        lightblue: '#add8e6',
-        lightcoral: '#f08080',
-        lemonchiffon: '#fffacd',
-        hotpink: '#ff69b4',
-        lightyellow: '#ffffe0',
-        greenyellow: '#adff2f',
-        lightgoldenrodyellow: '#fafad2',
-        limegreen: '#32cd32',
-        linen: '#faf0e6',
-        lightcyan: '#e0ffff',
-        magenta: '#f0f',
-        maroon: '#800000',
-        olive: '#808000',
-        orange: '#ffa500',
-        oldlace: '#fdf5e6',
-        mediumblue: '#0000cd',
-        transparent: '#0000',
-        lime: '#0f0',
-        lightpink: '#ffb6c1',
-        mistyrose: '#ffe4e1',
-        moccasin: '#ffe4b5',
-        midnightblue: '#191970',
-        orchid: '#da70d6',
-        mediumorchid: '#ba55d3',
-        mediumturquoise: '#48d1cc',
-        orangered: '#ff4500',
-        royalblue: '#4169e1',
-        powderblue: '#b0e0e6',
-        red: '#f00',
-        coral: '#ff7f50',
-        turquoise: '#40e0d0',
-        white: '#fff',
-        whitesmoke: '#f5f5f5',
-        wheat: '#f5deb3',
-        teal: '#008080',
-        steelblue: '#4682b4',
-        bisque: '#ffe4c4',
-        aquamarine: '#7fffd4',
-        aqua: '#0ff',
-        sienna: '#a0522d',
-        silver: '#c0c0c0',
-        springgreen: '#00ff7f',
-        antiquewhite: '#faebd7',
-        burlywood: '#deb887',
-        brown: '#a52a2a',
-        beige: '#f5f5dc',
-        chocolate: '#d2691e',
-        chartreuse: '#7fff00',
-        cornflowerblue: '#6495ed',
-        cornsilk: '#fff8dc',
-        crimson: '#dc143c',
-        cadetblue: '#5f9ea0',
-        tomato: '#ff6347',
-        fuchsia: '#f0f',
-        blue: '#00f',
-        salmon: '#fa8072',
-        blanchedalmond: '#ffebcd',
-        slateblue: '#6a5acd',
-        slategray: '#708090',
-        thistle: '#d8bfd8',
-        tan: '#d2b48c',
-        cyan: '#0ff',
-        darkblue: '#00008b',
-        darkcyan: '#008b8b',
-        darkgoldenrod: '#b8860b',
-        darkgray: '#a9a9a9',
-        blueviolet: '#8a2be2',
-        black: '#000',
-        darkmagenta: '#8b008b',
-        darkslateblue: '#483d8b',
-        darkkhaki: '#bdb76b',
-        darkorchid: '#9932cc',
-        darkorange: '#ff8c00',
-        darkgreen: '#006400',
-        darkred: '#8b0000',
-        dodgerblue: '#1e90ff',
-        darkslategray: '#2f4f4f',
-        dimgray: '#696969',
-        deepskyblue: '#00bfff',
-        firebrick: '#b22222',
-        forestgreen: '#228b22',
-        indigo: '#4b0082',
-        ivory: '#fffff0',
-        lavenderblush: '#fff0f5',
-        feldspar: '#d19275',
-        indianred: '#cd5c5c',
-        lightgreen: '#90ee90',
-        lightgrey: '#d3d3d3',
-        lightskyblue: '#87cefa',
-        lightslategray: '#789',
-        lightslateblue: '#8470ff',
-        snow: '#fffafa',
-        lightseagreen: '#20b2aa',
-        lightsalmon: '#ffa07a',
-        darksalmon: '#e9967a',
-        darkviolet: '#9400d3',
-        mediumpurple: '#9370d8',
-        mediumaquamarine: '#66cdaa',
-        skyblue: '#87ceeb',
-        lavender: '#e6e6fa',
-        lightsteelblue: '#b0c4de',
-        mediumvioletred: '#c71585',
-        mintcream: '#f5fffa',
-        navajowhite: '#ffdead',
-        navy: '#000080',
-        olivedrab: '#6b8e23',
-        palevioletred: '#d87093',
-        violetred: '#d02090',
-        yellow: '#ff0',
-        yellowgreen: '#9acd32',
-        lawngreen: '#7cfc00',
-        pink: '#ffc0cb',
-        paleturquoise: '#afeeee',
-        palegoldenrod: '#eee8aa',
-        darkolivegreen: '#556b2f',
-        darkseagreen: '#8fbc8f',
-        darkturquoise: '#00ced1',
-        peachpuff: '#ffdab9',
-        deeppink: '#ff1493',
-        violet: '#ee82ee',
-        palegreen: '#98fb98',
-        mediumseagreen: '#3cb371',
-        peru: '#cd853f',
-        saddlebrown: '#8b4513',
-        sandybrown: '#f4a460',
-        rosybrown: '#bc8f8f',
-        purple: '#800080',
-        seagreen: '#2e8b57',
-        seashell: '#fff5ee',
-        papayawhip: '#ffefd5',
-        mediumslateblue: '#7b68ee',
-        plum: '#dda0dd',
-        mediumspringgreen: '#00fa9a',
-    };
-
     function normalizeRgbComponent(component) {
         if (component < 0) {
             return 0;
@@ -332,10 +170,6 @@
 
     function colorStringToRgba(colorString) {
         colorString = colorString.toLowerCase();
-        // eslint-disable-next-line no-restricted-syntax
-        if (colorString in namedColorRgbHexStrings) {
-            colorString = namedColorRgbHexStrings[colorString];
-        }
         {
             const matches = rgbaRe.exec(colorString) || rgbRe.exec(colorString);
             if (matches) {
@@ -839,40 +673,9 @@
         }
     }
 
-    /**
-     * Fills rectangle's inner border (so, all the filled area is limited by the [x, x + width]*[y, y + height] region)
-     * ```
-     * (x, y)
-     * O***********************|*****
-     * |        border         |  ^
-     * |   *****************   |  |
-     * |   |               |   |  |
-     * | b |               | b |  h
-     * | o |               | o |  e
-     * | r |               | r |  i
-     * | d |               | d |  g
-     * | e |               | e |  h
-     * | r |               | r |  t
-     * |   |               |   |  |
-     * |   *****************   |  |
-     * |        border         |  v
-     * |***********************|*****
-     * |                       |
-     * |<------- width ------->|
-     * ```
-     *
-     * @param ctx - Context to draw on
-     * @param x - Left side of the target rectangle
-     * @param y - Top side of the target rectangle
-     * @param width - Width of the target rectangle
-     * @param height - Height of the target rectangle
-     * @param borderWidth - Width of border to fill, must be less than width and height of the target rectangle
-     */
     function fillRectInnerBorder(ctx, x, y, width, height, borderWidth) {
-        // horizontal (top and bottom) edges
         ctx.fillRect(x + borderWidth, y, width - borderWidth * 2, borderWidth);
         ctx.fillRect(x + borderWidth, y + height - borderWidth, width - borderWidth * 2, borderWidth);
-        // vertical (left and right) edges
         ctx.fillRect(x, y, borderWidth, height);
         ctx.fillRect(x + width - borderWidth, y, borderWidth, height);
     }
@@ -2446,7 +2249,6 @@
             }
             const {context: ctx, horizontalPixelRatio, verticalPixelRatio} = renderingScope;
             let prevBarColor = '';
-            const borderWidth = this._private__calculateBorderWidth(horizontalPixelRatio);
             for (let i = visibleRange.from; i < visibleRange.to; i++) {
                 const bar = bars[i];
                 let top = Math.round(Math.min(bar._internal_openY, bar._internal_closeY) * verticalPixelRatio);
@@ -2457,12 +2259,6 @@
                     const barColor = bar._internal_barColor;
                     ctx.fillStyle = barColor;
                     prevBarColor = barColor;
-                }
-                if (this._private__data._internal_borderVisible) {
-                    left += borderWidth;
-                    top += borderWidth;
-                    right -= borderWidth;
-                    bottom -= borderWidth;
                 }
                 if (top > bottom) {
                     continue;
@@ -2731,7 +2527,6 @@
             this._internal__lineRenderer = new HorizontalLineRenderer();
             this._private__invalidated = true;
             this._internal__series = series;
-            this._internal__model = series._internal_model();
             this._internal__lineRenderer._internal_setData(this._internal__lineRendererData);
         }
 
@@ -2752,7 +2547,6 @@
     }
 
     class SeriesHorizontalBaseLinePaneView extends SeriesHorizontalLinePaneView {
-        // eslint-disable-next-line no-useless-constructor
         constructor(series) {
             super(series);
         }
@@ -2995,109 +2789,6 @@
         }
     }
 
-    function size$1(barSpacing, coeff) {
-        const result = Math.min(Math.max(barSpacing, 12 /* Constants.MinShapeSize */), 30 /* Constants.MaxShapeSize */) * coeff;
-        return ceiledOdd(result);
-    }
-
-    function shapeSize(shape, originalSize) {
-        switch (shape) {
-            case 'arrowDown':
-            case 'arrowUp':
-                return size$1(originalSize, 1);
-            case 'circle':
-                return size$1(originalSize, 0.8);
-            case 'square':
-                return size$1(originalSize, 0.7);
-        }
-    }
-
-    function calculateShapeHeight(barSpacing) {
-        return ceiledEven(size$1(barSpacing, 1));
-    }
-
-    function shapeMargin(barSpacing) {
-        return Math.max(size$1(barSpacing, 0.1), 3 /* Constants.MinShapeMargin */);
-    }
-
-    function drawSquare(ctx, coords, size) {
-        const squareSize = shapeSize('square', size);
-        const halfSize = ((squareSize - 1) * coords._internal_pixelRatio) / 2;
-        const left = coords._internal_x - halfSize;
-        const top = coords._internal_y - halfSize;
-        ctx.fillRect(left, top, squareSize * coords._internal_pixelRatio, squareSize * coords._internal_pixelRatio);
-    }
-
-    function hitTestSquare(centerX, centerY, size, x, y) {
-        const squareSize = shapeSize('square', size);
-        const halfSize = (squareSize - 1) / 2;
-        const left = centerX - halfSize;
-        const top = centerY - halfSize;
-        return x >= left && x <= left + squareSize &&
-            y >= top && y <= top + squareSize;
-    }
-
-    function drawArrow(up, ctx, coords, size) {
-        const arrowSize = shapeSize('arrowUp', size);
-        const halfArrowSize = ((arrowSize - 1) / 2) * coords._internal_pixelRatio;
-        const baseSize = ceiledOdd(size / 2);
-        const halfBaseSize = ((baseSize - 1) / 2) * coords._internal_pixelRatio;
-        ctx.beginPath();
-        if (up) {
-            ctx.moveTo(coords._internal_x - halfArrowSize, coords._internal_y);
-            ctx.lineTo(coords._internal_x, coords._internal_y - halfArrowSize);
-            ctx.lineTo(coords._internal_x + halfArrowSize, coords._internal_y);
-            ctx.lineTo(coords._internal_x + halfBaseSize, coords._internal_y);
-            ctx.lineTo(coords._internal_x + halfBaseSize, coords._internal_y + halfArrowSize);
-            ctx.lineTo(coords._internal_x - halfBaseSize, coords._internal_y + halfArrowSize);
-            ctx.lineTo(coords._internal_x - halfBaseSize, coords._internal_y);
-        } else {
-            ctx.moveTo(coords._internal_x - halfArrowSize, coords._internal_y);
-            ctx.lineTo(coords._internal_x, coords._internal_y + halfArrowSize);
-            ctx.lineTo(coords._internal_x + halfArrowSize, coords._internal_y);
-            ctx.lineTo(coords._internal_x + halfBaseSize, coords._internal_y);
-            ctx.lineTo(coords._internal_x + halfBaseSize, coords._internal_y - halfArrowSize);
-            ctx.lineTo(coords._internal_x - halfBaseSize, coords._internal_y - halfArrowSize);
-            ctx.lineTo(coords._internal_x - halfBaseSize, coords._internal_y);
-        }
-        ctx.fill();
-    }
-
-    function hitTestArrow(up, centerX, centerY, size, x, y) {
-        // TODO: implement arrow hit test
-        return hitTestSquare(centerX, centerY, size, x, y);
-    }
-
-    function drawCircle(ctx, coords, size) {
-        const circleSize = shapeSize('circle', size);
-        const halfSize = (circleSize - 1) / 2;
-        ctx.beginPath();
-        ctx.arc(coords._internal_x, coords._internal_y, halfSize * coords._internal_pixelRatio, 0, 2 * Math.PI, false);
-        ctx.fill();
-    }
-
-    function hitTestCircle(centerX, centerY, size, x, y) {
-        const circleSize = shapeSize('circle', size);
-        const tolerance = 2 + circleSize / 2;
-        const xOffset = centerX - x;
-        const yOffset = centerY - y;
-        const dist = Math.sqrt(xOffset * xOffset + yOffset * yOffset);
-        return dist <= tolerance;
-    }
-
-    function drawText(ctx, text, x, y, horizontalPixelRatio, verticalPixelRatio) {
-        ctx.save();
-        ctx.scale(horizontalPixelRatio, verticalPixelRatio);
-        ctx.fillText(text, x, y);
-        ctx.restore();
-    }
-
-    function hitTestText(textX, textY, textWidth, textHeight, x, y) {
-        const halfHeight = textHeight / 2;
-        return x >= textX && x <= textX + textWidth &&
-            y >= textY - halfHeight && y <= textY + halfHeight;
-    }
-
     class SeriesMarkersRenderer extends BitmapCoordinatesPaneRenderer {
         constructor() {
             super(...arguments);
@@ -3155,112 +2846,10 @@
         }
     }
 
-    function bitmapShapeItemCoordinates(item, horizontalPixelRatio, verticalPixelRatio) {
-        const tickWidth = Math.max(1, Math.floor(horizontalPixelRatio));
-        const correction = (tickWidth % 2) / 2;
-        return {
-            _internal_x: Math.round(item._internal_x * horizontalPixelRatio) + correction,
-            _internal_y: item._internal_y * verticalPixelRatio,
-            _internal_pixelRatio: horizontalPixelRatio,
-        };
-    }
-
-    function drawItem(item, ctx, horizontalPixelRatio, verticalPixelRatio) {
-        ctx.fillStyle = item._internal_color;
-        if (item._internal_text !== undefined) {
-            drawText(ctx, item._internal_text._internal_content, item._internal_text._internal_x, item._internal_text._internal_y, horizontalPixelRatio, verticalPixelRatio);
-        }
-        drawShape(item, ctx, bitmapShapeItemCoordinates(item, horizontalPixelRatio, verticalPixelRatio));
-    }
-
-    function drawShape(item, ctx, coordinates) {
-        if (item._internal_size === 0) {
-            return;
-        }
-        switch (item._internal_shape) {
-            case 'arrowDown':
-                drawArrow(false, ctx, coordinates, item._internal_size);
-                return;
-            case 'arrowUp':
-                drawArrow(true, ctx, coordinates, item._internal_size);
-                return;
-            case 'circle':
-                drawCircle(ctx, coordinates, item._internal_size);
-                return;
-            case 'square':
-                drawSquare(ctx, coordinates, item._internal_size);
-                return;
-        }
-        ensureNever(item._internal_shape);
-    }
-
-    function hitTestItem(item, x, y) {
-        if (item._internal_text !== undefined && hitTestText(item._internal_text._internal_x, item._internal_text._internal_y, item._internal_text._internal_width, item._internal_text._internal_height, x, y)) {
-            return true;
-        }
-        return hitTestShape(item, x, y);
-    }
-
-    function hitTestShape(item, x, y) {
-        if (item._internal_size === 0) {
-            return false;
-        }
-        switch (item._internal_shape) {
-            case 'arrowDown':
-                return hitTestArrow(true, item._internal_x, item._internal_y, item._internal_size, x, y);
-            case 'arrowUp':
-                return hitTestArrow(false, item._internal_x, item._internal_y, item._internal_size, x, y);
-            case 'circle':
-                return hitTestCircle(item._internal_x, item._internal_y, item._internal_size, x, y);
-            case 'square':
-                return hitTestSquare(item._internal_x, item._internal_y, item._internal_size, x, y);
-        }
-    }
-
-    // eslint-disable-next-line max-params
-    function fillSizeAndY(rendererItem, marker, seriesData, offsets, textHeight, shapeMargin, priceScale, timeScale, firstValue) {
-        const inBarPrice = isNumber(seriesData) ? seriesData : seriesData._internal_close;
-        const highPrice = isNumber(seriesData) ? seriesData : seriesData._internal_high;
-        const lowPrice = isNumber(seriesData) ? seriesData : seriesData._internal_low;
-        const sizeMultiplier = isNumber(marker.size) ? Math.max(marker.size, 0) : 1;
-        const shapeSize = calculateShapeHeight(timeScale._internal_barSpacing()) * sizeMultiplier;
-        const halfSize = shapeSize / 2;
-        rendererItem._internal_size = shapeSize;
-        switch (marker.position) {
-            case 'inBar': {
-                rendererItem._internal_y = priceScale._internal_priceToCoordinate(inBarPrice, firstValue);
-                if (rendererItem._internal_text !== undefined) {
-                    rendererItem._internal_text._internal_y = rendererItem._internal_y + halfSize + shapeMargin + textHeight * (0.5 + 0.1 /* Constants.TextMargin */);
-                }
-                return;
-            }
-            case 'aboveBar': {
-                rendererItem._internal_y = (priceScale._internal_priceToCoordinate(highPrice, firstValue) - halfSize - offsets._internal_aboveBar);
-                if (rendererItem._internal_text !== undefined) {
-                    rendererItem._internal_text._internal_y = rendererItem._internal_y - halfSize - textHeight * (0.5 + 0.1 /* Constants.TextMargin */);
-                    offsets._internal_aboveBar += textHeight * (1 + 2 * 0.1 /* Constants.TextMargin */);
-                }
-                offsets._internal_aboveBar += shapeSize + shapeMargin;
-                return;
-            }
-            case 'belowBar': {
-                rendererItem._internal_y = (priceScale._internal_priceToCoordinate(lowPrice, firstValue) + halfSize + offsets._internal_belowBar);
-                if (rendererItem._internal_text !== undefined) {
-                    rendererItem._internal_text._internal_y = rendererItem._internal_y + halfSize + shapeMargin + textHeight * (0.5 + 0.1 /* Constants.TextMargin */);
-                    offsets._internal_belowBar += textHeight * (1 + 2 * 0.1 /* Constants.TextMargin */);
-                }
-                offsets._internal_belowBar += shapeSize + shapeMargin;
-                return;
-            }
-        }
-        ensureNever(marker.position);
-    }
-
     class SeriesMarkersPaneView {
         constructor(series, model) {
             this._private__invalidated = true;
             this._private__dataInvalidated = true;
-            this._private__autoScaleMarginsInvalidated = true;
             this._private__autoScaleMargins = null;
             this._private__renderer = new SeriesMarkersRenderer();
             this._private__series = series;
@@ -3273,7 +2862,6 @@
 
         _internal_update(updateType) {
             this._private__invalidated = true;
-            this._private__autoScaleMarginsInvalidated = true;
             if (updateType === 'data') {
                 this._private__dataInvalidated = true;
             }
@@ -3293,20 +2881,6 @@
         }
 
         _internal_autoScaleMargins() {
-            if (this._private__autoScaleMarginsInvalidated) {
-                if (this._private__series._internal_indexedMarkers().length > 0) {
-                    const barSpacing = this._private__model._internal_timeScale()._internal_barSpacing();
-                    const shapeMargin$1 = shapeMargin(barSpacing);
-                    const marginsAboveAndBelow = calculateShapeHeight(barSpacing) * 1.5 + shapeMargin$1 * 2;
-                    this._private__autoScaleMargins = {
-                        above: marginsAboveAndBelow,
-                        below: marginsAboveAndBelow,
-                    };
-                } else {
-                    this._private__autoScaleMargins = null;
-                }
-                this._private__autoScaleMarginsInvalidated = false;
-            }
             return this._private__autoScaleMargins;
         }
 
@@ -3320,7 +2894,6 @@
                     _internal_x: 0,
                     _internal_y: 0,
                     _internal_size: 0,
-                    _internal_shape: marker.shape,
                     _internal_color: marker.color,
                     _internal_internalId: marker._internal_internalId,
                     _internal_externalId: marker.id,
@@ -3328,52 +2901,7 @@
                 }));
                 this._private__dataInvalidated = false;
             }
-            const layoutOptions = this._private__model._internal_options().layout;
             this._private__data._internal_visibleRange = null;
-            const visibleBars = timeScale._internal_visibleStrictRange();
-            if (visibleBars === null) {
-                return;
-            }
-            const firstValue = this._private__series._internal_firstValue();
-            if (firstValue === null) {
-                return;
-            }
-            if (this._private__data._internal_items.length === 0) {
-                return;
-            }
-            let prevTimeIndex = NaN;
-            const shapeMargin$1 = shapeMargin(timeScale._internal_barSpacing());
-            const offsets = {
-                _internal_aboveBar: shapeMargin$1,
-                _internal_belowBar: shapeMargin$1,
-            };
-            this._private__data._internal_visibleRange = visibleTimedValues(this._private__data._internal_items, visibleBars, true);
-            for (let index = this._private__data._internal_visibleRange.from; index < this._private__data._internal_visibleRange.to; index++) {
-                const marker = seriesMarkers[index];
-                if (marker.time !== prevTimeIndex) {
-                    // new bar, reset stack counter
-                    offsets._internal_aboveBar = shapeMargin$1;
-                    offsets._internal_belowBar = shapeMargin$1;
-                    prevTimeIndex = marker.time;
-                }
-                const rendererItem = this._private__data._internal_items[index];
-                rendererItem._internal_x = timeScale._internal_indexToCoordinate(marker.time);
-                if (marker.text !== undefined && marker.text.length > 0) {
-                    rendererItem._internal_text = {
-                        _internal_content: marker.text,
-                        _internal_x: 0,
-                        _internal_y: 0,
-                        _internal_width: 0,
-                        _internal_height: 0,
-                    };
-                }
-                const dataAt = this._private__series._internal_dataAt(marker.time);
-                if (dataAt === null) {
-                    continue;
-                }
-                fillSizeAndY(rendererItem, marker, dataAt, offsets, layoutOptions.fontSize, shapeMargin$1, priceScale, timeScale, firstValue._internal_value);
-            }
-            this._private__invalidated = false;
         }
     }
 
@@ -4179,7 +3707,7 @@
     }
 
     class Series extends PriceDataSource {
-        constructor(model, options, seriesType, pane, customPaneView) {
+        constructor(model, options, seriesType) {
             super(model);
             this._private__data = createSeriesPlotList();
             this._private__priceLineView = new SeriesPriceLinePaneView(this);
@@ -4200,7 +3728,7 @@
                 this._private__lastPriceAnimationPaneView = new SeriesLastPriceAnimationPaneView(this);
             }
             this._private__recreateFormatter();
-            this._private__recreatePaneViews(customPaneView);
+            this._private__recreatePaneViews();
         }
 
         _internal_destroy() {
@@ -4691,7 +4219,6 @@
                 return {
                     time: seriesDataIndex,
                     position: marker.position,
-                    shape: marker.shape,
                     color: marker.color,
                     id: marker.id,
                     _internal_internalId: index,
@@ -4702,7 +4229,7 @@
             });
         }
 
-        _private__recreatePaneViews(customPaneView) {
+        _private__recreatePaneViews() {
             this._private__markersPaneView = new SeriesMarkersPaneView(this, this._internal_model());
             switch (this._private__seriesType) {
                 case 'Candlestick': {
@@ -6483,18 +6010,6 @@
             return this._private__visibleRange._internal_logicalRange();
         }
 
-        _internal_visibleTimeRange() {
-            const visibleBars = this._internal_visibleStrictRange();
-            if (visibleBars === null) {
-                return null;
-            }
-            const range = {
-                from: visibleBars._internal_left(),
-                to: visibleBars._internal_right(),
-            };
-            return this._internal_timeRangeForLogicalRange(range);
-        }
-
         _internal_timeRangeForLogicalRange(range) {
             const from = Math.round(range.from);
             const to = Math.round(range.to);
@@ -6605,7 +6120,6 @@
             return this._private__rightOffset;
         }
 
-        // eslint-disable-next-line complexity
         _internal_marks() {
             if (this._internal_isEmpty()) {
                 return null;
@@ -6790,14 +6304,6 @@
             this._private__points = newPoints;
             this._private__tickMarks._internal_setTimeScalePoints(newPoints, firstChangedPointIndex);
             this._private__correctOffset();
-        }
-
-        _internal_visibleBarsChanged() {
-            return this._private__visibleBarsChanged;
-        }
-
-        _internal_logicalRangeChanged() {
-            return this._private__logicalRangeChanged;
         }
 
         _internal_optionsApplied() {
@@ -7500,16 +7006,6 @@
             }
         }
 
-        // A position provided external (not from an internal event listener)
-        _internal_setAndSaveSyntheticPosition(price, horizontalPosition, pane) {
-            const priceScale = pane._internal_defaultPriceScale();
-            const firstValue = priceScale._internal_firstValue();
-            const y = priceScale._internal_priceToCoordinate(price, ensureNotNull(firstValue));
-            const index = this._private__timeScale._internal_timeToIndex(horizontalPosition, true);
-            const x = this._private__timeScale._internal_indexToCoordinate(ensureNotNull(index));
-            this._internal_setAndSaveCurrentPosition(x, y, null, pane, true);
-        }
-
         _internal_clearCurrentPosition(skipEvent) {
             const crosshair = this._internal_crosshairSource();
             crosshair._internal_clearPosition();
@@ -7595,9 +7091,9 @@
             return this._private__priceScalesOptionsChanged;
         }
 
-        _internal_createSeries(seriesType, options, customPaneView) {
+        _internal_createSeries(seriesType, options) {
             const pane = this._private__panes[0];
-            const series = this._private__createSeries(options, seriesType, pane, customPaneView);
+            const series = this._private__createSeries(options, seriesType, pane);
             this._private__serieses.push(series);
             if (this._private__serieses.length === 1) {
                 // call fullUpdate to recalculate chart's parts geometry
@@ -7743,9 +7239,9 @@
             this._private__panes.forEach((pane) => pane._internal_grid()._internal_paneView()._internal_update());
         }
 
-        _private__createSeries(options, seriesType, pane, customPaneView) {
-            const series = new Series(this, options, seriesType, pane, customPaneView);
-            const targetScaleId = options.priceScaleId !== undefined ? options.priceScaleId : this._internal_defaultVisiblePriceScaleId();
+        _private__createSeries(options, seriesType, pane) {
+            const series = new Series(this, options, seriesType);
+            const targetScaleId = this._internal_defaultVisiblePriceScaleId();
             pane._internal_addDataSource(series, targetScaleId);
             if (!isDefaultPriceScale(targetScaleId)) {
                 // let's apply that options again to apply margins
@@ -8051,16 +7547,6 @@
         };
     }
 
-    function convertStringToBusinessDay(value) {
-        if (isString(value.time)) {
-            value.time = stringToBusinessDay(value.time);
-        }
-    }
-
-    function convertStringsToBusinessDays(data) {
-        return data.forEach(convertStringToBusinessDay);
-    }
-
     // eslint-disable-next-line complexity
     function weightToTickMarkType(weight, timeVisible, secondsVisible) {
         switch (weight) {
@@ -8106,14 +7592,6 @@
         setOptions(options) {
             this._private__options = options;
             this.updateFormatter(options.localization);
-        }
-
-        preprocessData(data) {
-            if (Array.isArray(data)) {
-                convertStringsToBusinessDays(data);
-            } else {
-                convertStringToBusinessDay(data);
-            }
         }
 
         createConverterToInternalObj(data) {
@@ -8164,13 +7642,6 @@
 
         formatTickmark(tickMark, localizationOptions) {
             const tickMarkType = weightToTickMarkType(tickMark.weight, this._private__options.timeScale.timeVisible, this._private__options.timeScale.secondsVisible);
-            const options = this._private__options.timeScale;
-            if (options.tickMarkFormatter !== undefined) {
-                const tickMarkString = options.tickMarkFormatter(tickMark.originalTime, tickMarkType, localizationOptions.locale);
-                if (tickMarkString !== null) {
-                    return tickMarkString;
-                }
-            }
             return defaultTickMarkFormatter(tickMark.time, tickMarkType, localizationOptions.locale);
         }
 
@@ -8212,22 +7683,14 @@
             (first.height === second.height);
     }
 
-    var Observable = /** @class */ (function () {
+    const Observable = /** @class */ (function () {
         function Observable(win) {
-            var _this = this;
-            this._resolutionListener = function () {
-                return _this._onResolutionChanged();
-            };
             this._resolutionMediaQueryList = null;
             this._observers = [];
             this._window = win;
             this._installResolutionListener();
         }
 
-        Observable.prototype.dispose = function () {
-            this._uninstallResolutionListener();
-            this._window = null;
-        };
         Object.defineProperty(Observable.prototype, "value", {
             get: function () {
                 return this._window.devicePixelRatio;
@@ -8255,24 +7718,6 @@
             this._resolutionMediaQueryList = this._window.matchMedia("all and (resolution: ".concat(dppx, "dppx)"));
             // IE and some versions of Edge do not support addEventListener/removeEventListener, and we are going to use the deprecated addListener/removeListener
             this._resolutionMediaQueryList.addListener(this._resolutionListener);
-        };
-        Observable.prototype._uninstallResolutionListener = function () {
-            if (this._resolutionMediaQueryList !== null) {
-                // IE and some versions of Edge do not support addEventListener/removeEventListener, and we are going to use the deprecated addListener/removeListener
-                this._resolutionMediaQueryList.removeListener(this._resolutionListener);
-                this._resolutionMediaQueryList = null;
-            }
-        };
-        Observable.prototype._reinstallResolutionListener = function () {
-            this._uninstallResolutionListener();
-            this._installResolutionListener();
-        };
-        Observable.prototype._onResolutionChanged = function () {
-            var _this = this;
-            this._observers.forEach(function (observer) {
-                return observer.next(_this._window.devicePixelRatio);
-            });
-            this._reinstallResolutionListener();
         };
         return Observable;
     }());
@@ -8679,14 +8124,6 @@
         return navigator.userAgentData.brands.some((brand) => {
             return brand.brand.includes('Chromium');
         });
-    }
-
-    /// <reference types="_build-time-constants" />
-    function warn(msg) {
-        {
-            // eslint-disable-next-line no-console
-            console.warn(msg);
-        }
     }
 
     // on Hi-DPI CSS size * Device Pixel Ratio should be integer to avoid smoothing
@@ -9121,7 +8558,6 @@
             };
         }
 
-        // eslint-disable-next-line complexity
         _private__touchEndHandler(touchEndEvent) {
             let touch = touchWithId(touchEndEvent.changedTouches, ensureNotNull(this._private__activeTouchId));
             if (touch === null && touchEndEvent.touches.length === 0) {
@@ -10759,7 +10195,6 @@
             }
         }
 
-        // eslint-disable-next-line complexity
         _private__pressedMouseTouchMoveEvent(event) {
             if (this._private__state === null) {
                 return;
@@ -11375,7 +10810,6 @@
             this._private__element.style.direction = 'ltr';
             this._private__element.style.width = '100%';
             this._private__element.style.height = '100%';
-            disableSelection(this._private__element);
             this._private__tableElement = document.createElement('table');
             this._private__tableElement.setAttribute('cellspacing', '0');
             this._private__element.appendChild(this._private__tableElement);
@@ -11513,20 +10947,6 @@
             return this._private__crosshairMoved;
         }
 
-        _internal_takeScreenshot() {
-            if (this._private__invalidateMask !== null) {
-                this._private__drawImpl(this._private__invalidateMask, performance.now());
-                this._private__invalidateMask = null;
-            }
-            const screeshotBitmapSize = this._private__traverseLayout(null);
-            const screenshotCanvas = document.createElement('canvas');
-            screenshotCanvas.width = screeshotBitmapSize.width;
-            screenshotCanvas.height = screeshotBitmapSize.height;
-            const ctx = ensureNotNull(screenshotCanvas.getContext('2d'));
-            this._private__traverseLayout(ctx);
-            return screenshotCanvas;
-        }
-
         _internal_getPriceAxisWidth(position) {
             if (position === 'left' && !this._private__isLeftAxisVisible()) {
                 return 0;
@@ -11546,10 +10966,6 @@
             return ensureNotNull(priceAxisWidget)._internal_getWidth();
         }
 
-        _internal_autoSizeActive() {
-            return this._private__options.autoSize && this._private__observer !== null;
-        }
-
         _internal_element() {
             return this._private__element;
         }
@@ -11563,27 +10979,10 @@
             }
         }
 
-        _internal_getCursorOverrideStyle() {
-            return this._private__cursorStyleOverride;
-        }
-
-        _internal_paneSize() {
-            // we currently only support a single pane.
-            return ensureDefined(this._private__paneWidgets[0])._internal_getSize();
-        }
-
-        // eslint-disable-next-line complexity
         _private__applyAutoSizeOptions(options) {
-            if (options.autoSize === undefined && this._private__observer && (options.width !== undefined || options.height !== undefined)) {
-                warn(`You should turn autoSize off explicitly before specifying sizes; try adding options.autoSize: false to new options`);
-                return;
-            }
             if (options.autoSize && !this._private__observer) {
                 // installing observer will override resize if successful
                 this._private__installObserver();
-            }
-            if (options.autoSize === false && this._private__observer !== null) {
-                this._private__uninstallObserver();
             }
             if (!options.autoSize && (options.width !== undefined || options.height !== undefined)) {
                 this._internal_resize(options.width || this._private__width, options.height || this._private__height);
@@ -12011,43 +11410,6 @@
         _private__isRightAxisVisible() {
             return this._private__paneWidgets[0]._internal_state()._internal_rightPriceScale()._internal_options().visible;
         }
-
-        _private__installObserver() {
-            // eslint-disable-next-line no-restricted-syntax
-            if (!('ResizeObserver' in window)) {
-                warn('Options contains "autoSize" flag, but the browser does not support ResizeObserver feature. Please provide polyfill.');
-                return false;
-            } else {
-                this._private__observer = new ResizeObserver((entries) => {
-                    const containerEntry = entries.find((entry) => entry.target === this._private__container);
-                    if (!containerEntry) {
-                        return;
-                    }
-                    this._internal_resize(containerEntry.contentRect.width, containerEntry.contentRect.height);
-                });
-                this._private__observer.observe(this._private__container, {box: 'border-box'});
-                return true;
-            }
-        }
-
-        _private__uninstallObserver() {
-            if (this._private__observer !== null) {
-                this._private__observer.disconnect();
-            }
-            this._private__observer = null;
-        }
-    }
-
-    function disableSelection(element) {
-        element.style.userSelect = 'none';
-        // eslint-disable-next-line deprecation/deprecation
-        element.style.webkitUserSelect = 'none';
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any,@typescript-eslint/no-unsafe-member-access
-        element.style.msUserSelect = 'none';
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any,@typescript-eslint/no-unsafe-member-access
-        element.style.MozUserSelect = 'none';
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any,@typescript-eslint/no-unsafe-member-access
-        element.style.webkitTapHighlightColor = 'transparent';
     }
 
     function shouldSubscribeMouseWheel(options) {
@@ -12062,24 +11424,6 @@
         return (data.open !== undefined ||
             data.value !== undefined);
     }
-
-    /******************************************************************************
-     Copyright (c) Microsoft Corporation.
-
-     Permission to use, copy, modify, and/or distribute this software for any
-     purpose with or without fee is hereby granted.
-
-     THE SOFTWARE IS PROVIDED "AS IS" AND THE AUTHOR DISCLAIMS ALL WARRANTIES WITH
-     REGARD TO THIS SOFTWARE INCLUDING ALL IMPLIED WARRANTIES OF MERCHANTABILITY
-     AND FITNESS. IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR ANY SPECIAL, DIRECT,
-     INDIRECT, OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES WHATSOEVER RESULTING FROM
-     LOSS OF USE, DATA OR PROFITS, WHETHER IN AN ACTION OF CONTRACT, NEGLIGENCE OR
-     OTHER TORTIOUS ACTION, ARISING OUT OF OR IN CONNECTION WITH THE USE OR
-     PERFORMANCE OF THIS SOFTWARE.
-     ***************************************************************************** */
-
-    /* global Reflect, Promise */
-
 
     function __rest(s, e) {
         var t = {};
@@ -12377,80 +11721,6 @@
                 firstChangedPointIndex = this._private__replaceTimeScalePoints(newTimeScalePoints);
             }
             return this._private__getUpdateResponse(series, firstChangedPointIndex, seriesUpdateInfo(this._private__seriesRowsBySeries.get(series), prevSeriesRows, this._private__horzScaleBehavior));
-        }
-
-        _internal_removeSeries(series) {
-            return this._internal_setSeriesData(series, []);
-        }
-
-        _internal_updateSeriesData(series, data) {
-            const extendedData = data;
-            saveOriginalTime(extendedData);
-            // convertStringToBusinessDay(data);
-            this._private__horzScaleBehavior.preprocessData(data);
-            const timeConverter = this._private__horzScaleBehavior.createConverterToInternalObj([data]);
-            const time = timeConverter(data.time);
-            const lastSeriesTime = this._private__seriesLastTimePoint.get(series);
-            if (lastSeriesTime !== undefined && this._private__horzScaleBehavior.key(time) < this._private__horzScaleBehavior.key(lastSeriesTime)) {
-                throw new Error(`Cannot update oldest data, last time=${lastSeriesTime}, new time=${time}`);
-            }
-            let pointDataAtTime = this._private__pointDataByTimePoint.get(this._private__horzScaleBehavior.key(time));
-            // if no point data found for the new data item
-            // that means that we need to update scale
-            const affectsTimeScale = pointDataAtTime === undefined;
-            if (pointDataAtTime === undefined) {
-                // the indexes will be sync later
-                pointDataAtTime = createEmptyTimePointData(time);
-                this._private__pointDataByTimePoint.set(this._private__horzScaleBehavior.key(time), pointDataAtTime);
-            }
-            const createPlotRow = getSeriesPlotRowCreator(series._internal_seriesType());
-            const dataToPlotRow = series._internal_customSeriesPlotValuesBuilder();
-            const customWhitespaceChecker = series._internal_customSeriesWhitespaceCheck();
-            const plotRow = createPlotRow(time, pointDataAtTime._internal_index, data, extendedData._internal_originalTime, dataToPlotRow, customWhitespaceChecker);
-            pointDataAtTime._internal_mapping.set(series, plotRow);
-            this._private__updateLastSeriesRow(series, plotRow);
-            const info = {_internal_lastBarUpdatedOrNewBarsAddedToTheRight: isSeriesPlotRow(plotRow)};
-            // if point already exist on the time scale - we don't need to make a full update and just make an incremental one
-            if (!affectsTimeScale) {
-                return this._private__getUpdateResponse(series, -1, info);
-            }
-            const newPoint = {
-                timeWeight: 0,
-                time: pointDataAtTime._internal_timePoint,
-                pointData: pointDataAtTime,
-                originalTime: timeScalePointTime(pointDataAtTime._internal_mapping),
-            };
-            const insertIndex = lowerBound(this._private__sortedTimePoints, this._private__horzScaleBehavior.key(newPoint.time), (a, b) => this._private__horzScaleBehavior.key(a.time) < b);
-            // yes, I know that this array is readonly and this change is intended to make it performative
-            // we marked _sortedTimePoints array as readonly to avoid modifying this array anywhere else
-            // but this place is exceptional case due performance reasons, sorry
-            this._private__sortedTimePoints.splice(insertIndex, 0, newPoint);
-            for (let index = insertIndex; index < this._private__sortedTimePoints.length; ++index) {
-                assignIndexToPointData(this._private__sortedTimePoints[index].pointData, index);
-            }
-            this._private__horzScaleBehavior.fillWeightsForPoints(this._private__sortedTimePoints, insertIndex);
-            return this._private__getUpdateResponse(series, insertIndex, info);
-        }
-
-        _private__updateLastSeriesRow(series, plotRow) {
-            let seriesData = this._private__seriesRowsBySeries.get(series);
-            if (seriesData === undefined) {
-                seriesData = [];
-                this._private__seriesRowsBySeries.set(series, seriesData);
-            }
-            const lastSeriesRow = seriesData.length !== 0 ? seriesData[seriesData.length - 1] : null;
-            if (lastSeriesRow === null || this._private__horzScaleBehavior.key(plotRow._internal_time) > this._private__horzScaleBehavior.key(lastSeriesRow._internal_time)) {
-                if (isSeriesPlotRow(plotRow)) {
-                    seriesData.push(plotRow);
-                }
-            } else {
-                if (isSeriesPlotRow(plotRow)) {
-                    seriesData[seriesData.length - 1] = plotRow;
-                } else {
-                    seriesData.splice(-1, 1);
-                }
-            }
-            this._private__seriesLastTimePoint.set(series, plotRow._internal_time);
         }
 
         _private__setRowsToSeries(series, seriesRows) {
@@ -12847,12 +12117,6 @@
         }
     }
 
-    /// <reference types="_build-time-constants" />
-    function checkPriceLineOptions(options) {
-        // eslint-disable-next-line @typescript-eslint/tslint/config
-        assert(typeof options.price === 'number', `the type of 'price' price line's property must be a number, got '${typeof options.price}'`);
-    }
-
     function checkItemsAreOrdered(data, bh, allowDuplicates = false) {
         if (data.length === 0) {
             return;
@@ -12906,14 +12170,6 @@
             typeof lineItem.value === 'number', `${type} series item data value must be a number, got=${typeof lineItem.value}, value=${lineItem.value}`);
     }
 
-    function checkCustomItem(
-        // type: 'Custom',
-        // customItem: SeriesDataItemTypeMap[typeof type]
-    ) {
-        // Nothing to check yet...
-        return;
-    }
-
     class SeriesApi {
         constructor(series, dataUpdatesConsumer, priceScaleApiProvider, chartApi, horzScaleBehavior) {
             this._private__dataChangedDelegate = new Delegate();
@@ -12935,12 +12191,6 @@
             checkSeriesValuesType(this._internal__series._internal_seriesType(), data);
             this._internal__dataUpdatesConsumer._internal_applyNewData(this._internal__series, data);
             this._private__onDataChanged('full');
-        }
-
-        update(bar) {
-            checkSeriesValuesType(this._internal__series._internal_seriesType(), [bar]);
-            this._internal__dataUpdatesConsumer._internal_updateData(this._internal__series, bar);
-            this._private__onDataChanged('update');
         }
 
         data() {
@@ -12976,16 +12226,10 @@
             this._private__model = model;
             this._private__timeScale = model._internal_timeScale();
             this._private__timeAxisWidget = timeAxisWidget;
-            this._private__timeScale._internal_visibleBarsChanged()._internal_subscribe(this._private__onVisibleBarsChanged.bind(this));
-            this._private__timeScale._internal_logicalRangeChanged()._internal_subscribe(this._private__onVisibleLogicalRangeChanged.bind(this));
-            this._private__timeAxisWidget._internal_sizeChanged()._internal_subscribe(this._private__onSizeChanged.bind(this));
             this._private__horzScaleBehavior = horzScaleBehavior;
         }
 
         _internal_destroy() {
-            this._private__timeScale._internal_visibleBarsChanged()._internal_unsubscribeAll(this);
-            this._private__timeScale._internal_logicalRangeChanged()._internal_unsubscribeAll(this);
-            this._private__timeAxisWidget._internal_sizeChanged()._internal_unsubscribeAll(this);
             this._private__timeRangeChanged._internal_destroy();
             this._private__logicalRangeChanged._internal_destroy();
             this._private__sizeChanged._internal_destroy();
@@ -12995,17 +12239,6 @@
             this._private__timeScale._internal_scrollToRealTime();
         }
 
-        getVisibleRange() {
-            const timeRange = this._private__timeScale._internal_visibleTimeRange();
-            if (timeRange === null) {
-                return null;
-            }
-            return {
-                from: timeRange.from.originalTime,
-                to: timeRange.to.originalTime,
-            };
-        }
-
         setVisibleRange(range) {
             const convertedRange = {
                 from: this._private__horzScaleBehavior.convertHorzItemToInternal(range.from),
@@ -13013,17 +12246,6 @@
             };
             const logicalRange = this._private__timeScale._internal_logicalRangeForTimeRange(convertedRange);
             this._private__model._internal_setTargetLogicalRange(logicalRange);
-        }
-
-        getVisibleLogicalRange() {
-            const logicalRange = this._private__timeScale._internal_visibleLogicalRange();
-            if (logicalRange === null) {
-                return null;
-            }
-            return {
-                from: logicalRange._internal_left(),
-                to: logicalRange._internal_right(),
-            };
         }
 
         width() {
@@ -13040,22 +12262,6 @@
 
         options() {
             return Object.assign(Object.assign({}, clone(this._private__timeScale._internal_options())), {barSpacing: this._private__timeScale._internal_barSpacing()});
-        }
-
-        _private__onVisibleBarsChanged() {
-            if (this._private__timeRangeChanged._internal_hasListeners()) {
-                this._private__timeRangeChanged._internal_fire(this.getVisibleRange());
-            }
-        }
-
-        _private__onVisibleLogicalRangeChanged() {
-            if (this._private__logicalRangeChanged._internal_hasListeners()) {
-                this._private__logicalRangeChanged._internal_fire(this.getVisibleLogicalRange());
-            }
-        }
-
-        _private__onSizeChanged(size) {
-            this._private__sizeChanged._internal_fire(size.width, size.height);
         }
     }
 
@@ -13148,64 +12354,20 @@
         }
 
         resize(width, height, forceRepaint) {
-            if (this.autoSizeActive()) {
-                // We return early here instead of checking this within the actual _chartWidget.resize method
-                // because this should only apply to external resize requests.
-                warn(`Height and width values ignored because 'autoSize' option is enabled.`);
-                return;
-            }
             this._private__chartWidget._internal_resize(width, height, forceRepaint);
         }
 
         addCandlestickSeries(options = {}) {
             fillUpDownCandlesticksColors(options);
-            return this._private__addSeriesImpl('Candlestick', candlestickStyleDefaults, options);
+            return this._private__addSeriesImpl('Candlestick', candlestickStyleDefaults);
         }
 
         addLineSeries(options) {
             return this._private__addSeriesImpl('Line', lineStyleDefaults, options);
         }
 
-        removeSeries(seriesApi) {
-            const series = ensureDefined(this._private__seriesMap.get(seriesApi));
-            const update = this._private__dataLayer._internal_removeSeries(series);
-            const model = this._private__chartWidget._internal_model();
-            model._internal_removeSeries(series);
-            this._private__sendUpdateToChart(update);
-            this._private__seriesMap.delete(seriesApi);
-            this._private__seriesMapReversed.delete(series);
-        }
-
         _internal_applyNewData(series, data) {
             this._private__sendUpdateToChart(this._private__dataLayer._internal_setSeriesData(series, data));
-        }
-
-        _internal_updateData(series, data) {
-            this._private__sendUpdateToChart(this._private__dataLayer._internal_updateSeriesData(series, data));
-        }
-
-        subscribeClick(handler) {
-            this._private__clickedDelegate._internal_subscribe(handler);
-        }
-
-        unsubscribeClick(handler) {
-            this._private__clickedDelegate._internal_unsubscribe(handler);
-        }
-
-        subscribeCrosshairMove(handler) {
-            this._private__crosshairMovedDelegate._internal_subscribe(handler);
-        }
-
-        unsubscribeCrosshairMove(handler) {
-            this._private__crosshairMovedDelegate._internal_unsubscribe(handler);
-        }
-
-        subscribeDblClick(handler) {
-            this._private__dblClickedDelegate._internal_subscribe(handler);
-        }
-
-        unsubscribeDblClick(handler) {
-            this._private__dblClickedDelegate._internal_unsubscribe(handler);
         }
 
         priceScale(priceScaleId) {
@@ -13224,46 +12386,10 @@
             return this._private__chartWidget._internal_options();
         }
 
-        takeScreenshot() {
-            return this._private__chartWidget._internal_takeScreenshot();
-        }
-
-        autoSizeActive() {
-            return this._private__chartWidget._internal_autoSizeActive();
-        }
-
-        chartElement() {
-            return this._private__chartWidget._internal_element();
-        }
-
-        paneSize() {
-            const size = this._private__chartWidget._internal_paneSize();
-            return {
-                height: size.height,
-                width: size.width,
-            };
-        }
-
-        setCrosshairPosition(price, horizontalPosition, seriesApi) {
-            const series = this._private__seriesMap.get(seriesApi);
-            if (series === undefined) {
-                return;
-            }
-            const pane = this._private__chartWidget._internal_model()._internal_paneForSource(series);
-            if (pane === null) {
-                return;
-            }
-            this._private__chartWidget._internal_model()._internal_setAndSaveSyntheticPosition(price, horizontalPosition, pane);
-        }
-
-        clearCrosshairPosition() {
-            this._private__chartWidget._internal_model()._internal_clearCurrentPosition(true);
-        }
-
-        _private__addSeriesImpl(type, styleDefaults, options = {}, customPaneView) {
+        _private__addSeriesImpl(type, styleDefaults, options = {}) {
             patchPriceFormat(options.priceFormat);
             const strictOptions = merge(clone(seriesOptionsDefaults), clone(styleDefaults), options);
-            const series = this._private__chartWidget._internal_model()._internal_createSeries(type, strictOptions, customPaneView);
+            const series = this._private__chartWidget._internal_model()._internal_createSeries(type, strictOptions);
             const res = new SeriesApi(series, this, this, this, this._private__horzScaleBehavior);
             this._private__seriesMap.set(res, series);
             this._private__seriesMapReversed.set(series, res);
