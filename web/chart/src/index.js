@@ -1,3 +1,5 @@
+import {LightweightCharts} from "./lightweight-charts.standalone.development";
+
 const DayInSeconds = 86400
 
 const turquoise = '#03866a'
