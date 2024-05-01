@@ -16,6 +16,7 @@ import {
     min,
     notNull,
     undefinedIfNull,
+    areRangesEqual,
 } from './utils'
 import {
     applyAlpha,
@@ -41,16 +42,6 @@ import {
 } from './formatter.js'
 
 'use strict';
-
-
-
-
-
-
-
-
-
-
 
 
 class BitmapCoordinatesPaneRenderer {
@@ -1797,12 +1788,6 @@ class SeriesPriceAxisView extends PriceAxisView {
 }
 
 
-
-
-
-
-
-
 class Delegate {
     constructor() {
         this._private__listeners = [];
@@ -2959,14 +2944,6 @@ class Series extends PriceDataSource {
 
     _internal_visible() {
         return this._private__options.visible;
-    }
-
-    _internal_attachPrimitive(primitive) {
-        this._private__primitives.push(new SeriesPrimitiveWrapper(primitive, this));
-    }
-
-    _internal_detachPrimitive(source) {
-        this._private__primitives = this._private__primitives.filter((wrapper) => wrapper._internal_primitive() !== source);
     }
 
     _internal_customSeriesPlotValuesBuilder() {
@@ -4603,13 +4580,6 @@ class RangeImpl {
     _internal_equals(other) {
         return this._private__left === other._internal_left() && this._private__right === other._internal_right();
     }
-}
-
-function areRangesEqual(first, second) {
-    if (first === null || second === null) {
-        return first === second;
-    }
-    return first._internal_equals(second);
 }
 
 class TickMarks {
@@ -10049,16 +10019,15 @@ function __rest(s, e) {
     const t = {};
     for (p in s) if (Object.prototype.hasOwnProperty.call(s, p) && e.indexOf(p) < 0)
         t[p] = s[p];
-    if (s != null && typeof Object.getOwnPropertySymbols === "function")
-        {
-            i = 0;
-        }
+    if (s != null && typeof Object.getOwnPropertySymbols === "function") {
+        i = 0;
+    }
     {
         p = Object.getOwnPropertySymbols(s);
         for (; i < p.length; i++) {
-                    if (e.indexOf(p[i]) < 0 && Object.prototype.propertyIsEnumerable.call(s, p[i]))
-                        t[p[i]] = s[p[i]];
-                }
+            if (e.indexOf(p[i]) < 0 && Object.prototype.propertyIsEnumerable.call(s, p[i]))
+                t[p[i]] = s[p[i]];
+        }
     }
     return t;
 }
@@ -10768,16 +10737,12 @@ function checkBarItem(type, barItem) {
         return;
     }
     assert(
-        // eslint-disable-next-line @typescript-eslint/tslint/config
         typeof barItem.open === 'number', `${type} series item data value of open must be a number, got=${typeof barItem.open}, value=${barItem.open}`);
     assert(
-        // eslint-disable-next-line @typescript-eslint/tslint/config
         typeof barItem.high === 'number', `${type} series item data value of high must be a number, got=${typeof barItem.high}, value=${barItem.high}`);
     assert(
-        // eslint-disable-next-line @typescript-eslint/tslint/config
         typeof barItem.low === 'number', `${type} series item data value of low must be a number, got=${typeof barItem.low}, value=${barItem.low}`);
     assert(
-        // eslint-disable-next-line @typescript-eslint/tslint/config
         typeof barItem.close === 'number', `${type} series item data value of close must be a number, got=${typeof barItem.close}, value=${barItem.close}`);
 }
 
@@ -10786,7 +10751,6 @@ function checkLineItem(type, lineItem) {
         return;
     }
     assert(
-        // eslint-disable-next-line @typescript-eslint/tslint/config
         typeof lineItem.value === 'number', `${type} series item data value must be a number, got=${typeof lineItem.value}, value=${lineItem.value}`);
 }
 
@@ -10813,22 +10777,12 @@ class SeriesApi {
         this._private__onDataChanged('full');
     }
 
-    data() {
-        const seriesCreator = getSeriesDataCreator(this.seriesType());
-        const rows = this._internal__series._internal_bars()._internal_rows();
-        return rows.map((row) => seriesCreator(row));
-    }
-
     applyOptions(options) {
         this._internal__series._internal_applyOptions(options);
     }
 
     options() {
         return clone(this._internal__series._internal_options());
-    }
-
-    seriesType() {
-        return this._internal__series._internal_seriesType();
     }
 
     _private__onDataChanged(scope) {
@@ -11102,7 +11056,7 @@ function createChart(container, userOptions) {
     return res;
 }
 
-export let LightweightCharts = Object.freeze({
+export let Charts = Object.freeze({
     __proto__: null,
     createChart: createChart,
     isBusinessDay: isBusinessDay,

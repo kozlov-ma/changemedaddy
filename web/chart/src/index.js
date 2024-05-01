@@ -1,4 +1,4 @@
-import {LightweightCharts} from "./lightweight-charts.standalone.development";
+import {Charts} from "./chart";
 
 const DayInSeconds = 86400
 
@@ -12,7 +12,7 @@ function getTimeInSecondsFromString(s) {
 }
 
 const chartContainer = document.getElementById('chart-container')
-const chart = LightweightCharts.createChart(chartContainer, {
+const chart = Charts.createChart(chartContainer, {
     grid: {
         vertLines: {color: lightGrey},
         horzLines: {color: lightGrey},
@@ -87,7 +87,10 @@ const lineSeries = chart.addLineSeries({
     lineWidth: 1, // Толщина линии
 });
 
-lineSeries.setData([{ time: data[0].time, value: data[0].open }, { time: data[data.length - 1].time, value: data[0].open }]);
+lineSeries.setData([{time: data[0].time, value: data[0].open}, {
+    time: data[data.length - 1].time,
+    value: data[0].open
+}]);
 
 let startRangeString = data.length >= 60 ? data[data.length - 60]['time'] : data[0]['time']
 let endRangeString = data[data.length - 1]['time']
@@ -107,7 +110,7 @@ document.getElementById('scrollBtn').addEventListener('click', () => {
 });
 
 const chartResizeListener = () => {
-    const { width, height } = chartContainer.getBoundingClientRect();
+    const {width, height} = chartContainer.getBoundingClientRect();
     chart.resize(width, height);
 };
 

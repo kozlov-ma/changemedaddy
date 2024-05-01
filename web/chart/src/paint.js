@@ -264,9 +264,9 @@ function getControlPoints(points, fromPointIndex, toPointIndex) {
 }
 
 export function walkLine(renderingScope, items, lineType, visibleRange, barWidth,
-                  // the values returned by styleGetter are compared using the operator !==,
-                  // so if styleGetter returns objects, then styleGetter should return the same object for equal styles
-                  styleGetter) {
+                         // the values returned by styleGetter are compared using the operator !==,
+                         // so if styleGetter returns objects, then styleGetter should return the same object for equal styles
+                         styleGetter) {
     function finishStyledArea(scope, style) {
         const ctx = scope.context;
         ctx.strokeStyle = style;

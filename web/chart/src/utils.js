@@ -138,3 +138,10 @@ export function min(arr) {
     }
     return minVal;
 }
+
+export function areRangesEqual(first, second) {
+    if (first === null || second === null) {
+        return first === second;
+    }
+    return first._internal_equals(second);
+}
