@@ -3,6 +3,7 @@ const DayInSeconds = 86400
 const turquoise = '#03866a'
 const red = '#dc2020'
 const lightGrey = "rgba(140,137,137,0.2)"
+const grey = "rgba(79,75,75,0.2)"
 
 function getTimeInSecondsFromString(s) {
     return new Date(s).getTime() / 1000
@@ -20,10 +21,10 @@ const chart = LightweightCharts.createChart(chartContainer, {
         vertLines: {color: lightGrey},
         horzLines: {color: lightGrey},
     },
-    height: 600,
     crosshair: {
         mode: LightweightCharts.CrosshairMode.Normal,
     },
+    height: 600,
     localization: {
         priceFormatter: myPriceFormatter,
     },
@@ -87,6 +88,16 @@ function generateRandomData(num) {
 const data = generateRandomData(100);
 
 series.setData(data);
+
+const lineSeries = chart.addLineSeries({
+    priceLine: false,
+    firstValueVisible: true,
+    lineStyle: 1, // Стиль линии (1 - пунктирная)
+    color: grey,
+    lineWidth: 1, // Толщина линии
+});
+
+lineSeries.setData([{ time: 0, value: data[0].open }, { time: Date.now(), value: data[0].open }]);
 
 startRangeString = data.length >= 60 ? data[data.length - 60]['time'] : data[0]['time']
 endRangeString = data[data.length - 1]['time']

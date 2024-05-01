@@ -100,51 +100,6 @@
         },
     };
 
-    /**
-     * Represents the possible line types.
-     */
-    var LineType;
-    (function (LineType) {
-        /**
-         * A line.
-         */
-        LineType[LineType["Simple"] = 0] = "Simple";
-        /**
-         * A stepped line.
-         */
-        LineType[LineType["WithSteps"] = 1] = "WithSteps";
-        /**
-         * A curved line.
-         */
-        LineType[LineType["Curved"] = 2] = "Curved";
-    })(LineType || (LineType = {}));
-    /**
-     * Represents the possible line styles.
-     */
-    var LineStyle;
-    (function (LineStyle) {
-        /**
-         * A solid line.
-         */
-        LineStyle[LineStyle["Solid"] = 0] = "Solid";
-        /**
-         * A dotted line.
-         */
-        LineStyle[LineStyle["Dotted"] = 1] = "Dotted";
-        /**
-         * A dashed line.
-         */
-        LineStyle[LineStyle["Dashed"] = 2] = "Dashed";
-        /**
-         * A dashed line with bigger dashes.
-         */
-        LineStyle[LineStyle["LargeDashed"] = 3] = "LargeDashed";
-        /**
-         * A dotted line with more space between dots.
-         */
-        LineStyle[LineStyle["SparseDotted"] = 4] = "SparseDotted";
-    })(LineStyle || (LineStyle = {}));
-
     function setLineStyle(ctx, style) {
         const dashPatterns = {
             [0 /* LineStyle.Solid */]: [],
@@ -4440,25 +4395,6 @@
         }
     }
 
-    /**
-     * Search direction if no data found at provided index
-     */
-    var MismatchDirection;
-    (function (MismatchDirection) {
-        /**
-         * Search the nearest left item
-         */
-        MismatchDirection[MismatchDirection["NearestLeft"] = -1] = "NearestLeft";
-        /**
-         * Do not search
-         */
-        MismatchDirection[MismatchDirection["None"] = 0] = "None";
-        /**
-         * Search the nearest right item
-         */
-        MismatchDirection[MismatchDirection["NearestRight"] = 1] = "NearestRight";
-    })(MismatchDirection || (MismatchDirection = {}));
-    // TODO: think about changing it dynamically
     const CHUNK_SIZE = 30;
 
     /**
@@ -5871,29 +5807,6 @@
         });
     }
 
-    /**
-     * Represents the price scale mode.
-     */
-    var PriceScaleMode;
-    (function (PriceScaleMode) {
-        /**
-         * Price scale shows prices. Price range changes linearly.
-         */
-        PriceScaleMode[PriceScaleMode["Normal"] = 0] = "Normal";
-        /**
-         * Price scale shows prices. Price range changes logarithmically.
-         */
-        PriceScaleMode[PriceScaleMode["Logarithmic"] = 1] = "Logarithmic";
-        /**
-         * Price scale shows percentage values according the first visible value of the price scale.
-         * The first visible value is 0% in this mode.
-         */
-        PriceScaleMode[PriceScaleMode["Percentage"] = 2] = "Percentage";
-        /**
-         * The same as percentage mode, but the first value is moved to 100.
-         */
-        PriceScaleMode[PriceScaleMode["IndexedTo100"] = 3] = "IndexedTo100";
-    })(PriceScaleMode || (PriceScaleMode = {}));
     const percentageFormatter = new PercentageFormatter();
     const defaultPriceFormatter = new PriceFormatter(100, 1);
 
@@ -8018,25 +7931,6 @@
         }
     }
 
-    /// <reference types="_build-time-constants" />
-    /**
-     * Determine how to exit the tracking mode.
-     *
-     * By default, mobile users will long press to deactivate the scroll and have the ability to check values and dates.
-     * Another press is required to activate the scroll, be able to move left/right, zoom, etc.
-     */
-    var TrackingModeExitMode;
-    (function (TrackingModeExitMode) {
-        /**
-         * Tracking Mode will be deactivated on touch end event.
-         */
-        TrackingModeExitMode[TrackingModeExitMode["OnTouchEnd"] = 0] = "OnTouchEnd";
-        /**
-         * Tracking Mode will be deactivated on the next tap event.
-         */
-        TrackingModeExitMode[TrackingModeExitMode["OnNextTap"] = 1] = "OnNextTap";
-    })(TrackingModeExitMode || (TrackingModeExitMode = {}));
-
     class ChartModel {
         constructor(invalidateHandler, options, horzScaleBehavior) {
             this._private__panes = [];
@@ -8601,25 +8495,6 @@
         }
     }
 
-    /**
-     * Represents the type of the last price animation for series such as area or line.
-     */
-    var LastPriceAnimationMode;
-    (function (LastPriceAnimationMode) {
-        /**
-         * Animation is always disabled
-         */
-        LastPriceAnimationMode[LastPriceAnimationMode["Disabled"] = 0] = "Disabled";
-        /**
-         * Animation is always enabled.
-         */
-        LastPriceAnimationMode[LastPriceAnimationMode["Continuous"] = 1] = "Continuous";
-        /**
-         * Animation is active after new data.
-         */
-        LastPriceAnimationMode[LastPriceAnimationMode["OnDataUpdate"] = 2] = "OnDataUpdate";
-    })(LastPriceAnimationMode || (LastPriceAnimationMode = {}));
-
     function precisionByMinMove(minMove) {
         if (minMove >= 1) {
             return 0;
@@ -8635,32 +8510,6 @@
         }
         return i;
     }
-
-    /**
-     * Represents the source of data to be used for the horizontal price line.
-     */
-    var PriceLineSource;
-    (function (PriceLineSource) {
-        /**
-         * Use the last bar data.
-         */
-        PriceLineSource[PriceLineSource["LastBar"] = 0] = "LastBar";
-        /**
-         * Use the last visible data of the chart viewport.
-         */
-        PriceLineSource[PriceLineSource["LastVisible"] = 1] = "LastVisible";
-    })(PriceLineSource || (PriceLineSource = {}));
-
-    /**
-     * Represents a type of color.
-     */
-    var ColorType;
-    (function (ColorType) {
-        /** Solid color */
-        ColorType["Solid"] = "solid";
-        /** Vertical gradient color */
-        ColorType["VerticalGradient"] = "gradient";
-    })(ColorType || (ColorType = {}));
 
     /**
      * Check if a time value is a business day object.
@@ -8681,33 +8530,6 @@
     function isUTCTimestamp(time) {
         return isNumber(time);
     }
-
-    /**
-     * Represents the type of a tick mark on the time axis.
-     */
-    var TickMarkType;
-    (function (TickMarkType) {
-        /**
-         * The start of the year (e.g. it's the first tick mark in a year).
-         */
-        TickMarkType[TickMarkType["Year"] = 0] = "Year";
-        /**
-         * The start of the month (e.g. it's the first tick mark in a month).
-         */
-        TickMarkType[TickMarkType["Month"] = 1] = "Month";
-        /**
-         * A day of the month.
-         */
-        TickMarkType[TickMarkType["DayOfMonth"] = 2] = "DayOfMonth";
-        /**
-         * A time without seconds.
-         */
-        TickMarkType[TickMarkType["Time"] = 3] = "Time";
-        /**
-         * A time with seconds.
-         */
-        TickMarkType[TickMarkType["TimeWithSeconds"] = 4] = "TimeWithSeconds";
-    })(TickMarkType || (TickMarkType = {}));
 
     const getMonth = (date) => date.getUTCMonth() + 1;
     const getDay = (date) => date.getUTCDate();
@@ -14517,44 +14339,15 @@
         return "4.1.3";
     }
 
-    var LightweightChartsModule = /*#__PURE__*/Object.freeze({
+    window.LightweightCharts = Object.freeze({
         __proto__: null,
-        get ColorType() {
-            return ColorType;
-        },
         get CrosshairMode() {
             return CrosshairMode;
-        },
-        get LastPriceAnimationMode() {
-            return LastPriceAnimationMode;
-        },
-        get LineStyle() {
-            return LineStyle;
-        },
-        get LineType() {
-            return LineType;
-        },
-        get MismatchDirection() {
-            return MismatchDirection;
-        },
-        get PriceLineSource() {
-            return PriceLineSource;
-        },
-        get PriceScaleMode() {
-            return PriceScaleMode;
-        },
-        get TickMarkType() {
-            return TickMarkType;
-        },
-        get TrackingModeExitMode() {
-            return TrackingModeExitMode;
         },
         createChart: createChart,
         isBusinessDay: isBusinessDay,
         isUTCTimestamp: isUTCTimestamp,
         version: version
     });
-
-    window.LightweightCharts = LightweightChartsModule;
 
 })();
