@@ -9,12 +9,6 @@ function getTimeInSecondsFromString(s) {
     return new Date(s).getTime() / 1000
 }
 
-const currentLocale = window.navigator.languages[0];
-const myPriceFormatter = Intl.NumberFormat(currentLocale, {
-    style: 'currency',
-    currency: 'RUB',
-}).format;
-
 const chartContainer = document.getElementById('chart-container')
 const chart = LightweightCharts.createChart(chartContainer, {
     grid: {
@@ -22,9 +16,6 @@ const chart = LightweightCharts.createChart(chartContainer, {
         horzLines: {color: lightGrey},
     },
     height: 600,
-    localization: {
-        priceFormatter: myPriceFormatter,
-    },
 });
 
 chart.priceScale("right").applyOptions({
@@ -96,8 +87,8 @@ const lineSeries = chart.addLineSeries({
 
 lineSeries.setData([{ time: 0, value: data[0].open }, { time: Date.now(), value: data[0].open }]);
 
-startRangeString = data.length >= 60 ? data[data.length - 60]['time'] : data[0]['time']
-endRangeString = data[data.length - 1]['time']
+let startRangeString = data.length >= 60 ? data[data.length - 60]['time'] : data[0]['time']
+let endRangeString = data[data.length - 1]['time']
 chart.timeScale().setVisibleRange({
     from: getTimeInSecondsFromString(startRangeString),
     to: getTimeInSecondsFromString(endRangeString),

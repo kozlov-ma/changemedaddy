@@ -1,53 +1,57 @@
 (function () {
     'use strict';
 
-    const candlestickStyleDefaults = {
-        upColor: '#26a69a',
-        downColor: '#ef5350',
-        wickVisible: true,
-        borderVisible: true,
-        borderColor: '#378658',
-        borderUpColor: '#26a69a',
-        borderDownColor: '#ef5350',
-        wickColor: '#737375',
-        wickUpColor: '#26a69a',
-        wickDownColor: '#ef5350',
-    };
+    // #region utils
+    function isNumber(value) {
+        return (typeof value === 'number') && (isFinite(value));
+    }
+    function isInteger(value) {
+        return (typeof value === 'number') && ((value % 1) === 0);
+    }
 
-    const lineStyleDefaults = {
-        color: '#2196f3',
-        lineStyle: 0 /* LineStyle.Solid */,
-        lineWidth: 3,
-        lineType: 0 /* LineType.Simple */,
-        lineVisible: true,
-        crosshairMarkerVisible: true,
-        crosshairMarkerRadius: 4,
-        crosshairMarkerBorderColor: '',
-        crosshairMarkerBorderWidth: 2,
-        crosshairMarkerBackgroundColor: '',
-        lastPriceAnimation: 0 /* LastPriceAnimationMode.Disabled */,
-        pointMarkersVisible: false,
-    };
+    function isString(value) {
+        return typeof value === 'string';
+    }
 
-    const seriesOptionsDefaults = {
-        title: '',
-        visible: true,
-        lastValueVisible: true,
-        priceLineVisible: true,
-        priceLineSource: 0 /* PriceLineSource.LastBar */,
-        priceLineWidth: 1,
-        priceLineColor: '',
-        priceLineStyle: 2 /* LineStyle.Dashed */,
-        baseLineVisible: true,
-        baseLineWidth: 1,
-        baseLineColor: '#B2B5BE',
-        baseLineStyle: 0 /* LineStyle.Solid */,
-        priceFormat: {
-            type: 'price',
-            precision: 2,
-            minMove: 0.01,
-        },
-    };
+    function isBoolean(value) {
+        return typeof value === 'boolean';
+    }
+
+    function clone(object) {
+        const o = object;
+        if (!o || 'object' !== typeof o) {
+            return o;
+        }
+        let c;
+        if (Array.isArray(o)) {
+            c = [];
+        } else {
+            c = {};
+        }
+        let p;
+        let v;
+        for (p in o) {
+            if (o.hasOwnProperty(p)) {
+                v = o[p];
+                if (v && 'object' === typeof v) {
+                    c[p] = clone(v);
+                } else {
+                    c[p] = v;
+                }
+            }
+        }
+        return c;
+    }
+
+    function notNull(t) {
+        return t !== null;
+    }
+
+    function undefinedIfNull(t) {
+        return (t === null) ? undefined : t;
+    }
+
+    // #endregion utils
 
     function setLineStyle(ctx, style) {
         const dashPatterns = {
@@ -261,13 +265,6 @@
             this._private__listeners.push(listener);
         }
 
-        _internal_unsubscribe(callback) {
-            const index = this._private__listeners.findIndex((listener) => callback === listener._internal_callback);
-            if (index > -1) {
-                this._private__listeners.splice(index, 1);
-            }
-        }
-
         _internal_unsubscribeAll(linkedObject) {
             this._private__listeners = this._private__listeners.filter((listener) => listener._internal_linkedObject !== linkedObject);
         }
@@ -304,65 +301,6 @@
             }
         }
         return dst;
-    }
-
-    function isNumber(value) {
-        return (typeof value === 'number') && (isFinite(value));
-    }
-
-    function isInteger(value) {
-        return (typeof value === 'number') && ((value % 1) === 0);
-    }
-
-    function isString(value) {
-        return typeof value === 'string';
-    }
-
-    function isBoolean(value) {
-        return typeof value === 'boolean';
-    }
-
-    function clone(object) {
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        const o = object;
-        if (!o || 'object' !== typeof o) {
-            // eslint-disable-next-line @typescript-eslint/no-unsafe-return
-            return o;
-        }
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        let c;
-        if (Array.isArray(o)) {
-            c = [];
-        } else {
-            c = {};
-        }
-        let p;
-        let v;
-        // eslint-disable-next-line no-restricted-syntax
-        for (p in o) {
-            // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access,@typescript-eslint/no-unsafe-call,no-prototype-builtins
-            if (o.hasOwnProperty(p)) {
-                // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
-                v = o[p];
-                if (v && 'object' === typeof v) {
-                    // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
-                    c[p] = clone(v);
-                } else {
-                    // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
-                    c[p] = v;
-                }
-            }
-        }
-        // eslint-disable-next-line @typescript-eslint/no-unsafe-return
-        return c;
-    }
-
-    function notNull(t) {
-        return t !== null;
-    }
-
-    function undefinedIfNull(t) {
-        return (t === null) ? undefined : t;
     }
 
     /**
@@ -7660,7 +7598,12 @@
         }
 
         static _internal_applyDefaults(options) {
-            return merge({localization: {dateFormat: 'dd MMM \'yy'}}, options !== null && options !== void 0 ? options : {});
+            const currentLocale = window.navigator.languages[0];
+            const priceFormatter = Intl.NumberFormat(currentLocale, {
+                style: 'currency',
+                currency: 'RUB',
+            }).format;
+            return merge({localization: {dateFormat: 'dd MMM \'yy', priceFormatter: priceFormatter}}, options);
         }
     }
 
@@ -10191,7 +10134,7 @@
             }
             const priceScale = this._private__state._internal_defaultPriceScale();
             if (priceScale._internal_isEmpty() || this._private__model()._internal_timeScale()._internal_isEmpty()) {
-                return;
+
             }
         }
 
@@ -12359,11 +12302,35 @@
 
         addCandlestickSeries(options = {}) {
             fillUpDownCandlesticksColors(options);
-            return this._private__addSeriesImpl('Candlestick', candlestickStyleDefaults);
+            return this._private__addSeriesImpl('Candlestick', {
+                upColor: '#26a69a',
+                downColor: '#ef5350',
+                wickVisible: true,
+                borderVisible: true,
+                borderColor: '#378658',
+                borderUpColor: '#26a69a',
+                borderDownColor: '#ef5350',
+                wickColor: '#737375',
+                wickUpColor: '#26a69a',
+                wickDownColor: '#ef5350',
+            });
         }
 
         addLineSeries(options) {
-            return this._private__addSeriesImpl('Line', lineStyleDefaults, options);
+            return this._private__addSeriesImpl('Line', {
+                color: '#2196f3',
+                lineStyle: 0 /* LineStyle.Solid */,
+                lineWidth: 3,
+                lineType: 0 /* LineType.Simple */,
+                lineVisible: true,
+                crosshairMarkerVisible: true,
+                crosshairMarkerRadius: 4,
+                crosshairMarkerBorderColor: '',
+                crosshairMarkerBorderWidth: 2,
+                crosshairMarkerBackgroundColor: '',
+                lastPriceAnimation: 0 /* LastPriceAnimationMode.Disabled */,
+                pointMarkersVisible: false,
+            }, options);
         }
 
         _internal_applyNewData(series, data) {
@@ -12388,7 +12355,25 @@
 
         _private__addSeriesImpl(type, styleDefaults, options = {}) {
             patchPriceFormat(options.priceFormat);
-            const strictOptions = merge(clone(seriesOptionsDefaults), clone(styleDefaults), options);
+            const strictOptions = merge({
+                title: '',
+                visible: true,
+                lastValueVisible: true,
+                priceLineVisible: true,
+                priceLineSource: 0 /* PriceLineSource.LastBar */,
+                priceLineWidth: 1,
+                priceLineColor: '',
+                priceLineStyle: 2 /* LineStyle.Dashed */,
+                baseLineVisible: true,
+                baseLineWidth: 1,
+                baseLineColor: '#B2B5BE',
+                baseLineStyle: 0 /* LineStyle.Solid */,
+                priceFormat: {
+                    type: 'price',
+                    precision: 2,
+                    minMove: 0.01,
+                },
+            }, styleDefaults, options);
             const series = this._private__chartWidget._internal_model()._internal_createSeries(type, strictOptions);
             const res = new SeriesApi(series, this, this, this, this._private__horzScaleBehavior);
             this._private__seriesMap.set(res, series);
@@ -12436,15 +12421,7 @@
     function createChart(container, userOptions) {
         let horzScaleBehavior = new HorzScaleBehaviorTime()
         let options = HorzScaleBehaviorTime._internal_applyDefaults(userOptions)
-        let htmlElement;
-        if (isString(container)) {
-            const element = document.getElementById(container);
-            assert(element !== null, `Cannot find element in DOM with id=${container}`);
-            htmlElement = element;
-        } else {
-            htmlElement = container;
-        }
-        const res = new ChartApi(htmlElement, horzScaleBehavior, options);
+        const res = new ChartApi(container, horzScaleBehavior, options);
         horzScaleBehavior.setOptions(res.options());
         return res;
     }
