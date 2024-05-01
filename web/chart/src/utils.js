@@ -89,3 +89,52 @@ export function merge(dst, ...sources) {
     }
     return dst;
 }
+
+export function subtract(p1, p2) {
+    return {_internal_x: p1._internal_x - p2._internal_x, _internal_y: p1._internal_y - p2._internal_y};
+}
+
+export function add(p1, p2) {
+    return {_internal_x: p1._internal_x + p2._internal_x, _internal_y: p1._internal_y + p2._internal_y};
+}
+
+export function divide(p1, n) {
+    return {_internal_x: p1._internal_x / n, _internal_y: p1._internal_y / n};
+}
+
+export function clamp(value, minVal, maxVal) {
+    return Math.min(Math.max(value, minVal), maxVal);
+}
+
+export function isBaseDecimal(value) {
+    if (value < 0) {
+        return false;
+    }
+    for (let current = value; current > 1; current /= 10) {
+        if ((current % 10) !== 0) {
+            return false;
+        }
+    }
+    return true;
+}
+
+export function greaterOrEqual(x1, x2, epsilon) {
+    return (x2 - x1) <= epsilon;
+}
+
+export function equal(x1, x2, epsilon) {
+    return Math.abs(x1 - x2) < epsilon;
+}
+
+export function min(arr) {
+    if (arr.length < 1) {
+        throw Error('array is empty');
+    }
+    let minVal = arr[0];
+    for (let i = 1; i < arr.length; ++i) {
+        if (arr[i] < minVal) {
+            minVal = arr[i];
+        }
+    }
+    return minVal;
+}

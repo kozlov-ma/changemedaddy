@@ -2,119 +2,32 @@ import {
     isNumber, isInteger, isString,
     isBoolean, clone, notNull,
     undefinedIfNull, assert, ensure,
-    ensureNotNull, ensureDefined, merge
+    ensureNotNull, ensureDefined, merge,
+    subtract, add, divide, clamp,
+    isBaseDecimal, equal, min, greaterOrEqual,
 } from './utils'
 import {
     setLineStyle, drawHorizontalLine, drawVerticalLine,
     strokeInPixel, applyAlpha, generateContrastColors,
     gradientColorAtPercent, fillRectInnerBorder, clearRect,
-    drawRoundRectWithInnerBorder, clearRectWithGradient
+    drawRoundRectWithInnerBorder, clearRectWithGradient, walkLine
 } from './paint'
+import {
+    PriceFormatter, PercentageFormatter, VolumeFormatter,
+    DateTimeFormatter, DateFormatter, defaultTickMarkFormatter
+} from './formatter.js'
 
 'use strict';
 
-class Delegate {
-    constructor() {
-        this._private__listeners = [];
-    }
-
-    _internal_subscribe(callback, linkedObject, singleshot) {
-        const listener = {
-            _internal_callback: callback,
-            _internal_linkedObject: linkedObject,
-            _internal_singleshot: singleshot === true,
-        };
-        this._private__listeners.push(listener);
-    }
-
-    _internal_unsubscribeAll(linkedObject) {
-        this._private__listeners = this._private__listeners.filter((listener) => listener._internal_linkedObject !== linkedObject);
-    }
-
-    _internal_fire(param1, param2, param3) {
-        const listenersSnapshot = [...this._private__listeners];
-        this._private__listeners = this._private__listeners.filter((listener) => !listener._internal_singleshot);
-        listenersSnapshot.forEach((listener) => listener._internal_callback(param1, param2, param3));
-    }
-
-    _internal_hasListeners() {
-        return this._private__listeners.length > 0;
-    }
-
-    _internal_destroy() {
-        this._private__listeners = [];
-    }
-}
 
 
-const defaultFontFamily = `-apple-system, BlinkMacSystemFont, 'Trebuchet MS', Roboto, Ubuntu, sans-serif`;
 
-function makeFont(size, family, style) {
-    if (style !== undefined) {
-        style = `${style} `;
-    } else {
-        style = '';
-    }
-    if (family === undefined) {
-        family = defaultFontFamily;
-    }
-    return `${style}${size}px ${family}`;
-}
 
-class PriceAxisRendererOptionsProvider {
-    constructor(chartModel) {
-        this._private__rendererOptions = {
-            _internal_borderSize: 1 /* RendererConstants.BorderSize */,
-            _internal_tickLength: 5 /* RendererConstants.TickLength */,
-            _internal_fontSize: NaN,
-            _internal_font: '',
-            _internal_fontFamily: '',
-            _internal_color: '',
-            _internal_paneBackgroundColor: '',
-            _internal_paddingBottom: 0,
-            _internal_paddingInner: 0,
-            _internal_paddingOuter: 0,
-            _internal_paddingTop: 0,
-            _internal_baselineOffset: 0,
-        };
-        this._private__chartModel = chartModel;
-    }
 
-    _internal_options() {
-        const rendererOptions = this._private__rendererOptions;
-        const currentFontSize = this._private__fontSize();
-        const currentFontFamily = this._private__fontFamily();
-        if (rendererOptions._internal_fontSize !== currentFontSize || rendererOptions._internal_fontFamily !== currentFontFamily) {
-            rendererOptions._internal_fontSize = currentFontSize;
-            rendererOptions._internal_fontFamily = currentFontFamily;
-            rendererOptions._internal_font = makeFont(currentFontSize, currentFontFamily);
-            rendererOptions._internal_paddingTop = 2.5 / 12 * currentFontSize; // 2.5 px for 12px font
-            rendererOptions._internal_paddingBottom = rendererOptions._internal_paddingTop;
-            rendererOptions._internal_paddingInner = currentFontSize / 12 * rendererOptions._internal_tickLength;
-            rendererOptions._internal_paddingOuter = currentFontSize / 12 * rendererOptions._internal_tickLength;
-            rendererOptions._internal_baselineOffset = 0;
-        }
-        rendererOptions._internal_color = this._private__textColor();
-        rendererOptions._internal_paneBackgroundColor = this._private__paneBackgroundColor();
-        return this._private__rendererOptions;
-    }
 
-    _private__textColor() {
-        return this._private__chartModel._internal_options().layout.textColor;
-    }
 
-    _private__paneBackgroundColor() {
-        return this._private__chartModel._internal_backgroundTopColor();
-    }
 
-    _private__fontSize() {
-        return this._private__chartModel._internal_options().layout.fontSize;
-    }
 
-    _private__fontFamily() {
-        return this._private__chartModel._internal_options().layout.fontFamily;
-    }
-}
 
 class CompositeRenderer {
     constructor() {
@@ -193,7 +106,7 @@ function createEmptyMarkerData() {
     };
 }
 
-class CrosshairMarksPaneView {
+export class CrosshairMarksPaneView {
     constructor(chartModel, crosshair) {
         this._private__compositeRenderer = new CompositeRenderer();
         this._private__markersRenderers = [];
@@ -287,7 +200,7 @@ class CrosshairRenderer extends BitmapCoordinatesPaneRenderer {
     }
 }
 
-class CrosshairPaneView {
+export class CrosshairPaneView {
     constructor(source) {
         this._private__invalidated = true;
         this._private__rendererData = {
@@ -579,7 +492,7 @@ class PriceAxisView {
     }
 }
 
-class CrosshairPriceAxisView extends PriceAxisView {
+export class CrosshairPriceAxisView extends PriceAxisView {
     constructor(source, priceScale, valueProvider) {
         super();
         this._private__source = source;
@@ -698,7 +611,7 @@ class TimeAxisViewRenderer {
     }
 }
 
-class CrosshairTimeAxisView {
+export class CrosshairTimeAxisView {
     constructor(crosshair, model, valueProvider) {
         this._private__invalidated = true;
         this._private__renderer = new TimeAxisViewRenderer();
@@ -989,469 +902,6 @@ class Crosshair extends DataSource {
     }
 }
 
-function isDefaultPriceScale(priceScaleId) {
-    return priceScaleId === "left" /* DefaultPriceScaleId.Left */ || priceScaleId === "right" /* DefaultPriceScaleId.Right */;
-}
-
-function mergePaneInvalidation(beforeValue, newValue) {
-    if (beforeValue === undefined) {
-        return newValue;
-    }
-    const level = Math.max(beforeValue._internal_level, newValue._internal_level);
-    const autoScale = beforeValue._internal_autoScale || newValue._internal_autoScale;
-    return {_internal_level: level, _internal_autoScale: autoScale};
-}
-
-class InvalidateMask {
-    constructor(globalLevel) {
-        this._private__invalidatedPanes = new Map();
-        this._private__timeScaleInvalidations = [];
-        this._private__globalLevel = globalLevel;
-    }
-
-    _internal_invalidatePane(paneIndex, invalidation) {
-        const prevValue = this._private__invalidatedPanes.get(paneIndex);
-        const newValue = mergePaneInvalidation(prevValue, invalidation);
-        this._private__invalidatedPanes.set(paneIndex, newValue);
-    }
-
-    _internal_fullInvalidation() {
-        return this._private__globalLevel;
-    }
-
-    _internal_invalidateForPane(paneIndex) {
-        const paneInvalidation = this._private__invalidatedPanes.get(paneIndex);
-        if (paneInvalidation === undefined) {
-            return {
-                _internal_level: this._private__globalLevel,
-            };
-        }
-        return {
-            _internal_level: Math.max(this._private__globalLevel, paneInvalidation._internal_level),
-            _internal_autoScale: paneInvalidation._internal_autoScale,
-        };
-    }
-
-    _internal_setFitContent() {
-        this._internal_stopTimeScaleAnimation();
-        // modifies both bar spacing and right offset
-        this._private__timeScaleInvalidations = [{_internal_type: 0 /* TimeScaleInvalidationType.FitContent */}];
-    }
-
-    _internal_applyRange(range) {
-        this._internal_stopTimeScaleAnimation();
-        // modifies both bar spacing and right offset
-        this._private__timeScaleInvalidations = [{
-            _internal_type: 1 /* TimeScaleInvalidationType.ApplyRange */,
-            _internal_value: range
-        }];
-    }
-
-    _internal_setTimeScaleAnimation(animation) {
-        this._private__removeTimeScaleAnimation();
-        this._private__timeScaleInvalidations.push({
-            _internal_type: 5 /* TimeScaleInvalidationType.Animation */,
-            _internal_value: animation
-        });
-    }
-
-    _internal_stopTimeScaleAnimation() {
-        this._private__removeTimeScaleAnimation();
-        this._private__timeScaleInvalidations.push({_internal_type: 6 /* TimeScaleInvalidationType.StopAnimation */});
-    }
-
-    _internal_resetTimeScale() {
-        this._internal_stopTimeScaleAnimation();
-        // modifies both bar spacing and right offset
-        this._private__timeScaleInvalidations = [{_internal_type: 4 /* TimeScaleInvalidationType.Reset */}];
-    }
-
-    _internal_setBarSpacing(barSpacing) {
-        this._internal_stopTimeScaleAnimation();
-        this._private__timeScaleInvalidations.push({
-            _internal_type: 2 /* TimeScaleInvalidationType.ApplyBarSpacing */,
-            _internal_value: barSpacing
-        });
-    }
-
-    _internal_setRightOffset(offset) {
-        this._internal_stopTimeScaleAnimation();
-        this._private__timeScaleInvalidations.push({
-            _internal_type: 3 /* TimeScaleInvalidationType.ApplyRightOffset */,
-            _internal_value: offset
-        });
-    }
-
-    _internal_timeScaleInvalidations() {
-        return this._private__timeScaleInvalidations;
-    }
-
-    _internal_merge(other) {
-        for (const tsInvalidation of other._private__timeScaleInvalidations) {
-            this._private__applyTimeScaleInvalidation(tsInvalidation);
-        }
-        this._private__globalLevel = Math.max(this._private__globalLevel, other._private__globalLevel);
-        other._private__invalidatedPanes.forEach((invalidation, index) => {
-            this._internal_invalidatePane(index, invalidation);
-        });
-    }
-
-    static _internal_light() {
-        return new InvalidateMask(2 /* InvalidationLevel.Light */);
-    }
-
-    static _internal_full() {
-        return new InvalidateMask(3 /* InvalidationLevel.Full */);
-    }
-
-    _private__applyTimeScaleInvalidation(invalidation) {
-        switch (invalidation._internal_type) {
-            case 0 /* TimeScaleInvalidationType.FitContent */
-            :
-                this._internal_setFitContent();
-                break;
-            case 1 /* TimeScaleInvalidationType.ApplyRange */
-            :
-                this._internal_applyRange(invalidation._internal_value);
-                break;
-            case 2 /* TimeScaleInvalidationType.ApplyBarSpacing */
-            :
-                this._internal_setBarSpacing(invalidation._internal_value);
-                break;
-            case 3 /* TimeScaleInvalidationType.ApplyRightOffset */
-            :
-                this._internal_setRightOffset(invalidation._internal_value);
-                break;
-            case 4 /* TimeScaleInvalidationType.Reset */
-            :
-                this._internal_resetTimeScale();
-                break;
-            case 5 /* TimeScaleInvalidationType.Animation */
-            :
-                this._internal_setTimeScaleAnimation(invalidation._internal_value);
-                break;
-            case 6 /* TimeScaleInvalidationType.StopAnimation */
-            :
-                this._private__removeTimeScaleAnimation();
-        }
-    }
-
-    _private__removeTimeScaleAnimation() {
-        const index = this._private__timeScaleInvalidations.findIndex((inv) => inv._internal_type === 5 /* TimeScaleInvalidationType.Animation */);
-        if (index !== -1) {
-            this._private__timeScaleInvalidations.splice(index, 1);
-        }
-    }
-}
-
-const formatterOptions = {
-    _internal_decimalSign: '.',
-    _internal_decimalSignFractional: '\'',
-};
-
-/**
- * @param value - The number of convert.
- * @param length - The length. Must be between 0 and 16 inclusive.
- */
-function numberToStringWithLeadingZero(value, length) {
-    if (!isNumber(value)) {
-        return 'n/a';
-    }
-    if (!isInteger(length)) {
-        throw new TypeError('invalid length');
-    }
-    if (length < 0 || length > 16) {
-        throw new TypeError('invalid length');
-    }
-    if (length === 0) {
-        return value.toString();
-    }
-    const dummyString = '0000000000000000';
-    return (dummyString + value.toString()).slice(-length);
-}
-
-class PriceFormatter {
-    constructor(priceScale, minMove) {
-        if (!minMove) {
-            minMove = 1;
-        }
-        if (!isNumber(priceScale) || !isInteger(priceScale)) {
-            priceScale = 100;
-        }
-        if (priceScale < 0) {
-            throw new TypeError('invalid base');
-        }
-        this._private__priceScale = priceScale;
-        this._private__minMove = minMove;
-        this._private__calculateDecimal();
-    }
-
-    format(price) {
-        // \u2212 is unicode's minus sign https://www.fileformat.info/info/unicode/char/2212/index.htm
-        // we should use it because it has the same width as plus sign +
-        const sign = price < 0 ? '\u2212' : '';
-        price = Math.abs(price);
-        return sign + this._private__formatAsDecimal(price);
-    }
-
-    _private__calculateDecimal() {
-        // check if this._base is power of 10
-        // for double fractional _fractionalLength if for the main fractional only
-        this._internal__fractionalLength = 0;
-        if (this._private__priceScale > 0 && this._private__minMove > 0) {
-            let base = this._private__priceScale;
-            while (base > 1) {
-                base /= 10;
-                this._internal__fractionalLength++;
-            }
-        }
-    }
-
-    _private__formatAsDecimal(price) {
-        const base = this._private__priceScale / this._private__minMove;
-        let intPart = Math.floor(price);
-        let fracString = '';
-        const fracLength = this._internal__fractionalLength !== undefined ? this._internal__fractionalLength : NaN;
-        if (base > 1) {
-            let fracPart = +(Math.round(price * base) - intPart * base).toFixed(this._internal__fractionalLength);
-            if (fracPart >= base) {
-                fracPart -= base;
-                intPart += 1;
-            }
-            fracString = formatterOptions._internal_decimalSign + numberToStringWithLeadingZero(+fracPart.toFixed(this._internal__fractionalLength) * this._private__minMove, fracLength);
-        } else {
-            // should round int part to min move
-            intPart = Math.round(intPart * base) / base;
-            // if min move > 1, fractional part is always = 0
-            if (fracLength > 0) {
-                fracString = formatterOptions._internal_decimalSign + numberToStringWithLeadingZero(0, fracLength);
-            }
-        }
-        return intPart.toFixed(0) + fracString;
-    }
-}
-
-class PercentageFormatter extends PriceFormatter {
-    constructor(priceScale = 100) {
-        super(priceScale);
-    }
-
-    format(price) {
-        return `${super.format(price)}%`;
-    }
-}
-
-class VolumeFormatter {
-    constructor(precision) {
-        this._private__precision = precision;
-    }
-
-    format(vol) {
-        let sign = '';
-        if (vol < 0) {
-            sign = '-';
-            vol = -vol;
-        }
-        if (vol < 995) {
-            return sign + this._private__formatNumber(vol);
-        } else if (vol < 999995) {
-            return sign + this._private__formatNumber(vol / 1000) + 'K';
-        } else if (vol < 999999995) {
-            vol = 1000 * Math.round(vol / 1000);
-            return sign + this._private__formatNumber(vol / 1000000) + 'M';
-        } else {
-            vol = 1000000 * Math.round(vol / 1000000);
-            return sign + this._private__formatNumber(vol / 1000000000) + 'B';
-        }
-    }
-
-    _private__formatNumber(value) {
-        let res;
-        const priceScale = Math.pow(10, this._private__precision);
-        value = Math.round(value * priceScale) / priceScale;
-        if (value >= 1e-15 && value < 1) {
-            res = value.toFixed(this._private__precision).replace(/\.?0+$/, ''); // regex removes trailing zeroes
-        } else {
-            res = String(value);
-        }
-        return res.replace(/(\.[1-9]*)0+$/, (e, p1) => p1);
-    }
-}
-
-// eslint-disable-next-line max-params, complexity
-function walkLine(renderingScope, items, lineType, visibleRange, barWidth,
-                  // the values returned by styleGetter are compared using the operator !==,
-                  // so if styleGetter returns objects, then styleGetter should return the same object for equal styles
-                  styleGetter, finishStyledArea) {
-    if (items.length === 0 || visibleRange.from >= items.length || visibleRange.to <= 0) {
-        return;
-    }
-    const {context: ctx, horizontalPixelRatio, verticalPixelRatio} = renderingScope;
-    const firstItem = items[visibleRange.from];
-    let currentStyle = styleGetter(renderingScope, firstItem);
-    let currentStyleFirstItem = firstItem;
-    if (visibleRange.to - visibleRange.from < 2) {
-        const halfBarWidth = barWidth / 2;
-        ctx.beginPath();
-        const item1 = {_internal_x: firstItem._internal_x - halfBarWidth, _internal_y: firstItem._internal_y};
-        const item2 = {_internal_x: firstItem._internal_x + halfBarWidth, _internal_y: firstItem._internal_y};
-        ctx.moveTo(item1._internal_x * horizontalPixelRatio, item1._internal_y * verticalPixelRatio);
-        ctx.lineTo(item2._internal_x * horizontalPixelRatio, item2._internal_y * verticalPixelRatio);
-        finishStyledArea(renderingScope, currentStyle, item1, item2);
-    } else {
-        const changeStyle = (newStyle, currentItem) => {
-            finishStyledArea(renderingScope, currentStyle, currentStyleFirstItem, currentItem);
-            ctx.beginPath();
-            currentStyle = newStyle;
-            currentStyleFirstItem = currentItem;
-        };
-        let currentItem = currentStyleFirstItem;
-        ctx.beginPath();
-        ctx.moveTo(firstItem._internal_x * horizontalPixelRatio, firstItem._internal_y * verticalPixelRatio);
-        for (let i = visibleRange.from + 1; i < visibleRange.to; ++i) {
-            currentItem = items[i];
-            const itemStyle = styleGetter(renderingScope, currentItem);
-            switch (lineType) {
-                case 0 /* LineType.Simple */
-                :
-                    ctx.lineTo(currentItem._internal_x * horizontalPixelRatio, currentItem._internal_y * verticalPixelRatio);
-                    break;
-                case 1 /* LineType.WithSteps */
-                :
-                    ctx.lineTo(currentItem._internal_x * horizontalPixelRatio, items[i - 1]._internal_y * verticalPixelRatio);
-                    if (itemStyle !== currentStyle) {
-                        changeStyle(itemStyle, currentItem);
-                        ctx.lineTo(currentItem._internal_x * horizontalPixelRatio, items[i - 1]._internal_y * verticalPixelRatio);
-                    }
-                    ctx.lineTo(currentItem._internal_x * horizontalPixelRatio, currentItem._internal_y * verticalPixelRatio);
-                    break;
-                case 2 /* LineType.Curved */
-                : {
-                    const [cp1, cp2] = getControlPoints(items, i - 1, i);
-                    ctx.bezierCurveTo(cp1._internal_x * horizontalPixelRatio, cp1._internal_y * verticalPixelRatio, cp2._internal_x * horizontalPixelRatio, cp2._internal_y * verticalPixelRatio, currentItem._internal_x * horizontalPixelRatio, currentItem._internal_y * verticalPixelRatio);
-                    break;
-                }
-            }
-            if (lineType !== 1 /* LineType.WithSteps */ && itemStyle !== currentStyle) {
-                changeStyle(itemStyle, currentItem);
-                ctx.moveTo(currentItem._internal_x * horizontalPixelRatio, currentItem._internal_y * verticalPixelRatio);
-            }
-        }
-        if (currentStyleFirstItem !== currentItem || currentStyleFirstItem === currentItem && lineType === 1 /* LineType.WithSteps */) {
-            finishStyledArea(renderingScope, currentStyle, currentStyleFirstItem, currentItem);
-        }
-    }
-}
-
-const curveTension = 6;
-
-function subtract(p1, p2) {
-    return {_internal_x: p1._internal_x - p2._internal_x, _internal_y: p1._internal_y - p2._internal_y};
-}
-
-function add(p1, p2) {
-    return {_internal_x: p1._internal_x + p2._internal_x, _internal_y: p1._internal_y + p2._internal_y};
-}
-
-function divide(p1, n) {
-    return {_internal_x: p1._internal_x / n, _internal_y: p1._internal_y / n};
-}
-
-/**
- * @returns Two control points that can be used as arguments to {@link CanvasRenderingContext2D.bezierCurveTo} to draw a curved line between `points[fromPointIndex]` and `points[toPointIndex]`.
- */
-function getControlPoints(points, fromPointIndex, toPointIndex) {
-    const beforeFromPointIndex = Math.max(0, fromPointIndex - 1);
-    const afterToPointIndex = Math.min(points.length - 1, toPointIndex + 1);
-    const cp1 = add(points[fromPointIndex], divide(subtract(points[toPointIndex], points[beforeFromPointIndex]), curveTension));
-    const cp2 = subtract(points[toPointIndex], divide(subtract(points[afterToPointIndex], points[fromPointIndex]), curveTension));
-    return [cp1, cp2];
-}
-
-function clamp(value, minVal, maxVal) {
-    return Math.min(Math.max(value, minVal), maxVal);
-}
-
-function isBaseDecimal(value) {
-    if (value < 0) {
-        return false;
-    }
-    for (let current = value; current > 1; current /= 10) {
-        if ((current % 10) !== 0) {
-            return false;
-        }
-    }
-    return true;
-}
-
-function greaterOrEqual(x1, x2, epsilon) {
-    return (x2 - x1) <= epsilon;
-}
-
-function equal(x1, x2, epsilon) {
-    return Math.abs(x1 - x2) < epsilon;
-}
-
-// We can't use Math.min(...arr) because that would only support arrays shorter than 65536 items.
-function min(arr) {
-    if (arr.length < 1) {
-        throw Error('array is empty');
-    }
-    let minVal = arr[0];
-    for (let i = 1; i < arr.length; ++i) {
-        if (arr[i] < minVal) {
-            minVal = arr[i];
-        }
-    }
-    return minVal;
-}
-
-function ceiledEven(x) {
-    const ceiled = Math.ceil(x);
-    return (ceiled % 2 !== 0) ? ceiled - 1 : ceiled;
-}
-
-function ceiledOdd(x) {
-    const ceiled = Math.ceil(x);
-    return (ceiled % 2 === 0) ? ceiled - 1 : ceiled;
-}
-
-function drawSeriesPointMarkers(renderingScope, items, pointMarkersRadius, visibleRange,
-                                // the values returned by styleGetter are compared using the operator !==,
-                                // so if styleGetter returns objects, then styleGetter should return the same object for equal styles
-                                styleGetter) {
-    const {horizontalPixelRatio, verticalPixelRatio, context} = renderingScope;
-    let prevStyle = null;
-    const tickWidth = Math.max(1, Math.floor(horizontalPixelRatio));
-    const correction = (tickWidth % 2) / 2;
-    const radius = pointMarkersRadius * verticalPixelRatio + correction;
-    for (let i = visibleRange.to - 1; i >= visibleRange.from; --i) {
-        const point = items[i];
-        if (point) {
-            const style = styleGetter(renderingScope, point);
-            if (style !== prevStyle) {
-                context.beginPath();
-                if (prevStyle !== null) {
-                    context.fill();
-                }
-                context.fillStyle = style;
-                prevStyle = style;
-            }
-            const centerX = Math.round(point._internal_x * horizontalPixelRatio) + correction; // correct x coordinate only
-            const centerY = point._internal_y * verticalPixelRatio;
-            context.moveTo(centerX, centerY);
-            context.arc(centerX, centerY, radius, 0, Math.PI * 2);
-        }
-    }
-    context.fill();
-}
-
-function finishStyledArea(scope, style) {
-    const ctx = scope.context;
-    ctx.strokeStyle = style;
-    ctx.stroke();
-}
-
 class PaneRendererLineBase extends BitmapCoordinatesPaneRenderer {
     constructor() {
         super(...arguments);
@@ -1473,7 +923,6 @@ class PaneRendererLineBase extends BitmapCoordinatesPaneRenderer {
             _internal_lineType: lineType,
             _internal_lineWidth: lineWidth,
             _internal_lineStyle: lineStyle,
-            _internal_pointMarkersRadius: pointMarkersRadius
         } = this._internal__data;
         if (visibleRange === null) {
             return;
@@ -1485,10 +934,7 @@ class PaneRendererLineBase extends BitmapCoordinatesPaneRenderer {
         ctx.lineJoin = 'round';
         const styleGetter = this._internal__strokeStyle.bind(this);
         if (lineType !== undefined) {
-            walkLine(renderingScope, items, lineType, visibleRange, barWidth, styleGetter, finishStyledArea);
-        }
-        if (pointMarkersRadius) {
-            drawSeriesPointMarkers(renderingScope, items, pointMarkersRadius, visibleRange, styleGetter);
+            walkLine(renderingScope, items, lineType, visibleRange, barWidth, styleGetter);
         }
     }
 }
@@ -1848,7 +1294,7 @@ class PaneRendererCandlesticks extends BitmapCoordinatesPaneRenderer {
     }
 }
 
-class SeriesCandlesticksPaneView extends BarsPaneViewBase {
+export class SeriesCandlesticksPaneView extends BarsPaneViewBase {
     constructor() {
         super(...arguments);
         this._internal__renderer = new PaneRendererCandlesticks();
@@ -1881,7 +1327,7 @@ class CustomSeriesPaneRendererWrapper {
     }
 }
 
-class SeriesCustomPaneView extends SeriesPaneViewBase {
+export class SeriesCustomPaneView extends SeriesPaneViewBase {
     constructor(series, model, paneView) {
         super(series, model, false);
         this._private__paneView = paneView;
@@ -1903,7 +1349,7 @@ class SeriesCustomPaneView extends SeriesPaneViewBase {
     }
 }
 
-class SeriesLinePaneView extends LinePaneViewBase {
+export class SeriesLinePaneView extends LinePaneViewBase {
     constructor() {
         super(...arguments);
         this._internal__renderer = new PaneRendererLine();
@@ -2012,7 +1458,7 @@ class PanePriceAxisViewRenderer {
     }
 }
 
-class PanePriceAxisView {
+export class PanePriceAxisView {
     constructor(priceAxisView, dataSource, chartModel) {
         this._private__priceAxisView = priceAxisView;
         this._private__textWidthCache = new TextWidthCache(50); // when should we clear cache?
@@ -2126,7 +1572,7 @@ class SeriesHorizontalLinePaneView {
     }
 }
 
-class SeriesHorizontalBaseLinePaneView extends SeriesHorizontalLinePaneView {
+export class SeriesHorizontalBaseLinePaneView extends SeriesHorizontalLinePaneView {
     constructor(series) {
         super(series);
     }
@@ -2255,7 +1701,7 @@ function animationData(durationSinceStart, lineColor) {
     };
 }
 
-class SeriesLastPriceAnimationPaneView {
+export class SeriesLastPriceAnimationPaneView {
     constructor(series) {
         this._private__renderer = new SeriesLastPriceAnimationRenderer();
         this._private__invalidated = true;
@@ -2574,13 +2020,214 @@ class SeriesPriceAxisView extends PriceAxisView {
     }
 }
 
-function computeFiniteResult(method, valueOne, valueTwo, fallback) {
-    const firstFinite = Number.isFinite(valueOne);
-    const secondFinite = Number.isFinite(valueTwo);
-    if (firstFinite && secondFinite) {
-        return method(valueOne, valueTwo);
+
+
+
+
+
+
+
+class Delegate {
+    constructor() {
+        this._private__listeners = [];
     }
-    return !firstFinite && !secondFinite ? fallback : (firstFinite ? valueOne : valueTwo);
+
+    _internal_subscribe(callback, linkedObject, singleshot) {
+        const listener = {
+            _internal_callback: callback,
+            _internal_linkedObject: linkedObject,
+            _internal_singleshot: singleshot === true,
+        };
+        this._private__listeners.push(listener);
+    }
+
+    _internal_unsubscribeAll(linkedObject) {
+        this._private__listeners = this._private__listeners.filter((listener) => listener._internal_linkedObject !== linkedObject);
+    }
+
+    _internal_fire(param1, param2, param3) {
+        const listenersSnapshot = [...this._private__listeners];
+        this._private__listeners = this._private__listeners.filter((listener) => !listener._internal_singleshot);
+        listenersSnapshot.forEach((listener) => listener._internal_callback(param1, param2, param3));
+    }
+
+    _internal_hasListeners() {
+        return this._private__listeners.length > 0;
+    }
+
+    _internal_destroy() {
+        this._private__listeners = [];
+    }
+}
+
+
+const defaultFontFamily = `-apple-system, BlinkMacSystemFont, 'Trebuchet MS', Roboto, Ubuntu, sans-serif`;
+
+function makeFont(size, family, style) {
+    if (style !== undefined) {
+        style = `${style} `;
+    } else {
+        style = '';
+    }
+    if (family === undefined) {
+        family = defaultFontFamily;
+    }
+    return `${style}${size}px ${family}`;
+}
+
+function isDefaultPriceScale(priceScaleId) {
+    return priceScaleId === "left" /* DefaultPriceScaleId.Left */ || priceScaleId === "right" /* DefaultPriceScaleId.Right */;
+}
+
+function mergePaneInvalidation(beforeValue, newValue) {
+    if (beforeValue === undefined) {
+        return newValue;
+    }
+    const level = Math.max(beforeValue._internal_level, newValue._internal_level);
+    const autoScale = beforeValue._internal_autoScale || newValue._internal_autoScale;
+    return {_internal_level: level, _internal_autoScale: autoScale};
+}
+
+class InvalidateMask {
+    constructor(globalLevel) {
+        this._private__invalidatedPanes = new Map();
+        this._private__timeScaleInvalidations = [];
+        this._private__globalLevel = globalLevel;
+    }
+
+    _internal_invalidatePane(paneIndex, invalidation) {
+        const prevValue = this._private__invalidatedPanes.get(paneIndex);
+        const newValue = mergePaneInvalidation(prevValue, invalidation);
+        this._private__invalidatedPanes.set(paneIndex, newValue);
+    }
+
+    _internal_fullInvalidation() {
+        return this._private__globalLevel;
+    }
+
+    _internal_invalidateForPane(paneIndex) {
+        const paneInvalidation = this._private__invalidatedPanes.get(paneIndex);
+        if (paneInvalidation === undefined) {
+            return {
+                _internal_level: this._private__globalLevel,
+            };
+        }
+        return {
+            _internal_level: Math.max(this._private__globalLevel, paneInvalidation._internal_level),
+            _internal_autoScale: paneInvalidation._internal_autoScale,
+        };
+    }
+
+    _internal_setFitContent() {
+        this._internal_stopTimeScaleAnimation();
+        // modifies both bar spacing and right offset
+        this._private__timeScaleInvalidations = [{_internal_type: 0 /* TimeScaleInvalidationType.FitContent */}];
+    }
+
+    _internal_applyRange(range) {
+        this._internal_stopTimeScaleAnimation();
+        // modifies both bar spacing and right offset
+        this._private__timeScaleInvalidations = [{
+            _internal_type: 1 /* TimeScaleInvalidationType.ApplyRange */,
+            _internal_value: range
+        }];
+    }
+
+    _internal_setTimeScaleAnimation(animation) {
+        this._private__removeTimeScaleAnimation();
+        this._private__timeScaleInvalidations.push({
+            _internal_type: 5 /* TimeScaleInvalidationType.Animation */,
+            _internal_value: animation
+        });
+    }
+
+    _internal_stopTimeScaleAnimation() {
+        this._private__removeTimeScaleAnimation();
+        this._private__timeScaleInvalidations.push({_internal_type: 6 /* TimeScaleInvalidationType.StopAnimation */});
+    }
+
+    _internal_resetTimeScale() {
+        this._internal_stopTimeScaleAnimation();
+        // modifies both bar spacing and right offset
+        this._private__timeScaleInvalidations = [{_internal_type: 4 /* TimeScaleInvalidationType.Reset */}];
+    }
+
+    _internal_setBarSpacing(barSpacing) {
+        this._internal_stopTimeScaleAnimation();
+        this._private__timeScaleInvalidations.push({
+            _internal_type: 2 /* TimeScaleInvalidationType.ApplyBarSpacing */,
+            _internal_value: barSpacing
+        });
+    }
+
+    _internal_setRightOffset(offset) {
+        this._internal_stopTimeScaleAnimation();
+        this._private__timeScaleInvalidations.push({
+            _internal_type: 3 /* TimeScaleInvalidationType.ApplyRightOffset */,
+            _internal_value: offset
+        });
+    }
+
+    _internal_timeScaleInvalidations() {
+        return this._private__timeScaleInvalidations;
+    }
+
+    _internal_merge(other) {
+        for (const tsInvalidation of other._private__timeScaleInvalidations) {
+            this._private__applyTimeScaleInvalidation(tsInvalidation);
+        }
+        this._private__globalLevel = Math.max(this._private__globalLevel, other._private__globalLevel);
+        other._private__invalidatedPanes.forEach((invalidation, index) => {
+            this._internal_invalidatePane(index, invalidation);
+        });
+    }
+
+    static _internal_light() {
+        return new InvalidateMask(2 /* InvalidationLevel.Light */);
+    }
+
+    static _internal_full() {
+        return new InvalidateMask(3 /* InvalidationLevel.Full */);
+    }
+
+    _private__applyTimeScaleInvalidation(invalidation) {
+        switch (invalidation._internal_type) {
+            case 0 /* TimeScaleInvalidationType.FitContent */
+            :
+                this._internal_setFitContent();
+                break;
+            case 1 /* TimeScaleInvalidationType.ApplyRange */
+            :
+                this._internal_applyRange(invalidation._internal_value);
+                break;
+            case 2 /* TimeScaleInvalidationType.ApplyBarSpacing */
+            :
+                this._internal_setBarSpacing(invalidation._internal_value);
+                break;
+            case 3 /* TimeScaleInvalidationType.ApplyRightOffset */
+            :
+                this._internal_setRightOffset(invalidation._internal_value);
+                break;
+            case 4 /* TimeScaleInvalidationType.Reset */
+            :
+                this._internal_resetTimeScale();
+                break;
+            case 5 /* TimeScaleInvalidationType.Animation */
+            :
+                this._internal_setTimeScaleAnimation(invalidation._internal_value);
+                break;
+            case 6 /* TimeScaleInvalidationType.StopAnimation */
+            :
+                this._private__removeTimeScaleAnimation();
+        }
+    }
+
+    _private__removeTimeScaleAnimation() {
+        const index = this._private__timeScaleInvalidations.findIndex((inv) => inv._internal_type === 5 /* TimeScaleInvalidationType.Animation */);
+        if (index !== -1) {
+            this._private__timeScaleInvalidations.splice(index, 1);
+        }
+    }
 }
 
 class PriceRangeImpl {
@@ -2617,6 +2264,15 @@ class PriceRangeImpl {
     }
 
     _internal_merge(anotherRange) {
+        function computeFiniteResult(method, valueOne, valueTwo, fallback) {
+            const firstFinite = Number.isFinite(valueOne);
+            const secondFinite = Number.isFinite(valueTwo);
+            if (firstFinite && secondFinite) {
+                return method(valueOne, valueTwo);
+            }
+            return !firstFinite && !secondFinite ? fallback : (firstFinite ? valueOne : valueTwo);
+        }
+
         if (anotherRange === null) {
             return this;
         }
@@ -6300,6 +5956,61 @@ class Watermark extends DataSource {
     }
 }
 
+class PriceAxisRendererOptionsProvider {
+    constructor(chartModel) {
+        this._private__rendererOptions = {
+            _internal_borderSize: 1 /* RendererConstants.BorderSize */,
+            _internal_tickLength: 5 /* RendererConstants.TickLength */,
+            _internal_fontSize: NaN,
+            _internal_font: '',
+            _internal_fontFamily: '',
+            _internal_color: '',
+            _internal_paneBackgroundColor: '',
+            _internal_paddingBottom: 0,
+            _internal_paddingInner: 0,
+            _internal_paddingOuter: 0,
+            _internal_paddingTop: 0,
+            _internal_baselineOffset: 0,
+        };
+        this._private__chartModel = chartModel;
+    }
+
+    _internal_options() {
+        const rendererOptions = this._private__rendererOptions;
+        const currentFontSize = this._private__fontSize();
+        const currentFontFamily = this._private__fontFamily();
+        if (rendererOptions._internal_fontSize !== currentFontSize || rendererOptions._internal_fontFamily !== currentFontFamily) {
+            rendererOptions._internal_fontSize = currentFontSize;
+            rendererOptions._internal_fontFamily = currentFontFamily;
+            rendererOptions._internal_font = makeFont(currentFontSize, currentFontFamily);
+            rendererOptions._internal_paddingTop = 2.5 / 12 * currentFontSize; // 2.5 px for 12px font
+            rendererOptions._internal_paddingBottom = rendererOptions._internal_paddingTop;
+            rendererOptions._internal_paddingInner = currentFontSize / 12 * rendererOptions._internal_tickLength;
+            rendererOptions._internal_paddingOuter = currentFontSize / 12 * rendererOptions._internal_tickLength;
+            rendererOptions._internal_baselineOffset = 0;
+        }
+        rendererOptions._internal_color = this._private__textColor();
+        rendererOptions._internal_paneBackgroundColor = this._private__paneBackgroundColor();
+        return this._private__rendererOptions;
+    }
+
+    _private__textColor() {
+        return this._private__chartModel._internal_options().layout.textColor;
+    }
+
+    _private__paneBackgroundColor() {
+        return this._private__chartModel._internal_backgroundTopColor();
+    }
+
+    _private__fontSize() {
+        return this._private__chartModel._internal_options().layout.fontSize;
+    }
+
+    _private__fontFamily() {
+        return this._private__chartModel._internal_options().layout.fontFamily;
+    }
+}
+
 class ChartModel {
     constructor(invalidateHandler, options, horzScaleBehavior) {
         this._private__panes = [];
@@ -6886,107 +6597,6 @@ function isBusinessDay(time) {
  */
 function isUTCTimestamp(time) {
     return isNumber(time);
-}
-
-const getMonth = (date) => date.getUTCMonth() + 1;
-const getDay = (date) => date.getUTCDate();
-const getYear = (date) => date.getUTCFullYear();
-const dd = (date) => numberToStringWithLeadingZero(getDay(date), 2);
-const MMMM = (date, locale) => new Date(date.getUTCFullYear(), date.getUTCMonth(), 1)
-    .toLocaleString(locale, {month: 'long'});
-const MMM = (date, locale) => new Date(date.getUTCFullYear(), date.getUTCMonth(), 1)
-    .toLocaleString(locale, {month: 'short'});
-const MM = (date) => numberToStringWithLeadingZero(getMonth(date), 2);
-const yy = (date) => numberToStringWithLeadingZero(getYear(date) % 100, 2);
-const yyyy = (date) => numberToStringWithLeadingZero(getYear(date), 4);
-
-function formatDate(date, format, locale) {
-    return format
-        .replace(/yyyy/g, yyyy(date))
-        .replace(/yy/g, yy(date))
-        .replace(/MMMM/g, MMMM(date, locale))
-        .replace(/MMM/g, MMM(date, locale))
-        .replace(/MM/g, MM(date))
-        .replace(/dd/g, dd(date));
-}
-
-class DateFormatter {
-    constructor(dateFormat = 'yyyy-MM-dd', locale = 'default') {
-        this._private__dateFormat = dateFormat;
-        this._private__locale = locale;
-    }
-
-    _internal_format(date) {
-        return formatDate(date, this._private__dateFormat, this._private__locale);
-    }
-}
-
-class TimeFormatter {
-    constructor(format) {
-        this._private__formatStr = format || '%h:%m:%s';
-    }
-
-    _internal_format(date) {
-        return this._private__formatStr.replace('%h', numberToStringWithLeadingZero(date.getUTCHours(), 2)).replace('%m', numberToStringWithLeadingZero(date.getUTCMinutes(), 2)).replace('%s', numberToStringWithLeadingZero(date.getUTCSeconds(), 2));
-    }
-}
-
-const defaultParams = {
-    _internal_dateFormat: 'yyyy-MM-dd',
-    _internal_timeFormat: '%h:%m:%s',
-    _internal_dateTimeSeparator: ' ',
-    _internal_locale: 'default',
-};
-
-class DateTimeFormatter {
-    constructor(params = {}) {
-        const formatterParams = Object.assign(Object.assign({}, defaultParams), params);
-        this._private__dateFormatter = new DateFormatter(formatterParams._internal_dateFormat, formatterParams._internal_locale);
-        this._private__timeFormatter = new TimeFormatter(formatterParams._internal_timeFormat);
-        this._private__separator = formatterParams._internal_dateTimeSeparator;
-    }
-
-    _internal_format(dateTime) {
-        return `${this._private__dateFormatter._internal_format(dateTime)}${this._private__separator}${this._private__timeFormatter._internal_format(dateTime)}`;
-    }
-}
-
-function defaultTickMarkFormatter(timePoint, tickMarkType, locale) {
-    const formatOptions = {};
-    switch (tickMarkType) {
-        case 0 /* TickMarkType.Year */
-        :
-            formatOptions.year = 'numeric';
-            break;
-        case 1 /* TickMarkType.Month */
-        :
-            formatOptions.month = 'short';
-            break;
-        case 2 /* TickMarkType.DayOfMonth */
-        :
-            formatOptions.day = 'numeric';
-            break;
-        case 3 /* TickMarkType.Time */
-        :
-            formatOptions.hour12 = false;
-            formatOptions.hour = '2-digit';
-            formatOptions.minute = '2-digit';
-            break;
-        case 4 /* TickMarkType.TimeWithSeconds */
-        :
-            formatOptions.hour12 = false;
-            formatOptions.hour = '2-digit';
-            formatOptions.minute = '2-digit';
-            formatOptions.second = '2-digit';
-            break;
-    }
-    const date = timePoint._internal_businessDay === undefined
-        ? new Date(timePoint._internal_timestamp * 1000)
-        : new Date(Date.UTC(timePoint._internal_businessDay.year, timePoint._internal_businessDay.month - 1, timePoint._internal_businessDay.day));
-    // from given date we should use only as UTC date or timestamp
-    // but to format as locale date we can convert UTC date to local date
-    const localDateFromUtc = new Date(date.getUTCFullYear(), date.getUTCMonth(), date.getUTCDate(), date.getUTCHours(), date.getUTCMinutes(), date.getUTCSeconds(), date.getUTCMilliseconds());
-    return localDateFromUtc.toLocaleString(locale, formatOptions);
 }
 
 function hours(count) {
