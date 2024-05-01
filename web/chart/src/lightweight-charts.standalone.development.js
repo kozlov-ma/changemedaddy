@@ -106,64 +106,6 @@ function createEmptyMarkerData() {
     };
 }
 
-export class CrosshairMarksPaneView {
-    constructor(chartModel, crosshair) {
-        this._private__compositeRenderer = new CompositeRenderer();
-        this._private__markersRenderers = [];
-        this._private__markersData = [];
-        this._private__invalidated = true;
-        this._private__chartModel = chartModel;
-        this._private__crosshair = crosshair;
-        this._private__compositeRenderer._internal_setRenderers(this._private__markersRenderers);
-    }
-
-    _internal_update(updateType) {
-        const serieses = this._private__chartModel._internal_serieses();
-        if (serieses.length !== this._private__markersRenderers.length) {
-            this._private__markersData = serieses.map(createEmptyMarkerData);
-            this._private__markersRenderers = this._private__markersData.map((data) => {
-                const res = new PaneRendererMarks();
-                res._internal_setData(data);
-                return res;
-            });
-            this._private__compositeRenderer._internal_setRenderers(this._private__markersRenderers);
-        }
-        this._private__invalidated = true;
-    }
-
-    _internal_renderer() {
-        if (this._private__invalidated) {
-            this._private__updateImpl();
-            this._private__invalidated = false;
-        }
-        return this._private__compositeRenderer;
-    }
-
-    _private__updateImpl() {
-        const serieses = this._private__chartModel._internal_serieses();
-        const timePointIndex = this._private__crosshair._internal_appliedIndex();
-        const timeScale = this._private__chartModel._internal_timeScale();
-        serieses.forEach((s, index) => {
-            var _a;
-            const data = this._private__markersData[index];
-            const seriesData = s._internal_markerDataAtIndex(timePointIndex);
-            if (seriesData === null || !s._internal_visible()) {
-                data._internal_visibleRange = null;
-                return;
-            }
-            const firstValue = ensureNotNull(s._internal_firstValue());
-            data._internal_lineColor = seriesData._internal_backgroundColor;
-            data._internal_radius = seriesData._internal_radius;
-            data._internal_lineWidth = seriesData._internal_borderWidth;
-            data._internal_items[0]._internal_price = seriesData._internal_price;
-            data._internal_items[0]._internal_y = s._internal_priceScale()._internal_priceToCoordinate(seriesData._internal_price, firstValue._internal_value);
-            data._internal_backColor = (_a = seriesData._internal_borderColor) !== null && _a !== void 0 ? _a : this._private__chartModel._internal_backgroundColorAtYPercentFromTop(data._internal_items[0]._internal_y / s._internal_priceScale()._internal_height());
-            data._internal_items[0]._internal_time = timePointIndex;
-            data._internal_items[0]._internal_x = timeScale._internal_indexToCoordinate(timePointIndex);
-            data._internal_visibleRange = {from: 0, to: 1};
-        });
-    }
-}
 
 class CrosshairRenderer extends BitmapCoordinatesPaneRenderer {
     constructor(data) {
@@ -719,7 +661,6 @@ class Crosshair extends DataSource {
         this._private__originY = NaN;
         this._private__model = model;
         this._private__options = options;
-        this._private__markersPaneView = new CrosshairMarksPaneView(model, this);
         const valuePriceProvider = (rawPriceProvider, rawCoordinateProvider) => {
             return (priceScale) => {
                 const coordinate = rawCoordinateProvider();
@@ -812,7 +753,7 @@ class Crosshair extends DataSource {
     }
 
     _internal_paneViews(pane) {
-        return this._private__pane !== null ? [this._private__paneView, this._private__markersPaneView] : [];
+        return this._private__pane !== null ? [this._private__paneView] : [];
     }
 
     _internal_horzLineVisible(pane) {
@@ -846,7 +787,6 @@ class Crosshair extends DataSource {
         this._private__paneView._internal_update();
         this._private__priceAxisViews.forEach((value) => value._internal_update());
         this._private__timeAxisView._internal_update();
-        this._private__markersPaneView._internal_update();
     }
 
     _private__priceScaleByPane(pane) {
@@ -1366,7 +1306,6 @@ export class SeriesLinePaneView extends LinePaneViewBase {
             _internal_lineStyle: options.lineStyle,
             _internal_lineType: options.lineVisible ? options.lineType : undefined,
             _internal_lineWidth: options.lineWidth,
-            _internal_pointMarkersRadius: options.pointMarkersVisible ? (options.pointMarkersRadius || options.lineWidth / 2 + 2) : undefined,
             _internal_visibleRange: this._internal__itemsVisibleRange,
             _internal_barWidth: this._internal__model._internal_timeScale()._internal_barSpacing(),
         };
@@ -1812,122 +1751,6 @@ export class SeriesLastPriceAnimationPaneView {
 
     _private__duration() {
         return this._internal_animationActive() ? performance.now() - this._private__startTime : 2600 /* Constants.AnimationPeriod */ - 1;
-    }
-}
-
-class SeriesMarkersRenderer extends BitmapCoordinatesPaneRenderer {
-    constructor() {
-        super(...arguments);
-        this._private__data = null;
-        this._private__textWidthCache = new TextWidthCache();
-        this._private__fontSize = -1;
-        this._private__fontFamily = '';
-        this._private__font = '';
-    }
-
-    _internal_setData(data) {
-        this._private__data = data;
-    }
-
-    _internal_setParams(fontSize, fontFamily) {
-        if (this._private__fontSize !== fontSize || this._private__fontFamily !== fontFamily) {
-            this._private__fontSize = fontSize;
-            this._private__fontFamily = fontFamily;
-            this._private__font = makeFont(fontSize, fontFamily);
-            this._private__textWidthCache._internal_reset();
-        }
-    }
-
-    _internal_hitTest(x, y) {
-        if (this._private__data === null || this._private__data._internal_visibleRange === null) {
-            return null;
-        }
-        for (let i = this._private__data._internal_visibleRange.from; i < this._private__data._internal_visibleRange.to; i++) {
-            const item = this._private__data._internal_items[i];
-            if (hitTestItem(item, x, y)) {
-                return {
-                    _internal_hitTestData: item._internal_internalId,
-                    _internal_externalId: item._internal_externalId,
-                };
-            }
-        }
-        return null;
-    }
-
-    _internal__drawImpl({context: ctx, horizontalPixelRatio, verticalPixelRatio}, isHovered, hitTestData) {
-        if (this._private__data === null || this._private__data._internal_visibleRange === null) {
-            return;
-        }
-        ctx.textBaseline = 'middle';
-        ctx.font = this._private__font;
-        for (let i = this._private__data._internal_visibleRange.from; i < this._private__data._internal_visibleRange.to; i++) {
-            const item = this._private__data._internal_items[i];
-            if (item._internal_text !== undefined) {
-                item._internal_text._internal_width = this._private__textWidthCache._internal_measureText(ctx, item._internal_text._internal_content);
-                item._internal_text._internal_height = this._private__fontSize;
-                item._internal_text._internal_x = item._internal_x - item._internal_text._internal_width / 2;
-            }
-            drawItem(item, ctx, horizontalPixelRatio, verticalPixelRatio);
-        }
-    }
-}
-
-class SeriesMarkersPaneView {
-    constructor(series, model) {
-        this._private__invalidated = true;
-        this._private__dataInvalidated = true;
-        this._private__autoScaleMargins = null;
-        this._private__renderer = new SeriesMarkersRenderer();
-        this._private__series = series;
-        this._private__model = model;
-        this._private__data = {
-            _internal_items: [],
-            _internal_visibleRange: null,
-        };
-    }
-
-    _internal_update(updateType) {
-        this._private__invalidated = true;
-        if (updateType === 'data') {
-            this._private__dataInvalidated = true;
-        }
-    }
-
-    _internal_renderer(addAnchors) {
-        if (!this._private__series._internal_visible()) {
-            return null;
-        }
-        if (this._private__invalidated) {
-            this._internal__makeValid();
-        }
-        const layout = this._private__model._internal_options().layout;
-        this._private__renderer._internal_setParams(layout.fontSize, layout.fontFamily);
-        this._private__renderer._internal_setData(this._private__data);
-        return this._private__renderer;
-    }
-
-    _internal_autoScaleMargins() {
-        return this._private__autoScaleMargins;
-    }
-
-    _internal__makeValid() {
-        const priceScale = this._private__series._internal_priceScale();
-        const timeScale = this._private__model._internal_timeScale();
-        const seriesMarkers = this._private__series._internal_indexedMarkers();
-        if (this._private__dataInvalidated) {
-            this._private__data._internal_items = seriesMarkers.map((marker) => ({
-                _internal_time: marker.time,
-                _internal_x: 0,
-                _internal_y: 0,
-                _internal_size: 0,
-                _internal_color: marker.color,
-                _internal_internalId: marker._internal_internalId,
-                _internal_externalId: marker.id,
-                _internal_text: undefined,
-            }));
-            this._private__dataInvalidated = false;
-        }
-        this._private__data._internal_visibleRange = null;
     }
 }
 
@@ -2951,8 +2774,6 @@ class Series extends PriceDataSource {
         this._private__baseHorizontalLineView = new SeriesHorizontalBaseLinePaneView(this);
         this._private__lastPriceAnimationPaneView = null;
         this._private__barColorerCache = null;
-        this._private__markers = [];
-        this._private__indexedMarkers = [];
         this._private__animationTimeoutId = null;
         this._private__primitives = [];
         this._private__options = options;
@@ -3054,7 +2875,6 @@ class Series extends PriceDataSource {
             this._internal_model()._internal_fullUpdate();
         }
         this._internal_model()._internal_updateSource(this);
-        // a series might affect crosshair by some options (like crosshair markers)
         // that's why we need to update crosshair as well
         this._internal_model()._internal_updateCrosshair();
         this._private__paneView._internal_update('options');
@@ -3062,9 +2882,7 @@ class Series extends PriceDataSource {
 
     _internal_setData(data, updateInfo) {
         this._private__data._internal_setData(data);
-        this._private__recalculateMarkers();
         this._private__paneView._internal_update('data');
-        this._private__markersPaneView._internal_update('data');
         if (this._private__lastPriceAnimationPaneView !== null) {
             if (updateInfo && updateInfo._internal_lastBarUpdatedOrNewBarsAddedToTheRight) {
                 this._private__lastPriceAnimationPaneView._internal_onNewRealtimeDataReceived();
@@ -3077,40 +2895,6 @@ class Series extends PriceDataSource {
         this._internal_model()._internal_updateSource(this);
         this._internal_model()._internal_updateCrosshair();
         this._internal_model()._internal_lightUpdate();
-    }
-
-    _internal_setMarkers(data) {
-        this._private__markers = data;
-        this._private__recalculateMarkers();
-        const sourcePane = this._internal_model()._internal_paneForSource(this);
-        this._private__markersPaneView._internal_update('data');
-        this._internal_model()._internal_recalculatePane(sourcePane);
-        this._internal_model()._internal_updateSource(this);
-        this._internal_model()._internal_updateCrosshair();
-        this._internal_model()._internal_lightUpdate();
-    }
-
-    _internal_markers() {
-        return this._private__markers;
-    }
-
-    _internal_indexedMarkers() {
-        return this._private__indexedMarkers;
-    }
-
-    _internal_createPriceLine(options) {
-        const result = new CustomPriceLine(this, options);
-        this._private__customPriceLines.push(result);
-        this._internal_model()._internal_updateSource(this);
-        return result;
-    }
-
-    _internal_removePriceLine(line) {
-        const index = this._private__customPriceLines.indexOf(line);
-        if (index !== -1) {
-            this._private__customPriceLines.splice(index, 1);
-        }
-        this._internal_model()._internal_updateSource(this);
     }
 
     _internal_seriesType() {
@@ -3181,7 +2965,7 @@ class Series extends PriceDataSource {
         if (!this._private__isOverlay()) {
             res.push(this._private__baseHorizontalLineView);
         }
-        res.push(this._private__paneView, this._private__priceLineView, this._private__markersPaneView);
+        res.push(this._private__paneView, this._private__priceLineView);
         const priceLineViews = this._private__customPriceLines.map((line) => line._internal_paneView());
         res.push(...priceLineViews);
         extractPrimitivePaneViews(this._private__primitives, primitivePaneViewsExtractor, 'normal', res);
@@ -3257,7 +3041,6 @@ class Series extends PriceDataSource {
     _internal_updateAllViews() {
         var _a;
         this._private__paneView._internal_update();
-        this._private__markersPaneView._internal_update();
         for (const priceAxisView of this._private__priceAxisViews) {
             priceAxisView._internal_update();
         }
@@ -3353,18 +3136,14 @@ class Series extends PriceDataSource {
             const rangeWithBase = new PriceRangeImpl(base, base);
             range = range !== null ? range._internal_merge(rangeWithBase) : rangeWithBase;
         }
-        let margins = this._private__markersPaneView._internal_autoScaleMargins();
         this._private__primitives.forEach((primitive) => {
             const primitiveAutoscale = primitive._internal_autoscaleInfo(startTimePoint, endTimePoint);
             if (primitiveAutoscale === null || primitiveAutoscale === void 0 ? void 0 : primitiveAutoscale.priceRange) {
                 const primitiveRange = new PriceRangeImpl(primitiveAutoscale.priceRange.minValue, primitiveAutoscale.priceRange.maxValue);
                 range = range !== null ? range._internal_merge(primitiveRange) : primitiveRange;
             }
-            if (primitiveAutoscale === null || primitiveAutoscale === void 0 ? void 0 : primitiveAutoscale.margins) {
-                margins = mergeMargins(margins, primitiveAutoscale.margins);
-            }
         });
-        return new AutoscaleInfoImpl(range, margins);
+        return new AutoscaleInfoImpl(range, null);
     }
 
     _private__markerRadius() {
@@ -3439,34 +3218,7 @@ class Series extends PriceDataSource {
         }
     }
 
-    _private__recalculateMarkers() {
-        const timeScale = this._internal_model()._internal_timeScale();
-        if (!timeScale._internal_hasPoints() || this._private__data._internal_isEmpty()) {
-            this._private__indexedMarkers = [];
-            return;
-        }
-        const firstDataIndex = ensureNotNull(this._private__data._internal_firstIndex());
-        this._private__indexedMarkers = this._private__markers.map((marker, index) => {
-            // the first find index on the time scale (across all series)
-            const timePointIndex = ensureNotNull(timeScale._internal_timeToIndex(marker.time, true));
-            // and then search that index inside the series data
-            const searchMode = timePointIndex < firstDataIndex ? 1 /* MismatchDirection.NearestRight */ : -1 /* MismatchDirection.NearestLeft */;
-            const seriesDataIndex = ensureNotNull(this._private__data._internal_search(timePointIndex, searchMode))._internal_index;
-            return {
-                time: seriesDataIndex,
-                position: marker.position,
-                color: marker.color,
-                id: marker.id,
-                _internal_internalId: index,
-                text: marker.text,
-                size: marker.size,
-                originalTime: marker.originalTime,
-            };
-        });
-    }
-
     _private__recreatePaneViews() {
-        this._private__markersPaneView = new SeriesMarkersPaneView(this, this._internal_model());
         switch (this._private__seriesType) {
             case 'Candlestick': {
                 this._private__paneView = new SeriesCandlesticksPaneView(this, this._internal_model());
@@ -3486,14 +3238,6 @@ class Series extends PriceDataSource {
         extractPrimitivePaneViews(this._private__primitives, extractor, zOrder, res);
         return res;
     }
-}
-
-function mergeMargins(source, additionalMargin) {
-    var _a, _b;
-    return {
-        above: Math.max((_a = source === null || source === void 0 ? void 0 : source.above) !== null && _a !== void 0 ? _a : 0, additionalMargin.above),
-        below: Math.max((_b = source === null || source === void 0 ? void 0 : source.below) !== null && _b !== void 0 ? _b : 0, additionalMargin.below),
-    };
 }
 
 class GridRenderer extends BitmapCoordinatesPaneRenderer {
@@ -11581,7 +11325,6 @@ class ChartApi {
             crosshairMarkerBorderWidth: 2,
             crosshairMarkerBackgroundColor: '',
             lastPriceAnimation: 0 /* LastPriceAnimationMode.Disabled */,
-            pointMarkersVisible: false,
         }, options);
     }
 
