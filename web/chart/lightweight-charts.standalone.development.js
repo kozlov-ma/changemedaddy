@@ -4166,25 +4166,6 @@
             super(series);
             this._private__priceLine = priceLine;
         }
-
-        _internal__updateImpl() {
-            const data = this._internal__lineRendererData;
-            data._internal_visible = false;
-            const lineOptions = this._private__priceLine._internal_options();
-            if (!this._internal__series._internal_visible() || !lineOptions.lineVisible) {
-                return;
-            }
-            const y = this._private__priceLine._internal_yCoord();
-            if (y === null) {
-                return;
-            }
-            data._internal_visible = true;
-            data._internal_y = y;
-            data._internal_color = lineOptions.color;
-            data._internal_lineWidth = lineOptions.lineWidth;
-            data._internal_lineStyle = lineOptions.lineStyle;
-            data._internal_externalId = this._private__priceLine._internal_options().id;
-        }
     }
 
     class CustomPriceLinePriceAxisView extends PriceAxisView {
@@ -4192,35 +4173,6 @@
             super();
             this._private__series = series;
             this._private__priceLine = priceLine;
-        }
-
-        _internal__updateRendererData(axisRendererData, paneRendererData, commonData) {
-            axisRendererData._internal_visible = false;
-            paneRendererData._internal_visible = false;
-            const options = this._private__priceLine._internal_options();
-            const labelVisible = options.axisLabelVisible;
-            const showPaneLabel = options.title !== '';
-            const series = this._private__series;
-            if (!labelVisible || !series._internal_visible()) {
-                return;
-            }
-            const y = this._private__priceLine._internal_yCoord();
-            if (y === null) {
-                return;
-            }
-            if (showPaneLabel) {
-                paneRendererData._internal_text = options.title;
-                paneRendererData._internal_visible = true;
-            }
-            paneRendererData._internal_borderColor = series._internal_model()._internal_backgroundColorAtYPercentFromTop(y / series._internal_priceScale()._internal_height());
-            axisRendererData._internal_text = this._private__formatPrice(options.price);
-            axisRendererData._internal_visible = true;
-            const colors = generateContrastColors(options.axisLabelColor || options.color);
-            commonData._internal_background = colors._internal_background;
-            const textColor = options.axisLabelTextColor || colors._internal_foreground;
-            axisRendererData._internal_color = textColor; // price text
-            paneRendererData._internal_color = textColor; // title text
-            commonData._internal_coordinate = y;
         }
 
         _private__formatPrice(price) {
@@ -4687,20 +4639,6 @@
             super();
             this._private__baseView = baseView;
             this._private__priceScale = priceScale;
-        }
-
-        _internal__updateRendererData(axisRendererData, paneRendererData, commonRendererData) {
-            const data = getAxisViewData(this._private__baseView);
-            commonRendererData._internal_background = data._internal_background;
-            axisRendererData._internal_color = data._internal_color;
-            const additionalPadding = 2 / 12 * this._private__priceScale._internal_fontSize();
-            commonRendererData._internal_additionalPaddingTop = additionalPadding;
-            commonRendererData._internal_additionalPaddingBottom = additionalPadding;
-            commonRendererData._internal_coordinate = data._internal_coordinate;
-            commonRendererData._internal_fixedCoordinate = data._internal_fixedCoordinate;
-            axisRendererData._internal_text = data._internal_text;
-            axisRendererData._internal_visible = data._internal_visible;
-            axisRendererData._internal_tickVisible = data._internal_tickVisible;
         }
     }
 
@@ -13591,16 +13529,10 @@
 
     function getChecker(type) {
         switch (type) {
-            case 'Bar':
             case 'Candlestick':
                 return checkBarItem.bind(null, type);
-            case 'Area':
-            case 'Baseline':
             case 'Line':
-            case 'Histogram':
                 return checkLineItem.bind(null, type);
-            case 'Custom':
-                return checkCustomItem.bind(null, type);
         }
     }
 
@@ -13639,55 +13571,12 @@
         return;
     }
 
-    function convertSeriesMarker(sm, newTime, originalTime) {
-        const values = __rest(sm, ["time", "originalTime"]);
-        /* eslint-disable @typescript-eslint/consistent-type-assertions */
-        const res = Object.assign({time: newTime}, values);
-        /* eslint-enable @typescript-eslint/consistent-type-assertions */
-        if (originalTime !== undefined) {
-            res.originalTime = originalTime;
-        }
-        return res;
-    }
-
-    const priceLineOptionsDefaults = {
-        color: '#FF0000',
-        price: 0,
-        lineStyle: 2 /* LineStyle.Dashed */,
-        lineWidth: 1,
-        lineVisible: true,
-        axisLabelVisible: true,
-        title: '',
-        axisLabelColor: '',
-        axisLabelTextColor: '',
-    };
-
-    class PriceLine {
-        constructor(priceLine) {
-            this._private__priceLine = priceLine;
-        }
-
-        applyOptions(options) {
-            this._private__priceLine._internal_applyOptions(options);
-        }
-
-        options() {
-            return this._private__priceLine._internal_options();
-        }
-
-        _internal_priceLine() {
-            return this._private__priceLine;
-        }
-    }
-
     class SeriesApi {
         constructor(series, dataUpdatesConsumer, priceScaleApiProvider, chartApi, horzScaleBehavior) {
             this._private__dataChangedDelegate = new Delegate();
             this._internal__series = series;
             this._internal__dataUpdatesConsumer = dataUpdatesConsumer;
-            this._private__priceScaleApiProvider = priceScaleApiProvider;
             this._private__horzScaleBehavior = horzScaleBehavior;
-            this._internal__chartApi = chartApi;
         }
 
         _internal_destroy() {
@@ -13696,61 +13585,6 @@
 
         priceFormatter() {
             return this._internal__series._internal_formatter();
-        }
-
-        priceToCoordinate(price) {
-            const firstValue = this._internal__series._internal_firstValue();
-            if (firstValue === null) {
-                return null;
-            }
-            return this._internal__series._internal_priceScale()._internal_priceToCoordinate(price, firstValue._internal_value);
-        }
-
-        coordinateToPrice(coordinate) {
-            const firstValue = this._internal__series._internal_firstValue();
-            if (firstValue === null) {
-                return null;
-            }
-            return this._internal__series._internal_priceScale()._internal_coordinateToPrice(coordinate, firstValue._internal_value);
-        }
-
-        barsInLogicalRange(range) {
-            if (range === null) {
-                return null;
-            }
-            // we use TimeScaleVisibleRange here to convert LogicalRange to strict range properly
-            const correctedRange = new TimeScaleVisibleRange(new RangeImpl(range.from, range.to))._internal_strictRange();
-            const bars = this._internal__series._internal_bars();
-            if (bars._internal_isEmpty()) {
-                return null;
-            }
-            const dataFirstBarInRange = bars._internal_search(correctedRange._internal_left(), 1 /* MismatchDirection.NearestRight */);
-            const dataLastBarInRange = bars._internal_search(correctedRange._internal_right(), -1 /* MismatchDirection.NearestLeft */);
-            const dataFirstIndex = ensureNotNull(bars._internal_firstIndex());
-            const dataLastIndex = ensureNotNull(bars._internal_lastIndex());
-            // this means that we request data in the data gap
-            // e.g. let's say we have series with data [0..10, 30..60]
-            // and we request bars info in range [15, 25]
-            // thus, dataFirstBarInRange will be with index 30 and dataLastBarInRange with 10
-            if (dataFirstBarInRange !== null && dataLastBarInRange !== null && dataFirstBarInRange._internal_index > dataLastBarInRange._internal_index) {
-                return {
-                    barsBefore: range.from - dataFirstIndex,
-                    barsAfter: dataLastIndex - range.to,
-                };
-            }
-            const barsBefore = (dataFirstBarInRange === null || dataFirstBarInRange._internal_index === dataFirstIndex)
-                ? range.from - dataFirstIndex
-                : dataFirstBarInRange._internal_index - dataFirstIndex;
-            const barsAfter = (dataLastBarInRange === null || dataLastBarInRange._internal_index === dataLastIndex)
-                ? dataLastIndex - range.to
-                : dataLastIndex - dataLastBarInRange._internal_index;
-            const result = {barsBefore, barsAfter};
-            // actually they can't exist separately
-            if (dataFirstBarInRange !== null && dataLastBarInRange !== null) {
-                result.from = dataFirstBarInRange._internal_originalTime;
-                result.to = dataLastBarInRange._internal_originalTime;
-            }
-            return result;
         }
 
         setData(data) {
@@ -13766,40 +13600,10 @@
             this._private__onDataChanged('update');
         }
 
-        dataByIndex(logicalIndex, mismatchDirection) {
-            const data = this._internal__series._internal_bars()._internal_search(logicalIndex, mismatchDirection);
-            if (data === null) {
-                // actually it can be a whitespace
-                return null;
-            }
-            const creator = getSeriesDataCreator(this.seriesType());
-            return creator(data);
-        }
-
         data() {
             const seriesCreator = getSeriesDataCreator(this.seriesType());
             const rows = this._internal__series._internal_bars()._internal_rows();
             return rows.map((row) => seriesCreator(row));
-        }
-
-        subscribeDataChanged(handler) {
-            this._private__dataChangedDelegate._internal_subscribe(handler);
-        }
-
-        unsubscribeDataChanged(handler) {
-            this._private__dataChangedDelegate._internal_unsubscribe(handler);
-        }
-
-        setMarkers(data) {
-            checkItemsAreOrdered(data, this._private__horzScaleBehavior, true);
-            const convertedMarkers = data.map((marker) => convertSeriesMarker(marker, this._private__horzScaleBehavior.convertHorzItemToInternal(marker.time), marker.time));
-            this._internal__series._internal_setMarkers(convertedMarkers);
-        }
-
-        markers() {
-            return this._internal__series._internal_markers().map((internalItem) => {
-                return convertSeriesMarker(internalItem, internalItem.originalTime, undefined);
-            });
         }
 
         applyOptions(options) {
@@ -13810,43 +13614,8 @@
             return clone(this._internal__series._internal_options());
         }
 
-        priceScale() {
-            return this._private__priceScaleApiProvider.priceScale(this._internal__series._internal_priceScale()._internal_id());
-        }
-
-        createPriceLine(options) {
-            checkPriceLineOptions(options);
-            const strictOptions = merge(clone(priceLineOptionsDefaults), options);
-            const priceLine = this._internal__series._internal_createPriceLine(strictOptions);
-            return new PriceLine(priceLine);
-        }
-
-        removePriceLine(line) {
-            this._internal__series._internal_removePriceLine(line._internal_priceLine());
-        }
-
         seriesType() {
             return this._internal__series._internal_seriesType();
-        }
-
-        attachPrimitive(primitive) {
-            // at this point we cast the generic to unknown because we
-            // don't want the model to know the types of the API (◑_◑)
-            this._internal__series._internal_attachPrimitive(primitive);
-            if (primitive.attached) {
-                primitive.attached({
-                    chart: this._internal__chartApi,
-                    series: this,
-                    requestUpdate: () => this._internal__series._internal_model()._internal_fullUpdate(),
-                });
-            }
-        }
-
-        detachPrimitive(primitive) {
-            this._internal__series._internal_detachPrimitive(primitive);
-            if (primitive.detached) {
-                primitive.detached();
-            }
         }
 
         _private__onDataChanged(scope) {
@@ -13877,18 +13646,6 @@
             this._private__timeRangeChanged._internal_destroy();
             this._private__logicalRangeChanged._internal_destroy();
             this._private__sizeChanged._internal_destroy();
-        }
-
-        scrollPosition() {
-            return this._private__timeScale._internal_rightOffset();
-        }
-
-        scrollToPosition(position, animated) {
-            if (!animated) {
-                this._private__model._internal_setRightOffset(position);
-                return;
-            }
-            this._private__timeScale._internal_scrollToOffsetAnimated(position, 1000 /* Constants.AnimationDurationMs */);
         }
 
         scrollToRealTime() {
@@ -13926,85 +13683,12 @@
             };
         }
 
-        setVisibleLogicalRange(range) {
-            assert(range.from <= range.to, 'The from index cannot be after the to index.');
-            this._private__model._internal_setTargetLogicalRange(range);
-        }
-
-        resetTimeScale() {
-            this._private__model._internal_resetTimeScale();
-        }
-
-        fitContent() {
-            this._private__model._internal_fitContent();
-        }
-
-        logicalToCoordinate(logical) {
-            const timeScale = this._private__model._internal_timeScale();
-            if (timeScale._internal_isEmpty()) {
-                return null;
-            } else {
-                return timeScale._internal_indexToCoordinate(logical);
-            }
-        }
-
-        coordinateToLogical(x) {
-            if (this._private__timeScale._internal_isEmpty()) {
-                return null;
-            } else {
-                return this._private__timeScale._internal_coordinateToIndex(x);
-            }
-        }
-
-        timeToCoordinate(time) {
-            const timePoint = this._private__horzScaleBehavior.convertHorzItemToInternal(time);
-            const timePointIndex = this._private__timeScale._internal_timeToIndex(timePoint, false);
-            if (timePointIndex === null) {
-                return null;
-            }
-            return this._private__timeScale._internal_indexToCoordinate(timePointIndex);
-        }
-
-        coordinateToTime(x) {
-            const timeScale = this._private__model._internal_timeScale();
-            const timePointIndex = timeScale._internal_coordinateToIndex(x);
-            const timePoint = timeScale._internal_indexToTimeScalePoint(timePointIndex);
-            if (timePoint === null) {
-                return null;
-            }
-            return timePoint.originalTime;
-        }
-
         width() {
             return this._private__timeAxisWidget._internal_getSize().width;
         }
 
         height() {
             return this._private__timeAxisWidget._internal_getSize().height;
-        }
-
-        subscribeVisibleTimeRangeChange(handler) {
-            this._private__timeRangeChanged._internal_subscribe(handler);
-        }
-
-        unsubscribeVisibleTimeRangeChange(handler) {
-            this._private__timeRangeChanged._internal_unsubscribe(handler);
-        }
-
-        subscribeVisibleLogicalRangeChange(handler) {
-            this._private__logicalRangeChanged._internal_subscribe(handler);
-        }
-
-        unsubscribeVisibleLogicalRangeChange(handler) {
-            this._private__logicalRangeChanged._internal_unsubscribe(handler);
-        }
-
-        subscribeSizeChange(handler) {
-            this._private__sizeChanged._internal_subscribe(handler);
-        }
-
-        unsubscribeSizeChange(handler) {
-            this._private__sizeChanged._internal_unsubscribe(handler);
         }
 
         applyOptions(options) {
@@ -14120,20 +13804,6 @@
             this._private__timeScaleApi = new TimeScaleApi(model, this._private__chartWidget._internal_timeAxisWidget(), this._private__horzScaleBehavior);
         }
 
-        remove() {
-            this._private__chartWidget._internal_clicked()._internal_unsubscribeAll(this);
-            this._private__chartWidget._internal_dblClicked()._internal_unsubscribeAll(this);
-            this._private__chartWidget._internal_crosshairMoved()._internal_unsubscribeAll(this);
-            this._private__timeScaleApi._internal_destroy();
-            this._private__chartWidget._internal_destroy();
-            this._private__seriesMap.clear();
-            this._private__seriesMapReversed.clear();
-            this._private__clickedDelegate._internal_destroy();
-            this._private__dblClickedDelegate._internal_destroy();
-            this._private__crosshairMovedDelegate._internal_destroy();
-            this._private__dataLayer._internal_destroy();
-        }
-
         resize(width, height, forceRepaint) {
             if (this.autoSizeActive()) {
                 // We return early here instead of checking this within the actual _chartWidget.resize method
@@ -14144,31 +13814,9 @@
             this._private__chartWidget._internal_resize(width, height, forceRepaint);
         }
 
-        addCustomSeries(customPaneView, options) {
-            const paneView = ensure(customPaneView);
-            const defaults = Object.assign(Object.assign({}, customStyleDefaults), paneView.defaultOptions());
-            return this._private__addSeriesImpl('Custom', defaults, options, paneView);
-        }
-
-        addAreaSeries(options) {
-            return this._private__addSeriesImpl('Area', areaStyleDefaults, options);
-        }
-
-        addBaselineSeries(options) {
-            return this._private__addSeriesImpl('Baseline', baselineStyleDefaults, options);
-        }
-
-        addBarSeries(options) {
-            return this._private__addSeriesImpl('Bar', barStyleDefaults, options);
-        }
-
         addCandlestickSeries(options = {}) {
             fillUpDownCandlesticksColors(options);
             return this._private__addSeriesImpl('Candlestick', candlestickStyleDefaults, options);
-        }
-
-        addHistogramSeries(options) {
-            return this._private__addSeriesImpl('Histogram', histogramStyleDefaults, options);
         }
 
         addLineSeries(options) {
@@ -14332,13 +13980,6 @@
         return res;
     }
 
-    /**
-     * Returns the current version as a string. For example `'3.3.0'`.
-     */
-    function version() {
-        return "4.1.3";
-    }
-
     window.LightweightCharts = Object.freeze({
         __proto__: null,
         get CrosshairMode() {
@@ -14347,7 +13988,6 @@
         createChart: createChart,
         isBusinessDay: isBusinessDay,
         isUTCTimestamp: isUTCTimestamp,
-        version: version
     });
 
 })();
