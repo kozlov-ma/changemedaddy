@@ -1972,7 +1972,7 @@ class SeriesPriceAxisView extends PriceAxisView {
         const seriesOptions = source._internal_options();
         const showSeriesLastValue = seriesOptions.lastValueVisible;
         const showSymbolLabel = source._internal_title() !== '';
-        const showPriceAndPercentage = seriesOptions.seriesLastValueMode === 0 /* PriceAxisLastValueMode.LastPriceAndPercentageValue */;
+        const showPriceAndPercentage = true /* PriceAxisLastValueMode.LastPriceAndPercentageValue */;
         const lastValueData = source._internal_lastValueData(false);
         if (lastValueData._internal_noData) {
             return;

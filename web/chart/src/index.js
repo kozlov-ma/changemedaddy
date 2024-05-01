@@ -87,7 +87,7 @@ const lineSeries = chart.addLineSeries({
     lineWidth: 1, // Толщина линии
 });
 
-lineSeries.setData([{ time: 0, value: data[0].open }, { time: Date.now(), value: data[0].open }]);
+lineSeries.setData([{ time: data[0].time, value: data[0].open }, { time: data[data.length - 1].time, value: data[0].open }]);
 
 let startRangeString = data.length >= 60 ? data[data.length - 60]['time'] : data[0]['time']
 let endRangeString = data[data.length - 1]['time']
