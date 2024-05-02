@@ -174,8 +174,6 @@ class PriceAxisViewRenderer {
                     drawRoundRectWithInnerBorder(ctx, gb.xInside, gb.yTop, gb.totalWidth, gb.totalHeight, labelBackgroundColor, gb.horzBorder, [0, gb.radius, gb.radius, 0], labelBorderColor);
                 }
             };
-            // draw border
-            // draw label background
             drawLabelBody(backgroundColor, 'transparent');
             // draw tick
             if (this._data.tickVisible) {
@@ -1356,7 +1354,6 @@ export class PanePriceAxisView {
         if (pane === null) {
             return null;
         }
-        // this price scale will be used to find label placement only (left, right, none)
         const priceScale = pane.isOverlay(this._dataSource) ? pane.defaultVisiblePriceScale() : this._dataSource.priceScale();
         if (priceScale === null) {
             return null;
@@ -4519,41 +4516,6 @@ class Pane {
     }
 }
 
-class FormattedLabelsCache {
-    constructor(format, horzScaleBehavior, size = 50) {
-        this._actualSize = 0;
-        this._usageTick = 1;
-        this._oldestTick = 1;
-        this._cache = new Map();
-        this._tick2Labels = new Map();
-        this._format = format;
-        this._horzScaleBehavior = horzScaleBehavior;
-        this._maxSize = size;
-    }
-
-    format(tickMark) {
-        const time = tickMark.time;
-        const cacheKey = this._horzScaleBehavior.cacheKey(time);
-        const tick = this._cache.get(cacheKey);
-        if (tick !== undefined) {
-            return tick.string;
-        }
-        if (this._actualSize === this._maxSize) {
-            const oldestValue = this._tick2Labels.get(this._oldestTick);
-            this._tick2Labels.delete(this._oldestTick);
-            this._cache.delete(ensureDefined(oldestValue));
-            this._oldestTick++;
-            this._actualSize--;
-        }
-        const str = this._format(tickMark);
-        this._cache.set(cacheKey, {string: str, tick: this._usageTick});
-        this._tick2Labels.set(this._usageTick, cacheKey);
-        this._actualSize++;
-        this._usageTick++;
-        return str;
-    }
-}
-
 class RangeImpl {
     constructor(left, right) {
         assert(left <= right, 'right should be >= left');
@@ -4729,7 +4691,6 @@ class TimeScale {
         this._scrollStartPoint = null;
         this._scaleStartPoint = null;
         this._tickMarks = new TickMarks();
-        this._formattedByWeight = new Map();
         this._visibleRange = TimeScaleVisibleRange.invalid();
         this._visibleRangeInvalidated = true;
         this._visibleBarsChanged = new Delegate();
@@ -5277,14 +5238,7 @@ class TimeScale {
     }
 
     _formatLabel(tickMark) {
-        let formatter = this._formattedByWeight.get(tickMark.weight);
-        if (formatter === undefined) {
-            formatter = new FormattedLabelsCache((mark) => {
-                return this._formatLabelImpl(mark);
-            }, this._horzScaleBehavior);
-            this._formattedByWeight.set(tickMark.weight, formatter);
-        }
-        return formatter.format(tickMark);
+        return this._formatLabelImpl(tickMark);
     }
 
     _formatLabelImpl(tickMark) {
@@ -5309,7 +5263,6 @@ class TimeScale {
 
     _invalidateTickMarks() {
         this._resetTimeMarksCache();
-        this._formattedByWeight.clear();
     }
 
     _updateDateTimeFormatter() {
