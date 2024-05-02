@@ -1176,39 +1176,6 @@ export class SeriesCandlesticksPaneView extends BarsPaneViewBase {
     }
 }
 
-class CustomSeriesPaneRendererWrapper {
-    constructor(sourceRenderer, priceScale) {
-        this._sourceRenderer = sourceRenderer;
-        this._priceScale = priceScale;
-    }
-
-    draw(target, isHovered, hitTestData) {
-        this._sourceRenderer.draw(target, this._priceScale, isHovered, hitTestData);
-    }
-}
-
-export class SeriesCustomPaneView extends SeriesPaneViewBase {
-    constructor(series, model, paneView) {
-        super(series, model, false);
-        this._paneView = paneView;
-        this._renderer = new CustomSeriesPaneRendererWrapper(this._paneView.renderer(), (price) => {
-            const firstValue = series.firstValue();
-            if (firstValue === null) {
-                return null;
-            }
-            return series.priceScale().priceToCoordinate(price, firstValue.value);
-        });
-    }
-
-    priceValueBuilder(plotRow) {
-        return this._paneView.priceValueBuilder(plotRow);
-    }
-
-    isWhitespace(data) {
-        return this._paneView.isWhitespace(data);
-    }
-}
-
 export class SeriesLinePaneView extends LinePaneViewBase {
     constructor() {
         super(...arguments);
@@ -2227,19 +2194,6 @@ function createSeriesPlotList() {
     return new PlotList();
 }
 
-class SeriesPrimitiveRendererWrapper {
-    constructor(baseRenderer) {
-        this._baseRenderer = baseRenderer;
-    }
-
-    draw(target, isHovered, hitTestData) {
-        // this._baseRenderer.draw(target);
-    }
-
-    drawBackground(target, isHovered, hitTestData) {
-    }
-}
-
 function getAxisViewData(baseView) {
     var _a, _b, _c, _d, _e;
     return {
@@ -2251,19 +2205,6 @@ function getAxisViewData(baseView) {
         visible: (_c = (_b = baseView.visible) === null || _b === void 0 ? void 0 : _b.call(baseView)) !== null && _c !== void 0 ? _c : true,
         tickVisible: (_e = (_d = baseView.tickVisible) === null || _d === void 0 ? void 0 : _d.call(baseView)) !== null && _e !== void 0 ? _e : true,
     };
-}
-
-class SeriesPrimitiveTimeAxisViewWrapper {
-    constructor(baseView, timeScale) {
-        this._renderer = new TimeAxisViewRenderer();
-        this._baseView = baseView;
-        this._timeScale = timeScale;
-    }
-
-    renderer() {
-        this._renderer.setData(Object.assign({width: this._timeScale.width()}, getAxisViewData(this._baseView)));
-        return this._renderer;
-    }
 }
 
 function primitivePaneViewsExtractor(wrapper) {
@@ -2518,54 +2459,12 @@ class Series extends PriceDataSource {
         return ensureNotNull(super.priceScale());
     }
 
-    markerDataAtIndex(index) {
-        const getValue = (this._seriesType === 'Line' || this._seriesType === 'Area' || this._seriesType === 'Baseline') &&
-            this._options.crosshairMarkerVisible;
-        if (!getValue) {
-            return null;
-        }
-        const bar = this._data.valueAt(index);
-        if (bar === null) {
-            return null;
-        }
-        const price = bar.value[3 /* PlotRowValueIndex.Close */];
-        const radius = this._markerRadius();
-        const borderColor = this._markerBorderColor();
-        const borderWidth = this._markerBorderWidth();
-        const backgroundColor = this._markerBackgroundColor(index);
-        return {
-            price: price,
-            radius: radius,
-            borderColor: borderColor,
-            borderWidth: borderWidth,
-            backgroundColor: backgroundColor
-        };
-    }
-
     title() {
         return this._options.title;
     }
 
     visible() {
         return this._options.visible;
-    }
-
-    customSeriesPlotValuesBuilder() {
-        if (!(this._paneView instanceof SeriesCustomPaneView)) {
-            return undefined;
-        }
-        return (data) => {
-            return this._paneView.priceValueBuilder(data);
-        };
-    }
-
-    customSeriesWhitespaceCheck() {
-        if (!(this._paneView instanceof SeriesCustomPaneView)) {
-            return undefined;
-        }
-        return (data) => {
-            return this._paneView.isWhitespace(data);
-        };
     }
 
     _isOverlay() {
@@ -2597,54 +2496,6 @@ class Series extends PriceDataSource {
             }
         });
         return new AutoscaleInfoImpl(range, null);
-    }
-
-    _markerRadius() {
-        switch (this._seriesType) {
-            case 'Line':
-            case 'Area':
-            case 'Baseline':
-                return this._options.crosshairMarkerRadius;
-        }
-        return 0;
-    }
-
-    _markerBorderColor() {
-        switch (this._seriesType) {
-            case 'Line':
-            case 'Area':
-            case 'Baseline': {
-                const crosshairMarkerBorderColor = this._options.crosshairMarkerBorderColor;
-                if (crosshairMarkerBorderColor.length !== 0) {
-                    return crosshairMarkerBorderColor;
-                }
-            }
-        }
-        return null;
-    }
-
-    _markerBorderWidth() {
-        switch (this._seriesType) {
-            case 'Line':
-            case 'Area':
-            case 'Baseline':
-                return this._options.crosshairMarkerBorderWidth;
-        }
-        return 0;
-    }
-
-    _markerBackgroundColor(index) {
-        switch (this._seriesType) {
-            case 'Line':
-            case 'Area':
-            case 'Baseline': {
-                const crosshairMarkerBackgroundColor = this._options.crosshairMarkerBackgroundColor;
-                if (crosshairMarkerBackgroundColor.length !== 0) {
-                    return crosshairMarkerBackgroundColor;
-                }
-            }
-        }
-        return this.barColorer().barStyle(index).barColor;
     }
 
     _recreateFormatter() {
@@ -4876,19 +4727,6 @@ class TimeScale {
     _doFixRightEdge() {
         this._correctOffset();
         this._correctBarSpacing();
-    }
-}
-
-class MediaCoordinatesPaneRenderer {
-    draw(target, isHovered, hitTestData) {
-        target.useMediaCoordinateSpace((scope) => this._drawImpl(scope, isHovered, hitTestData));
-    }
-
-    drawBackground(target, isHovered, hitTestData) {
-        target.useMediaCoordinateSpace((scope) => this._drawBackgroundImpl(scope, isHovered, hitTestData));
-    }
-
-    _drawBackgroundImpl(renderingScope, isHovered, hitTestData) {
     }
 }
 
@@ -9602,8 +9440,8 @@ class DataLayer {
             const originalTimes = data.map((d) => d.time);
             const timeConverter = this._horzScaleBehavior.createConverterToInternalObj(data);
             const createPlotRow = getSeriesPlotRowCreator(series.seriesType());
-            const dataToPlotRow = series.customSeriesPlotValuesBuilder();
-            const customWhitespaceChecker = series.customSeriesWhitespaceCheck();
+            const dataToPlotRow = undefined;
+            const customWhitespaceChecker = undefined;
             seriesRows = data.map((item, index) => {
                 const time = timeConverter(item.time);
                 const horzItemKey = this._horzScaleBehavior.key(time);
@@ -10348,9 +10186,6 @@ class ChartApi {
             const data = getSeriesDataCreator(seriesType)(plotRow);
             if (seriesType !== 'Custom') {
                 assert(isFulfilledData(data));
-            } else {
-                const customWhitespaceChecker = series.customSeriesWhitespaceCheck();
-                assert(!customWhitespaceChecker || customWhitespaceChecker(data) === false);
             }
             seriesData.set(this._mapSeriesToApi(series), data);
         });
