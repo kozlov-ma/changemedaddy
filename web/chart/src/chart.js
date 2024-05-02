@@ -5355,167 +5355,6 @@ class MediaCoordinatesPaneRenderer {
     }
 }
 
-class WatermarkRenderer extends MediaCoordinatesPaneRenderer {
-    constructor(data) {
-        super();
-        this._metricsCache = new Map();
-        this._data = data;
-    }
-
-    _drawImpl(renderingScope) {
-    }
-
-    _drawBackgroundImpl(renderingScope) {
-        if (!this._data.visible) {
-            return;
-        }
-        const {context: ctx, mediaSize} = renderingScope;
-        let textHeight = 0;
-        for (const line of this._data.lines) {
-            if (line.text.length === 0) {
-                continue;
-            }
-            ctx.font = line.font;
-            const textWidth = this._metrics(ctx, line.text);
-            if (textWidth > mediaSize.width) {
-                line.zoom = mediaSize.width / textWidth;
-            } else {
-                line.zoom = 1;
-            }
-            textHeight += line.lineHeight * line.zoom;
-        }
-        let vertOffset = 0;
-        switch (this._data.vertAlign) {
-            case 'top':
-                vertOffset = 0;
-                break;
-            case 'center':
-                vertOffset = Math.max((mediaSize.height - textHeight) / 2, 0);
-                break;
-            case 'bottom':
-                vertOffset = Math.max((mediaSize.height - textHeight), 0);
-                break;
-        }
-        ctx.fillStyle = this._data.color;
-        for (const line of this._data.lines) {
-            ctx.save();
-            let horzOffset = 0;
-            switch (this._data.horzAlign) {
-                case 'left':
-                    ctx.textAlign = 'left';
-                    horzOffset = line.lineHeight / 2;
-                    break;
-                case 'center':
-                    ctx.textAlign = 'center';
-                    horzOffset = mediaSize.width / 2;
-                    break;
-                case 'right':
-                    ctx.textAlign = 'right';
-                    horzOffset = mediaSize.width - 1 - line.lineHeight / 2;
-                    break;
-            }
-            ctx.translate(horzOffset, vertOffset);
-            ctx.textBaseline = 'top';
-            ctx.font = line.font;
-            ctx.scale(line.zoom, line.zoom);
-            ctx.fillText(line.text, 0, line.vertOffset);
-            ctx.restore();
-            vertOffset += line.lineHeight * line.zoom;
-        }
-    }
-
-    _metrics(ctx, text) {
-        const fontCache = this._fontCache(ctx.font);
-        let result = fontCache.get(text);
-        if (result === undefined) {
-            result = ctx.measureText(text).width;
-            fontCache.set(text, result);
-        }
-        return result;
-    }
-
-    _fontCache(font) {
-        let fontCache = this._metricsCache.get(font);
-        if (fontCache === undefined) {
-            fontCache = new Map();
-            this._metricsCache.set(font, fontCache);
-        }
-        return fontCache;
-    }
-}
-
-class WatermarkPaneView {
-    constructor(source) {
-        this._invalidated = true;
-        this._rendererData = {
-            visible: false,
-            color: '',
-            lines: [],
-            vertAlign: 'center',
-            horzAlign: 'center',
-        };
-        this._renderer = new WatermarkRenderer(this._rendererData);
-        this._source = source;
-    }
-
-    update() {
-        this._invalidated = true;
-    }
-
-    renderer() {
-        if (this._invalidated) {
-            this._updateImpl();
-            this._invalidated = false;
-        }
-        return this._renderer;
-    }
-
-    _updateImpl() {
-        const options = this._source.options();
-        const data = this._rendererData;
-        data.visible = options.visible;
-        if (!data.visible) {
-            return;
-        }
-        data.color = options.color;
-        data.horzAlign = options.horzAlign;
-        data.vertAlign = options.vertAlign;
-        data.lines = [
-            {
-                text: options.text,
-                font: makeFont(options.fontSize, options.fontFamily, options.fontStyle),
-                lineHeight: options.fontSize * 1.2,
-                vertOffset: 0,
-                zoom: 0,
-            },
-        ];
-    }
-}
-
-class Watermark extends DataSource {
-    constructor(model, options) {
-        super();
-        this._options = options;
-        this._paneView = new WatermarkPaneView(this);
-    }
-
-    priceAxisViews() {
-        return [];
-    }
-
-    paneViews() {
-        return [this._paneView];
-    }
-
-    options() {
-        return this._options;
-    }
-
-    updateAllViews() {
-        this._paneView.update();
-    }
-}
-
 class PriceAxisRendererOptionsProvider {
     constructor(chartModel) {
         this._rendererOptions = {
@@ -5586,7 +5425,6 @@ class ChartModel {
         this._rendererOptionsProvider = new PriceAxisRendererOptionsProvider(this);
         this._timeScale = new TimeScale(this, options.timeScale, this._options.localization, horzScaleBehavior);
         this._crosshair = new Crosshair(this, options.crosshair);
-        this._watermark = new Watermark(this, options.watermark);
         this.createPane();
         this._panes[0].setStretchFactor(DEFAULT_STRETCH_FACTOR * 2);
         this._backgroundTopColor = this._getBackgroundColor(0 /* BackgroundColorSide.Top */);
@@ -5687,10 +5525,6 @@ class ChartModel {
 
     panes() {
         return this._panes;
-    }
-
-    watermarkSource() {
-        return this._watermark;
     }
 
     crosshairSource() {
@@ -5916,7 +5750,6 @@ class ChartModel {
     }
 
     recalculateAllPanes() {
-        this._watermark.updateAllViews();
         this._panes.forEach((p) => p.recalculate());
         this.updateCrosshair();
     }
@@ -8680,7 +8513,6 @@ class PaneWidget {
                 if (this._state) {
                     this._drawSources(target, sourceBottomPaneViews$1);
                     this._drawGrid(target);
-                    this._drawWatermark(target);
                     this._drawSources(target, sourcePaneViews$1);
                     this._drawSources(target, sourceLabelPaneViews);
                 }
@@ -8750,12 +8582,6 @@ class PaneWidget {
         if (renderer !== null) {
             renderer.draw(target, false);
         }
-    }
-
-    _drawWatermark(target) {
-        const source = this._model().watermarkSource();
-        this._drawSourceImpl(target, sourcePaneViews$1, drawBackground, source);
-        this._drawSourceImpl(target, sourcePaneViews$1, drawForeground, source);
     }
 
     _drawCrosshair(target) {
@@ -10611,17 +10437,6 @@ const timeScaleOptionsDefaults = {
     allowBoldLabels: true,
 };
 
-const watermarkOptionsDefaults = {
-    color: 'rgba(0, 0, 0, 0)',
-    visible: false,
-    fontSize: 48,
-    fontFamily: defaultFontFamily,
-    fontStyle: '',
-    text: '',
-    horzAlign: 'center',
-    vertAlign: 'center',
-};
-
 function chartOptionsDefaults() {
     return {
         width: 0,
@@ -10634,7 +10449,6 @@ function chartOptionsDefaults() {
         leftPriceScale: Object.assign(Object.assign({}, priceScaleOptionsDefaults), {visible: false}),
         rightPriceScale: Object.assign(Object.assign({}, priceScaleOptionsDefaults), {visible: true}),
         timeScale: timeScaleOptionsDefaults,
-        watermark: watermarkOptionsDefaults,
         localization: {
             locale: isRunningOnClientSide ? navigator.language : '',
             dateFormat: 'dd MMM \'yy',
