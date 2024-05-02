@@ -1439,34 +1439,6 @@ class SeriesHorizontalLinePaneView {
     }
 }
 
-export class SeriesHorizontalBaseLinePaneView extends SeriesHorizontalLinePaneView {
-    constructor(series) {
-        super(series);
-    }
-
-    _updateImpl() {
-        this._lineRendererData.visible = false;
-        const priceScale = this._series.priceScale();
-        const mode = priceScale.mode().mode;
-        if (mode !== 2 /* PriceScaleMode.Percentage */ && mode !== 3 /* PriceScaleMode.IndexedTo100 */) {
-            return;
-        }
-        const seriesOptions = this._series.options();
-        if (!seriesOptions.baseLineVisible || !this._series.visible()) {
-            return;
-        }
-        const firstValue = this._series.firstValue();
-        if (firstValue === null) {
-            return;
-        }
-        this._lineRendererData.visible = true;
-        this._lineRendererData.y = priceScale.priceToCoordinate(firstValue.value, firstValue.value);
-        this._lineRendererData.color = seriesOptions.baseLineColor;
-        this._lineRendererData.lineWidth = seriesOptions.baseLineWidth;
-        this._lineRendererData.lineStyle = seriesOptions.baseLineStyle;
-    }
-}
-
 const animationStagesData = [
     {
         start: 0,
@@ -2474,7 +2446,6 @@ class Series extends PriceDataSource {
         this._data = createSeriesPlotList();
         this._priceLineView = new SeriesPriceLinePaneView(this);
         this._customPriceLines = [];
-        this._baseHorizontalLineView = new SeriesHorizontalBaseLinePaneView(this);
         this._barColorerCache = null;
         this._animationTimeoutId = null;
         this._primitives = [];
@@ -2625,9 +2596,6 @@ class Series extends PriceDataSource {
 
     paneViews() {
         const res = [];
-        if (!this._isOverlay()) {
-            res.push(this._baseHorizontalLineView);
-        }
         res.push(this._paneView, this._priceLineView);
         const priceLineViews = this._customPriceLines.map((line) => line.paneView());
         res.push(...priceLineViews);
@@ -2711,7 +2679,6 @@ class Series extends PriceDataSource {
             customPriceLine.update();
         }
         this._priceLineView.update();
-        this._baseHorizontalLineView.update();
         (_a = null) === null || _a === void 0 ? void 0 : _a.update();
         this._primitives.forEach((wrapper) => wrapper.updateAllViews());
     }
