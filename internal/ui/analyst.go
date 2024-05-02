@@ -25,5 +25,5 @@ func Analyst(a *analyst.Analyst, ideas []*idea.Idea) AnalystComponent {
 }
 
 func (a AnalystComponent) Render(c echo.Context) error {
-	return c.Render(200, "idea.html", a)
+	return c.Render(200, "analyst.html", a)
 }

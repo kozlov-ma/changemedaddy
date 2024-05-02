@@ -62,10 +62,10 @@ func (h *handler) MustEcho() *echo.Echo {
 
 	e.GET("/position/:positionID", h.getPosition)
 
-	e.GET("/register", h.register) // >>>>>> TODO >>>> add auth here
+	e.GET("/register", h.register)    // >>>>>> TODO >>>> add auth here
+	e.POST("/register", h.newAnalyst) // >>>>>> TODO >>>> limit this somehow
 
 	ae := e.Group("/analyst", h.analystMiddleware)
-	ae.POST("/", h.newAnalyst) // >>>>>> TODO >>>> limit this somehow
 	ae.GET("/id/:analystID", h.getAnalyst)
 	ae.GET("/:analystSlug", h.getAnalyst)
 	ae.GET("/:analystSlug/idea/:ideaSlug", h.getIdea, h.ideaMiddleware)
