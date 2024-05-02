@@ -1,8 +1,8 @@
 import {isInteger, isNumber} from "./utils";
 
 const formatterOptions = {
-    _internal_decimalSign: '.',
-    _internal_decimalSignFractional: '\'',
+    decimalSign: '.',
+    decimalSignFractional: '\'',
 };
 
 function numberToStringWithLeadingZero(value, length) {
@@ -33,9 +33,9 @@ export class PriceFormatter {
         if (priceScale < 0) {
             throw new TypeError('invalid base');
         }
-        this._private__priceScale = priceScale;
-        this._private__minMove = minMove;
-        this._private__calculateDecimal();
+        this._priceScale = priceScale;
+        this._minMove = minMove;
+        this._calculateDecimal();
     }
 
     format(price) {
@@ -43,40 +43,40 @@ export class PriceFormatter {
         // we should use it because it has the same width as plus sign +
         const sign = price < 0 ? '\u2212' : '';
         price = Math.abs(price);
-        return sign + this._private__formatAsDecimal(price);
+        return sign + this._formatAsDecimal(price);
     }
 
-    _private__calculateDecimal() {
+    _calculateDecimal() {
         // check if this._base is power of 10
         // for double fractional _fractionalLength if for the main fractional only
-        this._internal__fractionalLength = 0;
-        if (this._private__priceScale > 0 && this._private__minMove > 0) {
-            let base = this._private__priceScale;
+        this._fractionalLength = 0;
+        if (this._priceScale > 0 && this._minMove > 0) {
+            let base = this._priceScale;
             while (base > 1) {
                 base /= 10;
-                this._internal__fractionalLength++;
+                this._fractionalLength++;
             }
         }
     }
 
-    _private__formatAsDecimal(price) {
-        const base = this._private__priceScale / this._private__minMove;
+    _formatAsDecimal(price) {
+        const base = this._priceScale / this._minMove;
         let intPart = Math.floor(price);
         let fracString = '';
-        const fracLength = this._internal__fractionalLength !== undefined ? this._internal__fractionalLength : NaN;
+        const fracLength = this._fractionalLength !== undefined ? this._fractionalLength : NaN;
         if (base > 1) {
-            let fracPart = +(Math.round(price * base) - intPart * base).toFixed(this._internal__fractionalLength);
+            let fracPart = +(Math.round(price * base) - intPart * base).toFixed(this._fractionalLength);
             if (fracPart >= base) {
                 fracPart -= base;
                 intPart += 1;
             }
-            fracString = formatterOptions._internal_decimalSign + numberToStringWithLeadingZero(+fracPart.toFixed(this._internal__fractionalLength) * this._private__minMove, fracLength);
+            fracString = formatterOptions.decimalSign + numberToStringWithLeadingZero(+fracPart.toFixed(this._fractionalLength) * this._minMove, fracLength);
         } else {
             // should round int part to min move
             intPart = Math.round(intPart * base) / base;
             // if min move > 1, fractional part is always = 0
             if (fracLength > 0) {
-                fracString = formatterOptions._internal_decimalSign + numberToStringWithLeadingZero(0, fracLength);
+                fracString = formatterOptions.decimalSign + numberToStringWithLeadingZero(0, fracLength);
             }
         }
         return intPart.toFixed(0) + fracString;
@@ -95,7 +95,7 @@ export class PercentageFormatter extends PriceFormatter {
 
 export class VolumeFormatter {
     constructor(precision) {
-        this._private__precision = precision;
+        this._precision = precision;
     }
 
     format(vol) {
@@ -105,24 +105,24 @@ export class VolumeFormatter {
             vol = -vol;
         }
         if (vol < 995) {
-            return sign + this._private__formatNumber(vol);
+            return sign + this._formatNumber(vol);
         } else if (vol < 999995) {
-            return sign + this._private__formatNumber(vol / 1000) + 'K';
+            return sign + this._formatNumber(vol / 1000) + 'K';
         } else if (vol < 999999995) {
             vol = 1000 * Math.round(vol / 1000);
-            return sign + this._private__formatNumber(vol / 1000000) + 'M';
+            return sign + this._formatNumber(vol / 1000000) + 'M';
         } else {
             vol = 1000000 * Math.round(vol / 1000000);
-            return sign + this._private__formatNumber(vol / 1000000000) + 'B';
+            return sign + this._formatNumber(vol / 1000000000) + 'B';
         }
     }
 
-    _private__formatNumber(value) {
+    _formatNumber(value) {
         let res;
-        const priceScale = Math.pow(10, this._private__precision);
+        const priceScale = Math.pow(10, this._precision);
         value = Math.round(value * priceScale) / priceScale;
         if (value >= 1e-15 && value < 1) {
-            res = value.toFixed(this._private__precision).replace(/\.?0+$/, ''); // regex removes trailing zeroes
+            res = value.toFixed(this._precision).replace(/\.?0+$/, ''); // regex removes trailing zeroes
         } else {
             res = String(value);
         }
@@ -154,42 +154,42 @@ function formatDate(date, format, locale) {
 
 export class DateFormatter {
     constructor(dateFormat = 'yyyy-MM-dd', locale = 'default') {
-        this._private__dateFormat = dateFormat;
-        this._private__locale = locale;
+        this._dateFormat = dateFormat;
+        this._locale = locale;
     }
 
-    _internal_format(date) {
-        return formatDate(date, this._private__dateFormat, this._private__locale);
+    format(date) {
+        return formatDate(date, this._dateFormat, this._locale);
     }
 }
 
 class TimeFormatter {
     constructor(format) {
-        this._private__formatStr = format || '%h:%m:%s';
+        this._formatStr = format || '%h:%m:%s';
     }
 
-    _internal_format(date) {
-        return this._private__formatStr.replace('%h', numberToStringWithLeadingZero(date.getUTCHours(), 2)).replace('%m', numberToStringWithLeadingZero(date.getUTCMinutes(), 2)).replace('%s', numberToStringWithLeadingZero(date.getUTCSeconds(), 2));
+    format(date) {
+        return this._formatStr.replace('%h', numberToStringWithLeadingZero(date.getUTCHours(), 2)).replace('%m', numberToStringWithLeadingZero(date.getUTCMinutes(), 2)).replace('%s', numberToStringWithLeadingZero(date.getUTCSeconds(), 2));
     }
 }
 
 const defaultParams = {
-    _internal_dateFormat: 'yyyy-MM-dd',
-    _internal_timeFormat: '%h:%m:%s',
-    _internal_dateTimeSeparator: ' ',
-    _internal_locale: 'default',
+    dateFormat: 'yyyy-MM-dd',
+    timeFormat: '%h:%m:%s',
+    dateTimeSeparator: ' ',
+    locale: 'default',
 };
 
 export class DateTimeFormatter {
     constructor(params = {}) {
         const formatterParams = Object.assign(Object.assign({}, defaultParams), params);
-        this._private__dateFormatter = new DateFormatter(formatterParams._internal_dateFormat, formatterParams._internal_locale);
-        this._private__timeFormatter = new TimeFormatter(formatterParams._internal_timeFormat);
-        this._private__separator = formatterParams._internal_dateTimeSeparator;
+        this._dateFormatter = new DateFormatter(formatterParams.dateFormat, formatterParams.locale);
+        this._timeFormatter = new TimeFormatter(formatterParams.timeFormat);
+        this._separator = formatterParams.dateTimeSeparator;
     }
 
-    _internal_format(dateTime) {
-        return `${this._private__dateFormatter._internal_format(dateTime)}${this._private__separator}${this._private__timeFormatter._internal_format(dateTime)}`;
+    format(dateTime) {
+        return `${this._dateFormatter.format(dateTime)}${this._separator}${this._timeFormatter.format(dateTime)}`;
     }
 }
 
@@ -222,9 +222,9 @@ export function defaultTickMarkFormatter(timePoint, tickMarkType, locale) {
             formatOptions.second = '2-digit';
             break;
     }
-    const date = timePoint._internal_businessDay === undefined
-        ? new Date(timePoint._internal_timestamp * 1000)
-        : new Date(Date.UTC(timePoint._internal_businessDay.year, timePoint._internal_businessDay.month - 1, timePoint._internal_businessDay.day));
+    const date = timePoint.businessDay === undefined
+        ? new Date(timePoint.timestamp * 1000)
+        : new Date(Date.UTC(timePoint.businessDay.year, timePoint.businessDay.month - 1, timePoint.businessDay.day));
     // from given date we should use only as UTC date or timestamp
     // but to format as locale date we can convert UTC date to local date
     const localDateFromUtc = new Date(date.getUTCFullYear(), date.getUTCMonth(), date.getUTCDate(), date.getUTCHours(), date.getUTCMinutes(), date.getUTCSeconds(), date.getUTCMilliseconds());

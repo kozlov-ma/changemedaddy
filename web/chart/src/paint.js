@@ -1,3 +1,5 @@
+import {add, divide, subtract} from "./utils";
+
 export function setLineStyle(ctx, style) {
     const dashPatterns = {
         [0 /* LineStyle.Solid */]: [],
@@ -149,8 +151,8 @@ export function applyAlpha(color, alpha) {
 export function generateContrastColors(backgroundColor) {
     const rgb = colorStringToRgba(backgroundColor);
     return {
-        _internal_background: `rgb(${rgb[0]}, ${rgb[1]}, ${rgb[2]})`,
-        _internal_foreground: rgbaToGrayscale(rgb) > 160 ? 'black' : 'white',
+        background: `rgb(${rgb[0]}, ${rgb[1]}, ${rgb[2]})`,
+        foreground: rgbaToGrayscale(rgb) > 160 ? 'black' : 'white',
     };
 }
 
@@ -263,10 +265,7 @@ function getControlPoints(points, fromPointIndex, toPointIndex) {
     return [cp1, cp2];
 }
 
-export function walkLine(renderingScope, items, lineType, visibleRange, barWidth,
-                         // the values returned by styleGetter are compared using the operator !==,
-                         // so if styleGetter returns objects, then styleGetter should return the same object for equal styles
-                         styleGetter) {
+export function walkLine(renderingScope, items, lineType, visibleRange, barWidth, styleGetter) {
     function finishStyledArea(scope, style) {
         const ctx = scope.context;
         ctx.strokeStyle = style;
@@ -283,10 +282,10 @@ export function walkLine(renderingScope, items, lineType, visibleRange, barWidth
     if (visibleRange.to - visibleRange.from < 2) {
         const halfBarWidth = barWidth / 2;
         ctx.beginPath();
-        const item1 = {_internal_x: firstItem._internal_x - halfBarWidth, _internal_y: firstItem._internal_y};
-        const item2 = {_internal_x: firstItem._internal_x + halfBarWidth, _internal_y: firstItem._internal_y};
-        ctx.moveTo(item1._internal_x * horizontalPixelRatio, item1._internal_y * verticalPixelRatio);
-        ctx.lineTo(item2._internal_x * horizontalPixelRatio, item2._internal_y * verticalPixelRatio);
+        const item1 = {x: firstItem.x - halfBarWidth, y: firstItem.y};
+        const item2 = {x: firstItem.x + halfBarWidth, y: firstItem.y};
+        ctx.moveTo(item1.x * horizontalPixelRatio, item1.y * verticalPixelRatio);
+        ctx.lineTo(item2.x * horizontalPixelRatio, item2.y * verticalPixelRatio);
         finishStyledArea(renderingScope, currentStyle, item1, item2);
     } else {
         const changeStyle = (newStyle, currentItem) => {
@@ -297,34 +296,34 @@ export function walkLine(renderingScope, items, lineType, visibleRange, barWidth
         };
         let currentItem = currentStyleFirstItem;
         ctx.beginPath();
-        ctx.moveTo(firstItem._internal_x * horizontalPixelRatio, firstItem._internal_y * verticalPixelRatio);
+        ctx.moveTo(firstItem.x * horizontalPixelRatio, firstItem.y * verticalPixelRatio);
         for (let i = visibleRange.from + 1; i < visibleRange.to; ++i) {
             currentItem = items[i];
             const itemStyle = styleGetter(renderingScope, currentItem);
             switch (lineType) {
                 case 0 /* LineType.Simple */
                 :
-                    ctx.lineTo(currentItem._internal_x * horizontalPixelRatio, currentItem._internal_y * verticalPixelRatio);
+                    ctx.lineTo(currentItem.x * horizontalPixelRatio, currentItem.y * verticalPixelRatio);
                     break;
                 case 1 /* LineType.WithSteps */
                 :
-                    ctx.lineTo(currentItem._internal_x * horizontalPixelRatio, items[i - 1]._internal_y * verticalPixelRatio);
+                    ctx.lineTo(currentItem.x * horizontalPixelRatio, items[i - 1].y * verticalPixelRatio);
                     if (itemStyle !== currentStyle) {
                         changeStyle(itemStyle, currentItem);
-                        ctx.lineTo(currentItem._internal_x * horizontalPixelRatio, items[i - 1]._internal_y * verticalPixelRatio);
+                        ctx.lineTo(currentItem.x * horizontalPixelRatio, items[i - 1].y * verticalPixelRatio);
                     }
-                    ctx.lineTo(currentItem._internal_x * horizontalPixelRatio, currentItem._internal_y * verticalPixelRatio);
+                    ctx.lineTo(currentItem.x * horizontalPixelRatio, currentItem.y * verticalPixelRatio);
                     break;
                 case 2 /* LineType.Curved */
                 : {
                     const [cp1, cp2] = getControlPoints(items, i - 1, i);
-                    ctx.bezierCurveTo(cp1._internal_x * horizontalPixelRatio, cp1._internal_y * verticalPixelRatio, cp2._internal_x * horizontalPixelRatio, cp2._internal_y * verticalPixelRatio, currentItem._internal_x * horizontalPixelRatio, currentItem._internal_y * verticalPixelRatio);
+                    ctx.bezierCurveTo(cp1.x * horizontalPixelRatio, cp1.y * verticalPixelRatio, cp2.x * horizontalPixelRatio, cp2.y * verticalPixelRatio, currentItem.x * horizontalPixelRatio, currentItem.y * verticalPixelRatio);
                     break;
                 }
             }
             if (lineType !== 1 /* LineType.WithSteps */ && itemStyle !== currentStyle) {
                 changeStyle(itemStyle, currentItem);
-                ctx.moveTo(currentItem._internal_x * horizontalPixelRatio, currentItem._internal_y * verticalPixelRatio);
+                ctx.moveTo(currentItem.x * horizontalPixelRatio, currentItem.y * verticalPixelRatio);
             }
         }
         if (currentStyleFirstItem !== currentItem || currentStyleFirstItem === currentItem && lineType === 1 /* LineType.WithSteps */) {

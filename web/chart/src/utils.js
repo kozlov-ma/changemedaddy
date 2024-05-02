@@ -91,15 +91,15 @@ export function merge(dst, ...sources) {
 }
 
 export function subtract(p1, p2) {
-    return {_internal_x: p1._internal_x - p2._internal_x, _internal_y: p1._internal_y - p2._internal_y};
+    return {x: p1.x - p2.x, y: p1.y - p2.y};
 }
 
 export function add(p1, p2) {
-    return {_internal_x: p1._internal_x + p2._internal_x, _internal_y: p1._internal_y + p2._internal_y};
+    return {x: p1.x + p2.x, y: p1.y + p2.y};
 }
 
 export function divide(p1, n) {
-    return {_internal_x: p1._internal_x / n, _internal_y: p1._internal_y / n};
+    return {x: p1.x / n, y: p1.y / n};
 }
 
 export function clamp(value, minVal, maxVal) {
@@ -143,5 +143,5 @@ export function areRangesEqual(first, second) {
     if (first === null || second === null) {
         return first === second;
     }
-    return first._internal_equals(second);
+    return first.equals(second);
 }
