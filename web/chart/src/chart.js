@@ -260,7 +260,6 @@ class PriceAxisViewRenderer {
                 yBottom: yBottomBitmap,
                 totalWidth: totalWidthBitmap,
                 totalHeight: totalHeightBitmap,
-                // TODO: it is better to have different horizontal and vertical radii
                 radius: 2 * horizontalPixelRatio,
                 horzBorder: horzBorderBitmap,
                 xOutside: xOutsideBitmap,
@@ -350,9 +349,6 @@ class PriceAxisView {
 
     renderer(priceScale) {
         this._updateRendererDataIfNeeded();
-        // force update tickVisible state from price scale options
-        // because we don't have and we can't have price axis in other methods
-        // (like paneRenderer or any other who call _updateRendererDataIfNeeded)
         this._axisRendererData.tickVisible = this._axisRendererData.tickVisible && priceScale.options().ticksVisible;
         this._paneRendererData.tickVisible = this._paneRendererData.tickVisible && priceScale.options().ticksVisible;
         this._axisRenderer.setData(this._axisRendererData, this._commonRendererData);
@@ -608,10 +604,8 @@ class Crosshair extends DataSource {
                 const coordinate = rawCoordinateProvider();
                 const rawPrice = rawPriceProvider();
                 if (priceScale === ensureNotNull(this._pane).defaultPriceScale()) {
-                    // price must be defined
                     return {price: rawPrice, coordinate: coordinate};
                 } else {
-                    // always convert from coordinate
                     const firstValue = ensureNotNull(priceScale.firstValue());
                     const price = priceScale.coordinateToPrice(coordinate, firstValue);
                     return {price: price, coordinate: coordinate};
@@ -631,7 +625,6 @@ class Crosshair extends DataSource {
                 };
             };
         };
-        // for current position always return both price and coordinate
         this._currentPosPriceProvider = valuePriceProvider(() => this._price, () => this._y);
         const currentPosTimeProvider = valueTimeProvider(() => this._index, () => this.appliedX());
         this._timeAxisView = new CrosshairTimeAxisView(this, model, currentPosTimeProvider);
@@ -827,11 +820,6 @@ class PaneRendererLine extends PaneRendererLineBase {
     }
 }
 
-/**
- * Binary function that accepts two arguments (the first of the type of array elements, and the second is always val), and returns a value convertible to bool.
- * The value returned indicates whether the first argument is considered to go before the second.
- * The function shall not modify any of its arguments.
- */
 function boundCompare(lower, arr, value, compare, start = 0, to = arr.length) {
     let count = to - start;
     while (0 < count) {
@@ -989,7 +977,6 @@ function optimalCandlestickWidth(barSpacing, pixelRatio) {
     if (barSpacing >= barSpacingSpecialCaseFrom && barSpacing <= barSpacingSpecialCaseTo) {
         return Math.floor(barSpacingSpecialCaseCoeff * pixelRatio);
     }
-    // coeff should be 1 on small barspacing and go to 0.8 while groing bar spacing
     const barSpacingReducingCoeff = 0.2;
     const coeff = 1 - barSpacingReducingCoeff * Math.atan(Math.max(barSpacingSpecialCaseTo, barSpacing) - barSpacingSpecialCaseTo) / (Math.PI * 0.5);
     const res = Math.floor(barSpacing * coeff * pixelRatio);
@@ -1480,47 +1467,6 @@ export class SeriesHorizontalBaseLinePaneView extends SeriesHorizontalLinePaneVi
     }
 }
 
-class SeriesLastPriceAnimationRenderer extends BitmapCoordinatesPaneRenderer {
-    constructor() {
-        super(...arguments);
-        this._data = null;
-    }
-
-    setData(data) {
-        this._data = data;
-    }
-
-    data() {
-        return this._data;
-    }
-
-    _drawImpl({context: ctx, horizontalPixelRatio, verticalPixelRatio}) {
-        const data = this._data;
-        if (data === null) {
-            return;
-        }
-        const tickWidth = Math.max(1, Math.floor(horizontalPixelRatio));
-        const correction = (tickWidth % 2) / 2;
-        const centerX = Math.round(data.center.x * horizontalPixelRatio) + correction; // correct x coordinate only
-        const centerY = data.center.y * verticalPixelRatio;
-        ctx.fillStyle = data.seriesLineColor;
-        ctx.beginPath();
-        // TODO: it is better to have different horizontal and vertical radii
-        const centerPointRadius = Math.max(2, data.seriesLineWidth * 1.5) * horizontalPixelRatio;
-        ctx.arc(centerX, centerY, centerPointRadius, 0, 2 * Math.PI, false);
-        ctx.fill();
-        ctx.fillStyle = data.fillColor;
-        ctx.beginPath();
-        ctx.arc(centerX, centerY, data.radius * horizontalPixelRatio, 0, 2 * Math.PI, false);
-        ctx.fill();
-        ctx.lineWidth = tickWidth;
-        ctx.strokeStyle = data.strokeColor;
-        ctx.beginPath();
-        ctx.arc(centerX, centerY, data.radius * horizontalPixelRatio + tickWidth / 2, 0, 2 * Math.PI, false);
-        ctx.stroke();
-    }
-}
-
 const animationStagesData = [
     {
         start: 0,
@@ -1579,120 +1525,6 @@ function animationData(durationSinceStart, lineColor) {
         strokeColor: color(lineColor, subStage, currentStageData.startStrokeAlpha, currentStageData.endStrokeAlpha),
         radius: radius(subStage, currentStageData.startRadius, currentStageData.endRadius),
     };
-}
-
-export class SeriesLastPriceAnimationPaneView {
-    constructor(series) {
-        this._renderer = new SeriesLastPriceAnimationRenderer();
-        this._invalidated = true;
-        this._stageInvalidated = true;
-        this._startTime = performance.now();
-        this._endTime = this._startTime - 1;
-        this._series = series;
-    }
-
-    onDataCleared() {
-        this._endTime = this._startTime - 1;
-        this.update();
-    }
-
-    onNewRealtimeDataReceived() {
-        this.update();
-        if (this._series.options().lastPriceAnimation === 2 /* LastPriceAnimationMode.OnDataUpdate */) {
-            const now = performance.now();
-            const timeToAnimationEnd = this._endTime - now;
-            if (timeToAnimationEnd > 0) {
-                if (timeToAnimationEnd < 2600 /* Constants.AnimationPeriod */ / 4) {
-                    this._endTime += 2600 /* Constants.AnimationPeriod */;
-                }
-                return;
-            }
-            this._startTime = now;
-            this._endTime = now + 2600 /* Constants.AnimationPeriod */;
-        }
-    }
-
-    update() {
-        this._invalidated = true;
-    }
-
-    invalidateStage() {
-        this._stageInvalidated = true;
-    }
-
-    visible() {
-        // center point is always visible if lastPriceAnimation is not LastPriceAnimationMode.Disabled
-        return this._series.options().lastPriceAnimation !== 0 /* LastPriceAnimationMode.Disabled */;
-    }
-
-    animationActive() {
-        switch (this._series.options().lastPriceAnimation) {
-            case 0 /* LastPriceAnimationMode.Disabled */
-            :
-                return false;
-            case 1 /* LastPriceAnimationMode.Continuous */
-            :
-                return true;
-            case 2 /* LastPriceAnimationMode.OnDataUpdate */
-            :
-                return performance.now() <= this._endTime;
-        }
-    }
-
-    renderer() {
-        if (this._invalidated) {
-            this._updateImpl();
-            this._invalidated = false;
-            this._stageInvalidated = false;
-        } else if (this._stageInvalidated) {
-            this._updateRendererDataStage();
-            this._stageInvalidated = false;
-        }
-        return this._renderer;
-    }
-
-    _updateImpl() {
-        this._renderer.setData(null);
-        const timeScale = this._series.model().timeScale();
-        const visibleRange = timeScale.visibleStrictRange();
-        const firstValue = this._series.firstValue();
-        if (visibleRange === null || firstValue === null) {
-            return;
-        }
-        const lastValue = this._series.lastValueData(true);
-        if (lastValue.noData || !visibleRange.contains(lastValue.index)) {
-            return;
-        }
-        const lastValuePoint = {
-            x: timeScale.indexToCoordinate(lastValue.index),
-            y: this._series.priceScale().priceToCoordinate(lastValue.price, firstValue.value),
-        };
-        const seriesLineColor = lastValue.color;
-        const seriesLineWidth = this._series.options().lineWidth;
-        const data = animationData(this._duration(), seriesLineColor);
-        this._renderer.setData({
-            seriesLineColor: seriesLineColor,
-            seriesLineWidth: seriesLineWidth,
-            fillColor: data.fillColor,
-            strokeColor: data.strokeColor,
-            radius: data.radius,
-            center: lastValuePoint,
-        });
-    }
-
-    _updateRendererDataStage() {
-        const rendererData = this._renderer.data();
-        if (rendererData !== null) {
-            const data = animationData(this._duration(), rendererData.seriesLineColor);
-            rendererData.fillColor = data.fillColor;
-            rendererData.strokeColor = data.strokeColor;
-            rendererData.radius = data.radius;
-        }
-    }
-
-    _duration() {
-        return this.animationActive() ? performance.now() - this._startTime : 2600 /* Constants.AnimationPeriod */ - 1;
-    }
 }
 
 class SeriesPriceLinePaneView extends SeriesHorizontalLinePaneView {
@@ -2643,7 +2475,6 @@ class Series extends PriceDataSource {
         this._priceLineView = new SeriesPriceLinePaneView(this);
         this._customPriceLines = [];
         this._baseHorizontalLineView = new SeriesHorizontalBaseLinePaneView(this);
-        this._lastPriceAnimationPaneView = null;
         this._barColorerCache = null;
         this._animationTimeoutId = null;
         this._primitives = [];
@@ -2652,9 +2483,6 @@ class Series extends PriceDataSource {
         const priceAxisView = new SeriesPriceAxisView(this);
         this._priceAxisViews = [priceAxisView];
         this._panePriceAxisView = new PanePriceAxisView(priceAxisView, this, model);
-        if (seriesType === 'Area' || seriesType === 'Line' || seriesType === 'Baseline') {
-            this._lastPriceAnimationPaneView = new SeriesLastPriceAnimationPaneView(this);
-        }
         this._recreateFormatter();
         this._recreatePaneViews();
     }
@@ -2754,13 +2582,6 @@ class Series extends PriceDataSource {
     setData(data, updateInfo) {
         this._data.setData(data);
         this._paneView.update('data');
-        if (this._lastPriceAnimationPaneView !== null) {
-            if (updateInfo && updateInfo.lastBarUpdatedOrNewBarsAddedToTheRight) {
-                this._lastPriceAnimationPaneView.onNewRealtimeDataReceived();
-            } else if (data.length === 0) {
-                this._lastPriceAnimationPaneView.onDataCleared();
-            }
-        }
         const sourcePane = this.model().paneForSource(this);
         this.model().recalculatePane(sourcePane);
         this.model().updateSource(this);
@@ -2799,18 +2620,6 @@ class Series extends PriceDataSource {
     topPaneViews(pane) {
         const res = [];
         extractPrimitivePaneViews(this._primitives, primitivePaneViewsExtractor, 'top', res);
-        const animationPaneView = this._lastPriceAnimationPaneView;
-        if (animationPaneView === null || !animationPaneView.visible()) {
-            return res;
-        }
-        if (this._animationTimeoutId === null && animationPaneView.animationActive()) {
-            this._animationTimeoutId = setTimeout(() => {
-                this._animationTimeoutId = null;
-                this.model().cursorUpdate();
-            }, 0);
-        }
-        animationPaneView.invalidateStage();
-        res.push(animationPaneView);
         return res;
     }
 
@@ -2903,7 +2712,7 @@ class Series extends PriceDataSource {
         }
         this._priceLineView.update();
         this._baseHorizontalLineView.update();
-        (_a = this._lastPriceAnimationPaneView) === null || _a === void 0 ? void 0 : _a.update();
+        (_a = null) === null || _a === void 0 ? void 0 : _a.update();
         this._primitives.forEach((wrapper) => wrapper.updateAllViews());
     }
 
@@ -7962,7 +7771,6 @@ class PriceAxisWidget {
                 }
             });
         };
-        // crosshair individually
         updateForSources(orderedSources);
         views.forEach((view) => view.setFixedCoordinate(view.coordinate()));
         const options = this._priceScale.options();
@@ -9010,7 +8818,6 @@ class TimeAxisWidget {
     }
 
     update() {
-        // this call has side-effect - it regenerates marks on the time scale
         this._chart.model().timeScale().marks();
     }
 
@@ -9029,9 +8836,6 @@ class TimeAxisWidget {
                 });
                 this._drawTickMarks(target);
                 this._drawAdditionalSources(target, sourcePaneViews);
-                // atm we don't have sources to be drawn on time axis except crosshair which is rendered on top level canvas
-                // so let's don't call this code at all for now
-                // this._drawLabels(this._chart.model().dataSources(), target);
             }
             if (this._leftStub !== null) {
                 this._leftStub.paint(type);
@@ -10713,7 +10517,6 @@ class ChartApi {
             crosshairMarkerBorderColor: '',
             crosshairMarkerBorderWidth: 2,
             crosshairMarkerBackgroundColor: '',
-            lastPriceAnimation: 0 /* LastPriceAnimationMode.Disabled */,
         }, options);
     }
 
