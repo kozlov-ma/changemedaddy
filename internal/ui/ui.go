@@ -1,8 +1,6 @@
 package ui
 
 import (
-	"changemedaddy/internal/pkg/assert"
-	"fmt"
 	"html/template"
 	"io"
 
@@ -10,13 +8,6 @@ import (
 	"github.com/greatcloak/decimal"
 	"github.com/labstack/echo/v4"
 )
-
-func mustTemplate(s string) template.Template {
-	t, err := template.New("").Funcs(sprig.FuncMap()).Parse(s)
-	assert.That(err == nil, fmt.Sprintf("couldn't parse template %q: %v", s, err))
-
-	return *t
-}
 
 func withSign(d decimal.Decimal) string {
 	if d.GreaterThanOrEqual(decimal.Zero) {
@@ -31,8 +22,13 @@ type templateRenderer struct {
 }
 
 func NewRenderer() *templateRenderer {
+	funcs := template.FuncMap{
+		"IdeaCard": IdeaCard,
+		"Position": Position,
+	}
+
 	return &templateRenderer{
-		templates: template.Must(template.New("").Funcs(sprig.FuncMap()).ParseGlob("web/template/*.html")),
+		templates: template.Must(template.New("").Funcs(sprig.FuncMap()).Funcs(funcs).ParseGlob("web/template/*.html")),
 	}
 }
 

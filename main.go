@@ -3,7 +3,7 @@ package main
 import (
 	"changemedaddy/internal/aggregate/idea"
 	"changemedaddy/internal/api"
-	"changemedaddy/internal/domain/position"
+	"changemedaddy/internal/repository/analystrepo"
 	"changemedaddy/internal/repository/idearepo"
 	"changemedaddy/internal/repository/positionrepo"
 	"changemedaddy/internal/service/market"
@@ -17,26 +17,16 @@ func main() {
 	ideaRepo := idearepo.NewInMem()
 	mp := market.NewFakeService()
 
-	p, err := position.New(context.Background(), mp, posRepo, position.CreationOptions{
-		Ticker:      "MGNT",
-		Type:        position.Long,
-		TargetPrice: "11000",
-		Deadline:    "31.05.2024",
-	})
-
-	if err != nil {
-		panic(err)
-	}
-
-	_, err = idea.New(context.Background(), ideaRepo, idea.CreationOptions{
-		Name:        "MgntToTheMoon",
-		AuthorName:  "Михаил Козлов",
-		SourceLink:  "https://en.uncyclopedia.co",
-		PositionIDs: []int{p.ID},
+	_, err := idea.New(context.Background(), ideaRepo, idea.CreationOptions{
+		Name:       "MgntToTheMoon",
+		AuthorName: "Михаил Козлов",
+		SourceLink: "https://en.uncyclopedia.co",
 	})
 	if err != nil {
 		panic(err)
 	}
+
+	ar := analystrepo.NewInmem()
 
 	handler := slog.NewJSONHandler(os.Stdout, &slog.HandlerOptions{
 		AddSource: true,
@@ -44,6 +34,6 @@ func main() {
 	})
 	log := slog.New(handler)
 
-	err = api.NewHandler(posRepo, ideaRepo, mp, log).MustEcho().Start(":8080")
+	err = api.NewHandler(posRepo, ideaRepo, mp, ar, log).MustEcho().Start(":8080")
 	panic(err)
 }

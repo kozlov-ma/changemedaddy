@@ -12,13 +12,14 @@ import (
 )
 
 type Idea struct {
-	ID         int    `bson:"_id"`
-	Name       string `bson:"name"`
-	Slug       string `bson:"slug"`
-	AuthorName string `bson:"author_name"`
-	SourceLink string `bson:"source_link"`
-	// Author      *analyst.Analyst
-	PositionIDs []int `bson:"position_ids"`
+	ID          int    `bson:"_id"`
+	Name        string `bson:"name"`
+	Slug        string `bson:"slug"`
+	AuthorID    int    `bson:"author_id"`
+	AuthorName  string `bson:"author_name"`
+	AuthorSlug  string `bson:"author_slug"`
+	SourceLink  string `bson:"source_link"`
+	PositionIDs []int  `bson:"position_ids"`
 }
 
 // ideaSaver saves Idea s.
@@ -33,22 +34,21 @@ func (i *Idea) Save(ctx context.Context, is ideaSaver) error {
 }
 
 type CreationOptions struct {
-	Name        string
-	AuthorName  string
-	SourceLink  string
-	PositionIDs []int
+	Name       string
+	AuthorName string
+	AuthorID   int
+	SourceLink string
 }
 
 func New(ctx context.Context, is ideaSaver, opt CreationOptions) (*Idea, error) {
 	assert.That(len(opt.Name) > 0, "empty idea name in trusted data")
-	assert.That(len(opt.PositionIDs) > 0, "no positions in trusted IdeaOptions data")
 
 	i := &Idea{
-		Name:        opt.Name,
-		Slug:        slug.Make(opt.Name),
-		AuthorName:  opt.AuthorName,
-		SourceLink:  opt.SourceLink,
-		PositionIDs: opt.PositionIDs,
+		Name:       opt.Name,
+		Slug:       slug.Make(opt.Name),
+		AuthorID:   opt.AuthorID,
+		AuthorName: opt.AuthorName,
+		SourceLink: opt.SourceLink,
 	}
 
 	err := i.Save(ctx, is)

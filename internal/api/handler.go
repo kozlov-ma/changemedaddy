@@ -1,6 +1,7 @@
 package api
 
 import (
+	"changemedaddy/internal/aggregate/analyst"
 	"changemedaddy/internal/aggregate/idea"
 	"changemedaddy/internal/domain/instrument"
 	"changemedaddy/internal/domain/position"
@@ -24,11 +25,19 @@ type (
 		Save(ctx context.Context, i *idea.Idea) error
 		Update(ctx context.Context, i *idea.Idea) error
 		Find(ctx context.Context, id int) (*idea.Idea, error)
+		FindByAnalystID(ctx context.Context, id int) ([]*idea.Idea, error)
+		FindBySlug(ctx context.Context, analystID int, slug string) (*idea.Idea, error)
 	}
 
 	marketProvider interface {
 		Find(ctx context.Context, ticker string) (*instrument.Instrument, error)
 		Price(ctx context.Context, i *instrument.Instrument) (decimal.Decimal, error)
+	}
+
+	analystRepo interface {
+		Save(ctx context.Context, a *analyst.Analyst) error
+		Find(ctx context.Context, id int) (*analyst.Analyst, error)
+		FindBySlug(ctx context.Context, slug string) (*analyst.Analyst, error)
 	}
 )
 
@@ -36,6 +45,7 @@ type handler struct {
 	pos positionRepo
 	mp  marketProvider
 	ir  ideaRepo
+	ar  analystRepo
 	log *slog.Logger
 }
 
@@ -52,16 +62,25 @@ func (h *handler) MustEcho() *echo.Echo {
 
 	e.GET("/position/:positionID", h.getPosition)
 
+	e.GET("/register", h.register) // >>>>>> TODO >>>> add auth here
+
+	ae := e.Group("/analyst", h.analystMiddleware)
+	ae.POST("/", h.newAnalyst) // >>>>>> TODO >>>> limit this somehow
+	ae.GET("/id/:analystID", h.getAnalyst)
+	ae.GET("/:analystSlug", h.getAnalyst)
+	ae.GET("/:analystSlug/idea/:ideaSlug", h.getIdea, h.ideaMiddleware)
+
 	e.GET("/empty", func(c echo.Context) error { return c.NoContent(200) })
 
 	return e
 }
 
-func NewHandler(pr positionRepo, ir ideaRepo, mp marketProvider, log *slog.Logger) *handler {
+func NewHandler(pr positionRepo, ir ideaRepo, mp marketProvider, ar analystRepo, log *slog.Logger) *handler {
 	return &handler{
 		pos: pr,
 		mp:  mp,
 		ir:  ir,
+		ar:  ar,
 		log: log,
 	}
 }

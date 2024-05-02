@@ -1,0 +1,35 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>{{ .Name }}</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/htmx.org@1.9.12"></script>
+  </head>
+
+  <body>
+    <div>
+      <h2 class="text-3xl font-bold mt-2 mb-8">{{ .Name }}</h2>
+    </div>
+
+    <div>
+      {{ range $i := .Ideas }}
+      <div>{{ template "idea_card.html" $i | IdeaCard}}</div>
+      {{ end }}
+
+      <div
+        class="create-buttons w-full px-4 sm:px-6 lg:px-8 mt-8 flex justify-between"
+      >
+        <button
+          hx-get="/analyst/{{ .Slug }}/new_idea"
+          hx-swap="beforebegin"
+          hx-target=".create-buttons"
+          class="inline-flex items-center justify-center whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 h-10 px-4 py-2"
+        >
+          Создать Новую Идею
+        </button>
+      </div>
+    </div>
+  </body>
+</html>
