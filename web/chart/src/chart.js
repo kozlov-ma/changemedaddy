@@ -1,4 +1,5 @@
 import {
+    areRangesEqual,
     assert,
     clamp,
     clone,
@@ -16,7 +17,6 @@ import {
     min,
     notNull,
     undefinedIfNull,
-    areRangesEqual,
 } from './utils'
 import {
     applyAlpha,
@@ -312,17 +312,14 @@ class PriceAxisView {
     }
 
     text() {
-        this._updateRendererDataIfNeeded();
         return this._axisRendererData.text;
     }
 
     coordinate() {
-        this._updateRendererDataIfNeeded();
         return this._commonRendererData.coordinate;
     }
 
     update() {
-        this._invalidated = true;
     }
 
     height(rendererOptions, useSecondLine = false) {
@@ -720,8 +717,6 @@ class Crosshair extends DataSource {
 
     updateAllViews() {
         this._paneView.update();
-        this._priceAxisViews.forEach((value) => value.update());
-        this._timeAxisView.update();
     }
 
     _priceScaleByPane(pane) {
@@ -896,7 +891,7 @@ class SeriesPaneViewBase {
     }
 
     _updateOptions() {
-        this._items = this._items.map((item) => (Object.assign(Object.assign({}, item), this._series.barColorer().barStyle(item.time))));
+        // this._items = this._items.map((item) => (Object.assign(Object.assign({}, item), this._series.barColorer().barStyle(item.time))));
     }
 
     _clearVisibleRange() {
@@ -907,10 +902,6 @@ class SeriesPaneViewBase {
         if (this._dataInvalidated) {
             this._fillRawPoints();
             this._dataInvalidated = false;
-        }
-        if (this._optionsInvalidated) {
-            this._updateOptions();
-            this._optionsInvalidated = false;
         }
         if (this._invalidated) {
             this._makeValidImpl();
@@ -2242,41 +2233,10 @@ class SeriesPrimitiveRendererWrapper {
     }
 
     draw(target, isHovered, hitTestData) {
-        this._baseRenderer.draw(target);
+        // this._baseRenderer.draw(target);
     }
 
     drawBackground(target, isHovered, hitTestData) {
-        var _a, _b;
-        (_b = (_a = this._baseRenderer).drawBackground) === null || _b === void 0 ? void 0 : _b.call(_a, target);
-    }
-}
-
-class SeriesPrimitivePaneViewWrapper {
-    constructor(paneView) {
-        this._cache = null;
-        this._paneView = paneView;
-    }
-
-    renderer() {
-        var _a;
-        const baseRenderer = this._paneView.renderer();
-        if (baseRenderer === null) {
-            return null;
-        }
-        if (((_a = this._cache) === null || _a === void 0 ? void 0 : _a.base) === baseRenderer) {
-            return this._cache.wrapper;
-        }
-        const wrapper = new SeriesPrimitiveRendererWrapper(baseRenderer);
-        this._cache = {
-            base: baseRenderer,
-            wrapper: wrapper,
-        };
-        return wrapper;
-    }
-
-    zOrder() {
-        var _a, _b, _c;
-        return (_c = (_b = (_a = this._paneView).zOrder) === null || _b === void 0 ? void 0 : _b.call(_a)) !== null && _c !== void 0 ? _c : 'normal';
     }
 }
 
@@ -2304,128 +2264,6 @@ class SeriesPrimitiveTimeAxisViewWrapper {
         this._renderer.setData(Object.assign({width: this._timeScale.width()}, getAxisViewData(this._baseView)));
         return this._renderer;
     }
-}
-
-class SeriesPrimitivePriceAxisViewWrapper extends PriceAxisView {
-    constructor(baseView, priceScale) {
-        super();
-        this._baseView = baseView;
-        this._priceScale = priceScale;
-    }
-}
-
-class SeriesPrimitiveWrapper {
-    constructor(primitive, series) {
-        this._paneViewsCache = null;
-        this._timeAxisViewsCache = null;
-        this._priceAxisViewsCache = null;
-        this._priceAxisPaneViewsCache = null;
-        this._timeAxisPaneViewsCache = null;
-        this._primitive = primitive;
-        this._series = series;
-    }
-
-    primitive() {
-        return this._primitive;
-    }
-
-    updateAllViews() {
-        var _a, _b;
-        (_b = (_a = this._primitive).updateAllViews) === null || _b === void 0 ? void 0 : _b.call(_a);
-    }
-
-    paneViews() {
-        var _a, _b, _c, _d;
-        const base = (_c = (_b = (_a = this._primitive).paneViews) === null || _b === void 0 ? void 0 : _b.call(_a)) !== null && _c !== void 0 ? _c : [];
-        if (((_d = this._paneViewsCache) === null || _d === void 0 ? void 0 : _d.base) === base) {
-            return this._paneViewsCache.wrapper;
-        }
-        const wrapper = base.map((pw) => new SeriesPrimitivePaneViewWrapper(pw));
-        this._paneViewsCache = {
-            base: base,
-            wrapper: wrapper,
-        };
-        return wrapper;
-    }
-
-    timeAxisViews() {
-        var _a, _b, _c, _d;
-        const base = (_c = (_b = (_a = this._primitive).timeAxisViews) === null || _b === void 0 ? void 0 : _b.call(_a)) !== null && _c !== void 0 ? _c : [];
-        if (((_d = this._timeAxisViewsCache) === null || _d === void 0 ? void 0 : _d.base) === base) {
-            return this._timeAxisViewsCache.wrapper;
-        }
-        const timeScale = this._series.model().timeScale();
-        const wrapper = base.map((aw) => new SeriesPrimitiveTimeAxisViewWrapper(aw, timeScale));
-        this._timeAxisViewsCache = {
-            base: base,
-            wrapper: wrapper,
-        };
-        return wrapper;
-    }
-
-    priceAxisViews() {
-        var _a, _b, _c, _d;
-        const base = (_c = (_b = (_a = this._primitive).priceAxisViews) === null || _b === void 0 ? void 0 : _b.call(_a)) !== null && _c !== void 0 ? _c : [];
-        if (((_d = this._priceAxisViewsCache) === null || _d === void 0 ? void 0 : _d.base) === base) {
-            return this._priceAxisViewsCache.wrapper;
-        }
-        const priceScale = this._series.priceScale();
-        const wrapper = base.map((aw) => new SeriesPrimitivePriceAxisViewWrapper(aw, priceScale));
-        this._priceAxisViewsCache = {
-            base: base,
-            wrapper: wrapper,
-        };
-        return wrapper;
-    }
-
-    priceAxisPaneViews() {
-        var _a, _b, _c, _d;
-        const base = (_c = (_b = (_a = this._primitive).priceAxisPaneViews) === null || _b === void 0 ? void 0 : _b.call(_a)) !== null && _c !== void 0 ? _c : [];
-        if (((_d = this._priceAxisPaneViewsCache) === null || _d === void 0 ? void 0 : _d.base) === base) {
-            return this._priceAxisPaneViewsCache.wrapper;
-        }
-        const wrapper = base.map((pw) => new SeriesPrimitivePaneViewWrapper(pw));
-        this._priceAxisPaneViewsCache = {
-            base: base,
-            wrapper: wrapper,
-        };
-        return wrapper;
-    }
-
-    timeAxisPaneViews() {
-        var _a, _b, _c, _d;
-        const base = (_c = (_b = (_a = this._primitive).timeAxisPaneViews) === null || _b === void 0 ? void 0 : _b.call(_a)) !== null && _c !== void 0 ? _c : [];
-        if (((_d = this._timeAxisPaneViewsCache) === null || _d === void 0 ? void 0 : _d.base) === base) {
-            return this._timeAxisPaneViewsCache.wrapper;
-        }
-        const wrapper = base.map((pw) => new SeriesPrimitivePaneViewWrapper(pw));
-        this._timeAxisPaneViewsCache = {
-            base: base,
-            wrapper: wrapper,
-        };
-        return wrapper;
-    }
-
-    autoscaleInfo(startTimePoint, endTimePoint) {
-        var _a, _b, _c;
-        return ((_c = (_b = (_a = this._primitive).autoscaleInfo) === null || _b === void 0 ? void 0 : _b.call(_a, startTimePoint, endTimePoint)) !== null && _c !== void 0 ? _c : null);
-    }
-
-    hitTest(x, y) {
-        var _a, _b, _c;
-        return (_c = (_b = (_a = this._primitive).hitTest) === null || _b === void 0 ? void 0 : _b.call(_a, x, y)) !== null && _c !== void 0 ? _c : null;
-    }
-}
-
-function extractPrimitivePaneViews(primitives, extractor, zOrder, destination) {
-    primitives.forEach((wrapper) => {
-        extractor(wrapper).forEach((paneView) => {
-            if (paneView.zOrder() !== zOrder) {
-                return;
-            }
-            destination.push(paneView);
-        });
-    });
 }
 
 function primitivePaneViewsExtractor(wrapper) {
@@ -2538,10 +2376,6 @@ class Series extends PriceDataSource {
         merge(this._options, options);
         if (options.priceFormat !== undefined) {
             this._recreateFormatter();
-            // updated formatter might affect rendering  and as a consequence of this the width of price axis might be changed
-            // thus we need to force the chart to do a full update to apply changes correctly
-            // full update is quite heavy operation in terms of performance
-            // but updating formatter looks like quite rare so forcing a full update here shouldn't affect the performance a lot
             this.model().fullUpdate();
         }
         this.model().updateSource(this);
@@ -2589,9 +2423,7 @@ class Series extends PriceDataSource {
     }
 
     topPaneViews(pane) {
-        const res = [];
-        extractPrimitivePaneViews(this._primitives, primitivePaneViewsExtractor, 'top', res);
-        return res;
+        return [];
     }
 
     paneViews() {
@@ -2599,7 +2431,6 @@ class Series extends PriceDataSource {
         res.push(this._paneView, this._priceLineView);
         const priceLineViews = this._customPriceLines.map((line) => line.paneView());
         res.push(...priceLineViews);
-        extractPrimitivePaneViews(this._primitives, primitivePaneViewsExtractor, 'normal', res);
         return res;
     }
 
@@ -2856,9 +2687,7 @@ class Series extends PriceDataSource {
     }
 
     _extractPaneViews(extractor, zOrder) {
-        const res = [];
-        extractPrimitivePaneViews(this._primitives, extractor, zOrder, res);
-        return res;
+        return [];
     }
 }
 
@@ -3542,7 +3371,6 @@ class PriceScale {
     }
 
     firstValue() {
-        // TODO: cache the result
         let result = null;
         for (const source of this._dataSources) {
             const firstValue = source.firstValue();
@@ -4124,7 +3952,6 @@ class Pane {
 
     scalePriceTo(priceScale, x) {
         priceScale.scaleTo(x);
-        // TODO: be more smart and update only affected views
         this.updateAllSources();
     }
 
@@ -4513,8 +4340,6 @@ class TimeScale {
             this._model.setRightOffset(options.rightOffset);
         }
         if (options.minBarSpacing !== undefined) {
-            // yes, if we apply min bar spacing then we need to correct bar spacing
-            // the easiest way is to apply it once again
             this._model.setBarSpacing((_a = options.barSpacing) !== null && _a !== void 0 ? _a : this._barSpacing);
         }
         this._invalidateTickMarks();
@@ -4552,7 +4377,6 @@ class TimeScale {
         return this._width === 0 || this._points.length === 0 || this._baseIndexOrNull === null;
     }
 
-    // strict range: integer indices of the bars in the visible range rounded in more wide direction
     visibleStrictRange() {
         this._updateVisibleRange();
         return this._visibleRange.strictRange();
@@ -4581,10 +4405,6 @@ class TimeScale {
         if (this._width === newWidth) {
             return;
         }
-        // when we change the width and we need to correct visible range because of fixing left edge
-        // we need to check the previous visible range rather than the new one
-        // because it might be updated by changing width, bar spacing, etc
-        // but we need to try to keep the same range
         const previousVisibleRange = this.visibleLogicalRange();
         const oldWidth = this._width;
         this._width = newWidth;
@@ -4592,20 +4412,13 @@ class TimeScale {
         if (this._options.lockVisibleTimeRangeOnResize && oldWidth !== 0) {
             this._barSpacing = this._barSpacing * newWidth / oldWidth;
         }
-        // if timescale is scrolled to the end of data and we have fixed right edge
-        // keep left edge instead of right
-        // we need it to avoid "shaking" if the last bar visibility affects time scale width
         if (this._options.fixLeftEdge) {
-            // note that logical left range means not the middle of a bar (it's the left border)
             if (previousVisibleRange !== null && previousVisibleRange.left() <= 0) {
                 const delta = oldWidth - newWidth;
-                // reduce  _rightOffset means move right
-                // we could move more than required - this will be fixed by _correctOffset()
                 this._rightOffset -= Math.round(delta / this._barSpacing) + 1;
                 this._visibleRangeInvalidated = true;
             }
         }
-        // updating bar spacing should be first because right offset depends on it
         this._correctBarSpacing();
         this._correctOffset();
     }
@@ -4648,7 +4461,6 @@ class TimeScale {
 
     setBarSpacing(newBarSpacing) {
         this._setBarSpacing(newBarSpacing);
-        // do not allow scroll out of visible bars
         this._correctOffset();
         this._model.recalculateAllPanes();
         this._model.lightUpdate();
@@ -4849,10 +4661,6 @@ class TimeScale {
     }
 
     baseIndex() {
-        // null is used to known that baseIndex is not set yet
-        // so in methods which should known whether it is set or not
-        // we should check field `_baseIndexOrNull` instead of getter `baseIndex()`
-        // see minRightOffset for example
         return this._baseIndexOrNull || 0;
     }
 
@@ -5448,9 +5256,6 @@ class ChartModel {
         const newFirstTime = this._timeScale.indexToTime(0);
         const currentBaseIndex = this._timeScale.baseIndex();
         const visibleBars = this._timeScale.visibleStrictRange();
-        // if time scale cannot return current visible bars range (e.g. time scale has zero-width)
-        // then we do not need to update right offset to shift visible bars range to have the same right offset as we have before new bar
-        // (and actually we cannot)
         if (visibleBars !== null && oldFirstTime !== null && newFirstTime !== null) {
             const isLastSeriesBarVisible = visibleBars.contains(currentBaseIndex);
             const isLeftBarShiftToLeft = this._horzScaleBehavior.key(oldFirstTime) > this._horzScaleBehavior.key(newFirstTime);
@@ -5508,7 +5313,6 @@ class ChartModel {
         const series = this._createSeries(options, seriesType, pane);
         this._serieses.push(series);
         if (this._serieses.length === 1) {
-            // call fullUpdate to recalculate chart's parts geometry
             this.fullUpdate();
         } else {
             this.lightUpdate();
@@ -5519,15 +5323,11 @@ class ChartModel {
     moveSeriesToScale(series, targetScaleId) {
         const pane = ensureNotNull(this.paneForSource(series));
         pane.removeDataSource(series);
-        // check if targetScaleId exists
         const target = this.findPriceScale(targetScaleId);
         if (target === null) {
-            // new scale on the same pane
             const zOrder = series.zorder();
             pane.addDataSource(series, targetScaleId, zOrder);
         } else {
-            // if move to the new scale of the same pane, keep zorder
-            // if move to new pane
             const zOrder = (target.pane === pane) ? series.zorder() : undefined;
             target.pane.addDataSource(series, targetScaleId, zOrder);
         }
@@ -7720,7 +7520,6 @@ class PriceAxisWidget {
                 }
             });
         }
-        // we can use any, but let's use the first source as "center" one
         const centerSource = this._priceScale.dataSources()[0];
         const priceScale = this._priceScale;
         const updateForSources = (sources) => {
@@ -7834,8 +7633,6 @@ class PriceAxisWidget {
 
     _onMarksChanged() {
         const width = this.optimalWidth();
-        // avoid price scale is shrunk
-        // using < instead !== to avoid infinite changes
         if (this._prevOptimalWidth < width) {
             this._pane.chart().model().fullUpdate();
         }
@@ -9052,8 +8849,6 @@ class ChartWidget {
             width = width || containerRect.width;
             height = height || containerRect.height;
         }
-        // BEWARE: resize must be called BEFORE _syncGuiWithModel (in constructor only)
-        // or after but with adjustSize to properly update time scale
         this.resize(width, height);
         this._syncGuiWithModel();
         container.appendChild(this._element);
