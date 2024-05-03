@@ -18,9 +18,7 @@ import {
     notNull,
 } from './utils'
 import {
-    clearRect,
-    clearRectWithGradient,
-    gradientColorAtPercent,
+    clearRect, clearRectWithGradient, gradientColorAtPercent,
 } from './paint'
 import {
     DateFormatter,
@@ -30,7 +28,8 @@ import {
     PriceFormatter,
     VolumeFormatter,
     makeFont,
-    TextWidthCache, defaultFontFamily
+    TextWidthCache,
+    defaultFontFamily
 } from './formatter.js'
 import {
     CrosshairPaneView,
@@ -118,8 +117,7 @@ class Crosshair extends DataSource {
                     return null;
                 }
                 return {
-                    time: time,
-                    coordinate: coordinate,
+                    time: time, coordinate: coordinate,
                 };
             };
         };
@@ -251,8 +249,7 @@ class Crosshair extends DataSource {
             this._price = NaN;
             this._y = NaN;
         }
-        return (oldX !== this._x || oldY !== this._y || oldIndex !== this._index ||
-            oldPrice !== this._price || oldPane !== this._pane);
+        return (oldX !== this._x || oldY !== this._y || oldIndex !== this._index || oldPrice !== this._price || oldPane !== this._pane);
     }
 
     _setIndexToLastSeriesBarIndex() {
@@ -298,9 +295,7 @@ class Delegate {
 
     subscribe(callback, linkedObject, singleshot) {
         const listener = {
-            callback: callback,
-            linkedObject: linkedObject,
-            singleshot: singleshot === true,
+            callback: callback, linkedObject: linkedObject, singleshot: singleshot === true,
         };
         this._listeners.push(listener);
     }
@@ -362,8 +357,7 @@ class InvalidateMask {
             };
         }
         return {
-            level: Math.max(this._globalLevel, paneInvalidation.level),
-            autoScale: paneInvalidation.autoScale,
+            level: Math.max(this._globalLevel, paneInvalidation.level), autoScale: paneInvalidation.autoScale,
         };
     }
 
@@ -375,16 +369,14 @@ class InvalidateMask {
     applyRange(range) {
         this.stopTimeScaleAnimation();
         this._timeScaleInvalidations = [{
-            type: 1 /* TimeScaleInvalidationType.ApplyRange */,
-            value: range
+            type: 1 /* TimeScaleInvalidationType.ApplyRange */, value: range
         }];
     }
 
     setTimeScaleAnimation(animation) {
         this._removeTimeScaleAnimation();
         this._timeScaleInvalidations.push({
-            type: 5 /* TimeScaleInvalidationType.Animation */,
-            value: animation
+            type: 5 /* TimeScaleInvalidationType.Animation */, value: animation
         });
     }
 
@@ -401,16 +393,14 @@ class InvalidateMask {
     setBarSpacing(barSpacing) {
         this.stopTimeScaleAnimation();
         this._timeScaleInvalidations.push({
-            type: 2 /* TimeScaleInvalidationType.ApplyBarSpacing */,
-            value: barSpacing
+            type: 2 /* TimeScaleInvalidationType.ApplyBarSpacing */, value: barSpacing
         });
     }
 
     setRightOffset(offset) {
         this.stopTimeScaleAnimation();
         this._timeScaleInvalidations.push({
-            type: 3 /* TimeScaleInvalidationType.ApplyRightOffset */,
-            value: offset
+            type: 3 /* TimeScaleInvalidationType.ApplyRightOffset */, value: offset
         });
     }
 
@@ -525,7 +515,7 @@ class PriceRangeImpl {
         return new PriceRangeImpl(computeFiniteResult(Math.min, this.minValue(), anotherRange.minValue(), -Infinity), computeFiniteResult(Math.max, this.maxValue(), anotherRange.maxValue(), Infinity));
     }
 
-    scaleAroundCenter(coeff) { // don't delete
+    scaleAroundCenter(coeff) {
         if (!isNumber(coeff)) {
             return;
         }
@@ -542,7 +532,7 @@ class PriceRangeImpl {
         this._minValue = center + minDelta;
     }
 
-    shift(delta) { // don't delete
+    shift(delta) {
         if (!isNumber(delta)) {
             return;
         }
@@ -552,8 +542,7 @@ class PriceRangeImpl {
 
     toRaw() {
         return {
-            minValue: this._minValue,
-            maxValue: this._maxValue,
+            minValue: this._minValue, maxValue: this._maxValue,
         };
     }
 
@@ -581,8 +570,7 @@ class AutoscaleInfoImpl {
             return null;
         }
         return {
-            priceRange: this._priceRange.toRaw(),
-            margins: this._margins || undefined,
+            priceRange: this._priceRange.toRaw(), margins: this._margins || undefined,
         };
     }
 
@@ -618,8 +606,7 @@ const barStyleFnMap = {
             barBorderColor: (_b = currentBar.borderColor) !== null && _b !== void 0 ? _b : (isUp ? borderUpColor : borderDownColor),
             barWickColor: (_c = currentBar.wickColor) !== null && _c !== void 0 ? _c : (isUp ? wickUpColor : wickDownColor),
         };
-    },
-    Line: (findBar, lineStyle, barIndex, precomputedBars) => {
+    }, Line: (findBar, lineStyle, barIndex, precomputedBars) => {
         var _a, _b;
         const currentBar = ensureNotNull(findBar(barIndex, precomputedBars));
         return {
@@ -647,6 +634,7 @@ class SeriesBarColorer {
 }
 
 const CHUNK_SIZE = 30;
+
 class PlotList {
     constructor() {
         this._items = [];
@@ -793,7 +781,7 @@ class PlotList {
             return null;
         }
         let result = null;
-        // assume that bar indexes only increase
+
         const firstIndex = ensureNotNull(this.firstIndex());
         const lastIndex = ensureNotNull(this.lastIndex());
         const s = Math.max(start, firstIndex);
@@ -802,7 +790,7 @@ class PlotList {
         const cachedHigh = Math.max(cachedLow, Math.floor(e / CHUNK_SIZE) * CHUNK_SIZE);
         {
             const startIndex = this._lowerbound(s);
-            const endIndex = this._upperbound(Math.min(e, cachedLow, end)); // non-inclusive end
+            const endIndex = this._upperbound(Math.min(e, cachedLow, end));
             const plotMinMax = this._plotMinMax(startIndex, endIndex, plotIndex);
             result = mergeMinMax(result, plotMinMax);
         }
@@ -837,7 +825,7 @@ function mergeMinMax(first, second) {
         if (second === null) {
             return first;
         } else {
-            // merge MinMax values
+
             const min = Math.min(first.min, second.min);
             const max = Math.max(first.max, second.max);
             return {min: min, max: max};
@@ -900,8 +888,8 @@ class Series extends PriceDataSource {
         if (visibleBars === null || firstValue === null) {
             return noDataRes;
         }
-        // find range of bars inside range
-        // TODO: make it more optimal
+
+
         let bar;
         let lastIndex;
         if (globalLast) {
@@ -953,7 +941,7 @@ class Series extends PriceDataSource {
     applyOptions(options) {
         const targetPriceScaleId = options.priceScaleId;
         if (targetPriceScaleId !== undefined && targetPriceScaleId !== this._options.priceScaleId) {
-            // series cannot do it itself, ask model
+
             this.model().moveSeriesToScale(this, targetPriceScaleId);
         }
         merge(this._options, options);
@@ -962,7 +950,7 @@ class Series extends PriceDataSource {
             this.model().fullUpdate();
         }
         this.model().updateSource(this);
-        // that's why we need to update crosshair as well
+
         this.model().updateCrosshair();
         this._paneView.update('options');
     }
@@ -987,8 +975,7 @@ class Series extends PriceDataSource {
             return null;
         }
         return {
-            value: bar.value[3 /* PlotRowValueIndex.Close */],
-            timePoint: bar.time,
+            value: bar.value[3 /* PlotRowValueIndex.Close */], timePoint: bar.time,
         };
     }
 
@@ -1036,10 +1023,7 @@ class Series extends PriceDataSource {
     }
 
     labelPaneViews(pane) {
-        return [
-            this._panePriceAxisView,
-            ...this._customPriceLines.map((line) => line.labelPaneView()),
-        ];
+        return [this._panePriceAxisView, ...this._customPriceLines.map((line) => line.labelPaneView()),];
     }
 
     priceAxisViews(pane, priceScale) {
@@ -1118,9 +1102,7 @@ class Series extends PriceDataSource {
         if (!isInteger(startTimePoint) || !isInteger(endTimePoint) || this._data.isEmpty()) {
             return null;
         }
-        const plots = this._seriesType === 'Line'
-            ? [3 /* PlotRowValueIndex.Close */]
-            : [2 /* PlotRowValueIndex.Low */, 1 /* PlotRowValueIndex.High */];
+        const plots = this._seriesType === 'Line' ? [3 /* PlotRowValueIndex.Close */] : [2 /* PlotRowValueIndex.Low */, 1 /* PlotRowValueIndex.High */];
         const barsMinMax = this._data.minMaxOnRangeCached(startTimePoint, endTimePoint, plots);
         let range = barsMinMax !== null ? new PriceRangeImpl(barsMinMax.min, barsMinMax.max) : null;
         this._primitives.forEach((primitive) => {
@@ -1188,8 +1170,7 @@ class Grid {
 }
 
 const defLogFormula = {
-    logicalOffset: 4,
-    coordOffset: 0.0001,
+    logicalOffset: 4, coordOffset: 0.0001,
 };
 
 function fromPercent(value, baseValue) {
@@ -1286,8 +1267,7 @@ function logFormulaForPriceRange(range) {
     const logicalOffset = defLogFormula.logicalOffset + digits;
     const coordOffset = 1 / Math.pow(10, logicalOffset);
     return {
-        logicalOffset: logicalOffset,
-        coordOffset: coordOffset,
+        logicalOffset: logicalOffset, coordOffset: coordOffset,
     };
 }
 
@@ -1325,10 +1305,10 @@ class PriceTickSpanCalculator {
         let resultTickSpan = Math.pow(10, Math.max(0, Math.ceil(Math.log10(high - low))));
         let index = 0;
         let c = this._integralDividers[0];
-        // eslint-disable-next-line no-constant-condition
+
         while (true) {
-            // the second part is actual for small with very small values like 1e-10
-            // greaterOrEqual fails for such values
+
+
             const resultTickSpanLargerMinMovement = greaterOrEqual(resultTickSpan, minMovement, 1e-14 /* Constants.TickSpanEpsilon */) && resultTickSpan > (minMovement + 1e-14 /* Constants.TickSpanEpsilon */);
             const resultTickSpanLargerMaxTickSpan = greaterOrEqual(resultTickSpan, maxTickSpan * c, 1e-14 /* Constants.TickSpanEpsilon */);
             const resultTickSpanLarger1 = greaterOrEqual(resultTickSpan, 1, 1e-14 /* Constants.TickSpanEpsilon */);
@@ -1408,12 +1388,12 @@ class PriceTickMarkBuilder {
         let targetIndex = 0;
         for (let logical = high - mod; logical > low; logical -= span) {
             const coord = this._logicalToCoordinateFunc(logical, firstValue, true);
-            // check if there is place for it
-            // this is required for log scale
+
+
             if (prevCoord !== null && Math.abs(coord - prevCoord) < this._tickMarkHeight()) {
                 continue;
             }
-            // check if a tick mark is partially visible and skip it if entireTextOnly is true
+
             if (coord < minCoord || coord > maxCoord) {
                 continue;
             }
@@ -1422,14 +1402,13 @@ class PriceTickMarkBuilder {
                 this._marks[targetIndex].label = priceScale.formatLogical(logical);
             } else {
                 this._marks.push({
-                    coord: coord,
-                    label: priceScale.formatLogical(logical),
+                    coord: coord, label: priceScale.formatLogical(logical),
                 });
             }
             targetIndex++;
             prevCoord = coord;
             if (priceScale.isLog()) {
-                // recalc span
+
                 span = this.tickSpan(logical * sign, low);
             }
         }
@@ -1532,13 +1511,11 @@ class PriceScale {
 
     mode() {
         return {
-            autoScale: this._options.autoScale,
-            isInverted: this._options.invertScale,
-            mode: this._options.mode,
+            autoScale: this._options.autoScale, isInverted: this._options.invertScale, mode: this._options.mode,
         };
     }
 
-    // eslint-disable-next-line complexity
+
     setMode(newMode) {
         const oldMode = this.mode();
         let priceRange = null;
@@ -1550,10 +1527,10 @@ class PriceScale {
             if (newMode.mode === 2 /* PriceScaleMode.Percentage */ || newMode.mode === 3 /* PriceScaleMode.IndexedTo100 */) {
                 this._options.autoScale = true;
             }
-            // TODO: Remove after making rebuildTickMarks lazy
+
             this._invalidatedForRange.isValid = false;
         }
-        // define which scale converted from
+
         if (oldMode.mode === 1 /* PriceScaleMode.Logarithmic */ && newMode.mode !== oldMode.mode) {
             if (canConvertPriceRangeFromLog(this._priceRange, this._logFormula)) {
                 priceRange = convertPriceRangeFromLog(this._priceRange, this._logFormula);
@@ -1564,7 +1541,7 @@ class PriceScale {
                 this._options.autoScale = true;
             }
         }
-        // define which scale converted to
+
         if (newMode.mode === 1 /* PriceScaleMode.Logarithmic */ && newMode.mode !== oldMode.mode) {
             priceRange = convertPriceRangeToLog(this._priceRange, this._logFormula);
             if (priceRange !== null) {
@@ -1622,9 +1599,7 @@ class PriceScale {
 
     setPriceRange(newPriceRange, isForceSetValue) {
         const oldPriceRange = this._priceRange;
-        if (!isForceSetValue &&
-            !(oldPriceRange === null && newPriceRange !== null) &&
-            (oldPriceRange === null || oldPriceRange.equals(newPriceRange))) {
+        if (!isForceSetValue && !(oldPriceRange === null && newPriceRange !== null) && (oldPriceRange === null || oldPriceRange.equals(newPriceRange))) {
             return;
         }
         this._marksCache = null;
@@ -1770,7 +1745,7 @@ class PriceScale {
             this.setMode({
                 autoScale: true,
             });
-            // if no sources on price scale let's clear price range cache as well as enabling auto scale
+
             this.setPriceRange(null);
         }
         this.updateFormatter();
@@ -1797,13 +1772,8 @@ class PriceScale {
 
     marks() {
         const firstValueIsNull = this.firstValue() === null;
-        // do not recalculate marks if firstValueIsNull is true because in this case we'll always get empty result
-        // this could happen in case when a series had some data and then you set empty data to it (in a simplified case)
-        // we could display an empty price scale, but this is not good from UX
-        // so in this case we need to keep an previous marks to display them on the scale
-        // as one of possible examples for this situation could be the following:
-        // let's say you have a study/indicator attached to a price scale and then you decide to stop it, i.e. remove its data because of its visibility
-        // a user will see the previous marks on the scale until you turn on your study back or remove it from the chart completely
+
+
         if (this._marksCache !== null && (firstValueIsNull || this._marksCache.firstValueIsNull === firstValueIsNull)) {
             return this._marksCache.marks;
         }
@@ -1828,7 +1798,7 @@ class PriceScale {
         if (this.isEmpty()) {
             return;
         }
-        // invert x
+
         this._scaleStartPoint = this._height - x;
         this._priceRangeSnapshot = ensureNotNull(this.priceRange()).clone();
     }
@@ -1843,7 +1813,7 @@ class PriceScale {
         this.setMode({
             autoScale: false,
         });
-        // invert x
+
         x = this._height - x;
         if (x < 0) {
             x = 0;
@@ -1955,8 +1925,7 @@ class PriceScale {
 
     recalculatePriceRange(visibleBars) {
         this._invalidatedForRange = {
-            visibleBars: visibleBars,
-            isValid: false,
+            visibleBars: visibleBars, isValid: false,
         };
     }
 
@@ -1980,7 +1949,7 @@ class PriceScale {
             base = 100;
         } else {
             if (formatterSource !== null) {
-                // user
+
                 this._formatter = formatterSource.formatter();
             }
         }
@@ -2000,15 +1969,11 @@ class PriceScale {
     }
 
     _topMarginPx() {
-        return this.isInverted()
-            ? this._options.scaleMargins.bottom * this.height() + this._marginBelow
-            : this._options.scaleMargins.top * this.height() + this._marginAbove;
+        return this.isInverted() ? this._options.scaleMargins.bottom * this.height() + this._marginBelow : this._options.scaleMargins.top * this.height() + this._marginAbove;
     }
 
     _bottomMarginPx() {
-        return this.isInverted()
-            ? this._options.scaleMargins.top * this.height() + this._marginAbove
-            : this._options.scaleMargins.bottom * this.height() + this._marginBelow;
+        return this.isInverted() ? this._options.scaleMargins.top * this.height() + this._marginAbove : this._options.scaleMargins.bottom * this.height() + this._marginBelow;
     }
 
     _makeSureItIsValid() {
@@ -2029,8 +1994,7 @@ class PriceScale {
         }
         logical = this.isLog() && logical ? toLog(logical, this._logFormula) : logical;
         const range = ensureNotNull(this.priceRange());
-        const invCoordinate = this._bottomMarginPx() +
-            (this.internalHeight() - 1) * (logical - range.minValue()) / range.length();
+        const invCoordinate = this._bottomMarginPx() + (this.internalHeight() - 1) * (logical - range.minValue()) / range.length();
         return this.invertedCoordinate(invCoordinate);
     }
 
@@ -2041,8 +2005,7 @@ class PriceScale {
         }
         const invCoordinate = this.invertedCoordinate(coordinate);
         const range = ensureNotNull(this.priceRange());
-        const logical = range.minValue() + range.length() *
-            ((invCoordinate - this._bottomMarginPx()) / (this.internalHeight() - 1));
+        const logical = range.minValue() + range.length() * ((invCoordinate - this._bottomMarginPx()) / (this.internalHeight() - 1));
         return this.isLog() ? fromLog(logical, this._logFormula) : logical;
     }
 
@@ -2051,7 +2014,7 @@ class PriceScale {
         this._markBuilder.rebuildTickMarks();
     }
 
-    // eslint-disable-next-line complexity
+
     _recalculatePriceRangeImpl() {
         const visibleBars = this._invalidatedForRange.visibleBars;
         if (visibleBars === null) {
@@ -2107,12 +2070,12 @@ class PriceScale {
             this._invalidateInternalHeightCache();
         }
         if (priceRange !== null) {
-            // keep current range is new is empty
+
             if (priceRange.minValue() === priceRange.maxValue()) {
                 const formatterSource = this._formatterSource();
                 const minMove = formatterSource === null || this.isPercentage() || this.isIndexedTo100() ? 1 : formatterSource.minMove();
-                // if price range is degenerated to 1 point let's extend it by 10 min move values
-                // to avoid incorrect range and empty (blank) scale (in case of min tick much greater than 1)
+
+
                 const extendValue = 5 * minMove;
                 if (this.isLog()) {
                     priceRange = convertPriceRangeFromLog(priceRange, this._logFormula);
@@ -2136,7 +2099,7 @@ class PriceScale {
             }
             this.setPriceRange(priceRange);
         } else {
-            // reset empty to default
+
             if (this._priceRange === null) {
                 this.setPriceRange(new PriceRangeImpl(-0.5, 0.5));
                 this._logFormula = logFormulaForPriceRange(null);
@@ -2278,7 +2241,7 @@ class Pane {
         this._height = height;
         this._leftPriceScale.setHeight(height);
         this._rightPriceScale.setHeight(height);
-        // process overlays
+
         this._dataSources.forEach((ds) => {
             if (this.isOverlay(ds)) {
                 const priceScale = ds.priceScale();
@@ -2323,8 +2286,8 @@ class Pane {
             }
         }
         const priceScale = source.priceScale();
-        // if source has owner, it returns owner's price scale
-        // and it does not have source in their list
+
+
         if (priceScale && priceScale.dataSources().indexOf(source) >= 0) {
             priceScale.removeDataSource(source);
         }
@@ -2459,7 +2422,7 @@ class Pane {
     }
 
     _recalculatePriceScaleImpl(priceScale) {
-        // TODO: can use this checks
+
         const sourceForAutoScale = priceScale.sourcesForAutoScale();
         if (sourceForAutoScale && sourceForAutoScale.length > 0 && !this._timeScale.isEmpty()) {
             const visibleBars = this._timeScale.visibleStrictRange();
@@ -2514,7 +2477,7 @@ class Pane {
         if (oldMode.mode === newMode.mode) {
             return;
         }
-        // momentary auto scale if we toggle percentage/indexedTo100 mode
+
         this._recalculatePriceScaleImpl(priceScale);
     }
 
@@ -2577,10 +2540,7 @@ class TickMarks {
                 this._marksByWeight.set(point.timeWeight, marksForWeight);
             }
             marksForWeight.push({
-                index: index,
-                time: point.time,
-                weight: point.timeWeight,
-                originalTime: point.originalTime,
+                index: index, time: point.time, weight: point.timeWeight, originalTime: point.originalTime,
             });
         }
     }
@@ -2589,8 +2549,7 @@ class TickMarks {
         const maxIndexesPerMark = Math.ceil(maxWidth / spacing);
         if (this._cache === null || this._cache.maxIndexesPerMark !== maxIndexesPerMark) {
             this._cache = {
-                marks: this._buildMarksImpl(maxIndexesPerMark),
-                maxIndexesPerMark: maxIndexesPerMark,
+                marks: this._buildMarksImpl(maxIndexesPerMark), maxIndexesPerMark: maxIndexesPerMark,
             };
         }
         return this._cache.marks;
@@ -2620,7 +2579,7 @@ class TickMarks {
             if (!this._marksByWeight.get(weight)) {
                 continue;
             }
-            // Built tickMarks are now prevMarks, and marks it as new array
+
             const prevMarks = marks;
             marks = [];
             const prevMarksLength = prevMarks.length;
@@ -2632,8 +2591,8 @@ class TickMarks {
             for (let i = 0; i < currentWeightLength; i++) {
                 const mark = currentWeight[i];
                 const currentIndex = mark.index;
-                // Determine indexes with which current index will be compared
-                // All marks to the right is moved to new array
+
+
                 while (prevMarksPointer < prevMarksLength) {
                     const lastMark = prevMarks[prevMarksPointer];
                     const lastIndex = lastMark.index;
@@ -2648,7 +2607,7 @@ class TickMarks {
                     }
                 }
                 if (rightIndex - currentIndex >= maxIndexesPerMark && currentIndex - leftIndex >= maxIndexesPerMark) {
-                    // TickMark fits. Place it into new array
+
                     marks.push(mark);
                     leftIndex = currentIndex;
                 } else {
@@ -2657,7 +2616,7 @@ class TickMarks {
                     }
                 }
             }
-            // Place all unused tickMarks into new array;
+
             for (; prevMarksPointer < prevMarksLength; prevMarksPointer++) {
                 marks.push(prevMarks[prevMarksPointer]);
             }
@@ -2738,8 +2697,8 @@ class TimeScale {
         if (this._options.fixRightEdge) {
             this._doFixRightEdge();
         }
-        // note that bar spacing should be applied before right offset
-        // because right offset depends on bar spacing
+
+
         if (options.barSpacing !== undefined) {
             this._model.setBarSpacing(options.barSpacing);
         }
@@ -2766,11 +2725,11 @@ class TimeScale {
 
     timeToIndex(time, findNearest) {
         if (this._points.length < 1) {
-            // no time points available
+
             return null;
         }
         if (this._horzScaleBehavior.key(time) > this._horzScaleBehavior.key(this._points[this._points.length - 1].time)) {
-            // special case
+
             return findNearest ? this._points.length - 1 : null;
         }
         const index = lowerBound(this._points, this._horzScaleBehavior.key(time), (a, b) => this._horzScaleBehavior.key(a.time) < b);
@@ -2894,9 +2853,9 @@ class TimeScale {
         const firstBar = Math.max(visibleBars.left(), visibleBars.left() - indexPerLabel);
         const lastBar = Math.max(visibleBars.right(), visibleBars.right() - indexPerLabel);
         const items = this._tickMarks.build(spacing, maxLabelWidth);
-        // according to indexPerLabel value this value means "earliest index which _might be_ used as the second label on time scale"
+
         const earliestIndexOfSecondLabel = this._firstIndex() + indexPerLabel;
-        // according to indexPerLabel value this value means "earliest index which _might be_ used as the second last label on time scale"
+
         const indexOfSecondLastLabel = this._lastIndex() - indexPerLabel;
         const isAllScalingAndScrollingDisabled = this._isAllScalingAndScrollingDisabled();
         const isLeftEdgeFixed = this._options.fixLeftEdge || isAllScalingAndScrollingDisabled;
@@ -2922,11 +2881,11 @@ class TimeScale {
                 this._labels.push(label);
             }
             if (this._barSpacing > (maxLabelWidth / 2) && !isAllScalingAndScrollingDisabled) {
-                // if there is enough space then let's show all tick marks as usual
+
                 label.needAlignCoordinate = false;
             } else {
-                // if a user is able to scroll after a tick mark then show it as usual, otherwise the coordinate might be aligned
-                // if the index is for the second (last) label or later (earlier) then most likely this label might be displayed without correcting the coordinate
+
+
                 label.needAlignCoordinate = (isLeftEdgeFixed && tm.index <= earliestIndexOfSecondLabel) || (isRightEdgeFixed && tm.index >= indexOfSecondLastLabel);
             }
             targetIndex++;
@@ -2961,10 +2920,10 @@ class TimeScale {
         const floatIndexAtZoomPoint = this._coordinateToFloatIndex(zoomPoint);
         const barSpacing = this.barSpacing();
         const newBarSpacing = barSpacing + scale * (barSpacing / 10);
-        // zoom in/out bar spacing
+
         this.setBarSpacing(newBarSpacing);
         if (!this._options.rightBarStaysOnScroll) {
-            // and then correct right offset to move index under zoomPoint back to its coordinate
+
             this.setRightOffset(this.rightOffset() + (floatIndexAtZoomPoint - this._coordinateToFloatIndex(zoomPoint)));
         }
     }
@@ -3021,7 +2980,7 @@ class TimeScale {
         const shiftInLogical = (this._scrollStartPoint - x) / this.barSpacing();
         this._rightOffset = ensureNotNull(this._commonTransitionStartState).rightOffset + shiftInLogical;
         this._visibleRangeInvalidated = true;
-        // do not allow scroll out of visible bars
+
         this._correctOffset();
     }
 
@@ -3047,8 +3006,7 @@ class TimeScale {
         const source = this._rightOffset;
         const animationStart = performance.now();
         this._model.setTimeScaleAnimation({
-            finished: (time) => (time - animationStart) / animationDuration >= 1,
-            getPosition: (time) => {
+            finished: (time) => (time - animationStart) / animationDuration >= 1, getPosition: (time) => {
                 const animationProgress = (time - animationStart) / animationDuration;
                 const finishAnimation = animationProgress >= 1;
                 return finishAnimation ? offset : source + (offset - source) * animationProgress;
@@ -3104,13 +3062,7 @@ class TimeScale {
 
     _isAllScalingAndScrollingDisabled() {
         const {handleScroll, handleScale} = this._model.options();
-        return !handleScroll.horzTouchDrag
-            && !handleScroll.mouseWheel
-            && !handleScroll.pressedMouseMove
-            && !handleScroll.vertTouchDrag
-            && !handleScale.axisPressedMouseMove.time
-            && !handleScale.mouseWheel
-            && !handleScale.pinch;
+        return !handleScroll.horzTouchDrag && !handleScroll.mouseWheel && !handleScroll.pressedMouseMove && !handleScroll.vertTouchDrag && !handleScale.axisPressedMouseMove.time && !handleScale.mouseWheel && !handleScale.pinch;
     }
 
     _firstIndex() {
@@ -3129,8 +3081,8 @@ class TimeScale {
         const deltaFromRight = this._rightOffsetForCoordinate(x);
         const baseIndex = this.baseIndex();
         const index = baseIndex + this._rightOffset - deltaFromRight;
-        // JavaScript uses very strange rounding
-        // we need rounding to avoid problems with calculation errors
+
+
         return Math.round(index * 1000000) / 1000000;
     }
 
@@ -3138,7 +3090,7 @@ class TimeScale {
         const oldBarSpacing = this._barSpacing;
         this._barSpacing = newBarSpacing;
         this._correctBarSpacing();
-        // this._barSpacing might be changed in _correctBarSpacing
+
         if (oldBarSpacing !== this._barSpacing) {
             this._visibleRangeInvalidated = true;
             this._resetTimeMarksCache();
@@ -3169,7 +3121,7 @@ class TimeScale {
             this._visibleRangeInvalidated = true;
         }
         if (this._width !== 0) {
-            // make sure that this (1 / Constants.MinVisibleBarsCount) >= coeff in max bar spacing (it's 0.5 here)
+
             const maxBarSpacing = this._width * 0.5;
             if (this._barSpacing > maxBarSpacing) {
                 this._barSpacing = maxBarSpacing;
@@ -3204,22 +3156,17 @@ class TimeScale {
         if (firstIndex === null || baseIndex === null) {
             return null;
         }
-        const barsEstimation = this._options.fixLeftEdge
-            ? this._width / this._barSpacing
-            : Math.min(2 /* Constants.MinVisibleBarsCount */, this._points.length);
+        const barsEstimation = this._options.fixLeftEdge ? this._width / this._barSpacing : Math.min(2 /* Constants.MinVisibleBarsCount */, this._points.length);
         return firstIndex - baseIndex - 1 + barsEstimation;
     }
 
     _maxRightOffset() {
-        return this._options.fixRightEdge
-            ? 0
-            : (this._width / this._barSpacing) - Math.min(2 /* Constants.MinVisibleBarsCount */, this._points.length);
+        return this._options.fixRightEdge ? 0 : (this._width / this._barSpacing) - Math.min(2 /* Constants.MinVisibleBarsCount */, this._points.length);
     }
 
     _saveCommonTransitionsStartState() {
         this._commonTransitionStartState = {
-            barSpacing: this.barSpacing(),
-            rightOffset: this.rightOffset(),
+            barSpacing: this.barSpacing(), rightOffset: this.rightOffset(),
         };
     }
 
@@ -3386,8 +3333,7 @@ class ChartModel {
             const priceScale = pane.priceScaleById(priceScaleId);
             if (priceScale !== null) {
                 return {
-                    pane: pane,
-                    priceScale: priceScale,
+                    pane: pane, priceScale: priceScale,
                 };
             }
         }
@@ -3427,18 +3373,15 @@ class ChartModel {
         if (index !== undefined) {
             this._panes.splice(index, 0, pane);
         } else {
-            // adding to the end - common case
+
             this._panes.push(pane);
         }
         const actualIndex = (index === undefined) ? this._panes.length - 1 : index;
-        // we always do autoscaling on the creation
-        // if autoscale option is true, it is ok, just recalculate by invalidation mask
-        // if autoscale option is false, autoscale anyway on the first draw
-        // also there is a scenario when autoscale is true in constructor and false later on applyOptions
+
+
         const mask = InvalidateMask.full();
         mask.invalidatePane(actualIndex, {
-            level: 0 /* InvalidationLevel.None */,
-            autoScale: true,
+            level: 0 /* InvalidationLevel.None */, autoScale: true,
         });
         this._invalidate(mask);
         return pane;
@@ -3560,8 +3503,7 @@ class ChartModel {
         this.cursorUpdate();
         if (!skipEvent) {
             this._crosshairMoved.fire(this._crosshair.appliedIndex(), {
-                x,
-                y
+                x, y
             }, event);
         }
     }
@@ -3576,7 +3518,7 @@ class ChartModel {
     }
 
     updateCrosshair() {
-        // apply magnet
+
         const pane = this._crosshair.pane();
         if (pane !== null) {
             const x = this._crosshair.originCoordX();
@@ -3723,18 +3665,15 @@ class ChartModel {
         const bottomColor = this._backgroundBottomColor;
         const topColor = this._backgroundTopColor;
         if (bottomColor === topColor) {
-            // solid background
+
             return bottomColor;
         }
-        // gradient background
-        // percent should be from 0 to 100 (we're using only integer values to make cache more efficient)
+
+
         percent = Math.max(0, Math.min(100, Math.round(percent * 100)));
-        if (this._gradientColorsCache === null ||
-            this._gradientColorsCache.topColor !== topColor || this._gradientColorsCache.bottomColor !== bottomColor) {
+        if (this._gradientColorsCache === null || this._gradientColorsCache.topColor !== topColor || this._gradientColorsCache.bottomColor !== bottomColor) {
             this._gradientColorsCache = {
-                topColor: topColor,
-                bottomColor: bottomColor,
-                colors: new Map(),
+                topColor: topColor, bottomColor: bottomColor, colors: new Map(),
             };
         } else {
             const cachedValue = this._gradientColorsCache.colors.get(percent);
@@ -3777,7 +3716,7 @@ class ChartModel {
         const targetScaleId = this.defaultVisiblePriceScaleId();
         pane.addDataSource(series, targetScaleId);
         if (!isDefaultPriceScale(targetScaleId)) {
-            // let's apply that options again to apply margins
+
             series.applyOptions(options);
         }
         return series;
@@ -3786,9 +3725,7 @@ class ChartModel {
     _getBackgroundColor(side) {
         const layoutOptions = this._options.layout;
         if (layoutOptions.background.type === "gradient" /* ColorType.VerticalGradient */) {
-            return side === 0 /* BackgroundColorSide.Top */ ?
-                layoutOptions.background.topColor :
-                layoutOptions.background.bottomColor;
+            return side === 0 /* BackgroundColorSide.Top */ ? layoutOptions.background.topColor : layoutOptions.background.bottomColor;
         }
         return layoutOptions.background.color;
     }
@@ -3841,16 +3778,19 @@ function seconds(count) {
     return count * 1000;
 }
 
-const intradayWeightDivisors = [
-    {divisor: seconds(1), weight: 10 /* TickMarkWeight.Second */},
-    {divisor: minutes(1), weight: 20 /* TickMarkWeight.Minute1 */},
-    {divisor: minutes(5), weight: 21 /* TickMarkWeight.Minute5 */},
-    {divisor: minutes(30), weight: 22 /* TickMarkWeight.Minute30 */},
-    {divisor: hours(1), weight: 30 /* TickMarkWeight.Hour1 */},
-    {divisor: hours(3), weight: 31 /* TickMarkWeight.Hour3 */},
-    {divisor: hours(6), weight: 32 /* TickMarkWeight.Hour6 */},
-    {divisor: hours(12), weight: 33 /* TickMarkWeight.Hour12 */},
-];
+const intradayWeightDivisors = [{divisor: seconds(1), weight: 10 /* TickMarkWeight.Second */}, {
+    divisor: minutes(1),
+    weight: 20 /* TickMarkWeight.Minute1 */
+}, {divisor: minutes(5), weight: 21 /* TickMarkWeight.Minute5 */}, {
+    divisor: minutes(30),
+    weight: 22 /* TickMarkWeight.Minute30 */
+}, {divisor: hours(1), weight: 30 /* TickMarkWeight.Hour1 */}, {
+    divisor: hours(3),
+    weight: 31 /* TickMarkWeight.Hour3 */
+}, {divisor: hours(6), weight: 32 /* TickMarkWeight.Hour6 */}, {
+    divisor: hours(12),
+    weight: 33 /* TickMarkWeight.Hour12 */
+},];
 
 function weightByTime(currentDate, prevDate) {
     if (currentDate.getUTCFullYear() !== prevDate.getUTCFullYear()) {
@@ -3890,8 +3830,8 @@ function fillWeightsForPoints(sortedTimePoints, startIndex = 0) {
         prevDate = currentDate;
     }
     if (startIndex === 0 && sortedTimePoints.length > 1) {
-        // let's guess a weight for the first point
-        // let's say the previous point was average time back in the history
+
+
         const averageTimeDiff = Math.ceil(totalTimeDiff / (sortedTimePoints.length - 1));
         const approxPrevDate = new Date((cast(sortedTimePoints[0].time).timestamp - averageTimeDiff) * 1000);
         sortedTimePoints[0].timeWeight = weightByTime(new Date(cast(sortedTimePoints[0].time).timestamp * 1000), approxPrevDate);
@@ -3908,8 +3848,7 @@ function businessDayConverter(time) {
     }
     const date = new Date(Date.UTC(businessDay.year, businessDay.month - 1, businessDay.day, 0, 0, 0, 0));
     return {
-        timestamp: Math.round(date.getTime() / 1000),
-        businessDay: businessDay,
+        timestamp: Math.round(date.getTime() / 1000), businessDay: businessDay,
     };
 }
 
@@ -3946,12 +3885,8 @@ function convertTime(time) {
 
 function stringToBusinessDay(value) {
     {
-        // in some browsers (I look at your Chrome) the Date constructor may accept invalid date string
-        // but parses them in 'implementation specific' way
-        // for example 2019-1-1 isn't the same as 2019-01-01 (for Chrome both are 'valid' date strings)
-        // see https://bugs.chromium.org/p/chromium/issues/detail?id=968939
-        // so, we need to be sure that date has valid format to avoid strange behavior and hours of debugging
-        // but let's do this in development build only because of perf
+
+
         if (!validDateRegex.test(value)) {
             throw new Error(`Invalid date string=${value}, expected format=yyyy-mm-dd`);
         }
@@ -3961,9 +3896,7 @@ function stringToBusinessDay(value) {
         throw new Error(`Invalid date string=${value}, expected format=yyyy-mm-dd`);
     }
     return {
-        day: d.getUTCDate(),
-        month: d.getUTCMonth() + 1,
-        year: d.getUTCFullYear(),
+        day: d.getUTCDate(), month: d.getUTCMonth() + 1, year: d.getUTCFullYear(),
     };
 }
 
@@ -3973,9 +3906,7 @@ function weightToTickMarkType(weight, timeVisible, secondsVisible) {
         :
         case 10 /* TickMarkWeight.Second */
         :
-            return timeVisible
-                ? (secondsVisible ? 4 /* TickMarkType.TimeWithSeconds */ : 3 /* TickMarkType.Time */)
-                : 2 /* TickMarkType.DayOfMonth */;
+            return timeVisible ? (secondsVisible ? 4 /* TickMarkType.TimeWithSeconds */ : 3 /* TickMarkType.Time */) : 2 /* TickMarkType.DayOfMonth */;
         case 20 /* TickMarkWeight.Minute1 */
         :
         case 21 /* TickMarkWeight.Minute5 */
@@ -4018,7 +3949,7 @@ class HorzScaleBehaviorTime {
     }
 
     key(item) {
-        // eslint-disable-next-line no-restricted-syntax
+
         if (typeof item === 'object' && "timestamp" in item) {
             return item.timestamp;
         } else {
@@ -4058,8 +3989,8 @@ class HorzScaleBehaviorTime {
 
     maxTickMarkWeight(tickMarks) {
         let maxWeight = tickMarks.reduce(markWithGreaterWeight, tickMarks[0]).weight;
-        // special case: it looks strange if 15:00 is bold but 14:00 is not
-        // so if maxWeight > TickMarkWeight.Hour1 and < TickMarkWeight.Day reduce it to TickMarkWeight.Hour1
+
+
         if (maxWeight > 30 /* TickMarkWeight.Hour1 */ && maxWeight < 50 /* TickMarkWeight.Day */) {
             maxWeight = 30 /* TickMarkWeight.Hour1 */;
         }
@@ -4073,8 +4004,7 @@ class HorzScaleBehaviorTime {
     static applyDefaults(options) {
         const currentLocale = window.navigator.languages[0];
         const priceFormatter = Intl.NumberFormat(currentLocale, {
-            style: 'currency',
-            currency: 'RUB',
+            style: 'currency', currency: 'RUB',
         }).format;
         return merge({localization: {dateFormat: 'dd MMM \'yy', priceFormatter: priceFormatter}}, options);
     }
@@ -4089,14 +4019,12 @@ function size(_a) {
         throw new Error('Negative height is not allowed for Size');
     }
     return {
-        width: width,
-        height: height,
+        width: width, height: height,
     };
 }
 
 function equalSizes(first, second) {
-    return (first.width === second.width) &&
-        (first.height === second.height);
+    return (first.width === second.width) && (first.height === second.height);
 }
 
 const Observable = (function () {
@@ -4110,9 +4038,7 @@ const Observable = (function () {
     Object.defineProperty(Observable.prototype, "value", {
         get: function () {
             return this._window.devicePixelRatio;
-        },
-        enumerable: false,
-        configurable: true
+        }, enumerable: false, configurable: true
     });
     Observable.prototype.subscribe = function (next) {
         var _this = this;
@@ -4152,15 +4078,14 @@ const DevicePixelContentBoxBinding = (function () {
         this._canvasElementResizeObserver = null;
         this._canvasElement = canvasElement;
         this._canvasElementClientSize = size({
-            width: this._canvasElement.clientWidth,
-            height: this._canvasElement.clientHeight,
+            width: this._canvasElement.clientWidth, height: this._canvasElement.clientHeight,
         });
         this._transformBitmapSize = transformBitmapSize !== null && transformBitmapSize !== void 0 ? transformBitmapSize : (function (size) {
             return size;
         });
         this._allowResizeObserver = (_a = options === null || options === void 0 ? void 0 : options.allowResizeObserver) !== null && _a !== void 0 ? _a : true;
         this._chooseAndInitObserver();
-        // we MAY leave the constuctor without any bitmap size observation mechanics initialized
+
     }
 
     DevicePixelContentBoxBinding.prototype.dispose = function () {
@@ -4182,26 +4107,19 @@ const DevicePixelContentBoxBinding = (function () {
                 throw new Error('Object is disposed');
             }
             return this._canvasElement;
-        },
-        enumerable: false,
-        configurable: true
+        }, enumerable: false, configurable: true
     });
     Object.defineProperty(DevicePixelContentBoxBinding.prototype, "canvasElementClientSize", {
         get: function () {
             return this._canvasElementClientSize;
-        },
-        enumerable: false,
-        configurable: true
+        }, enumerable: false, configurable: true
     });
     Object.defineProperty(DevicePixelContentBoxBinding.prototype, "bitmapSize", {
         get: function () {
             return size({
-                width: this.canvasElement.width,
-                height: this.canvasElement.height,
+                width: this.canvasElement.width, height: this.canvasElement.height,
             });
-        },
-        enumerable: false,
-        configurable: true
+        }, enumerable: false, configurable: true
     });
 
     DevicePixelContentBoxBinding.prototype.resizeCanvasElement = function (clientSize) {
@@ -4213,9 +4131,7 @@ const DevicePixelContentBoxBinding = (function () {
     Object.defineProperty(DevicePixelContentBoxBinding.prototype, "suggestedBitmapSize", {
         get: function () {
             return this._suggestedBitmapSize;
-        },
-        enumerable: false,
-        configurable: true
+        }, enumerable: false, configurable: true
     });
     DevicePixelContentBoxBinding.prototype.subscribeSuggestedBitmapSizeChanged = function (listener) {
         this._suggestedBitmapSizeChangedListeners.push(listener);
@@ -4227,7 +4143,7 @@ const DevicePixelContentBoxBinding = (function () {
     };
     DevicePixelContentBoxBinding.prototype.applySuggestedBitmapSize = function () {
         if (this._suggestedBitmapSize === null) {
-            // nothing to apply
+
             return;
         }
         var oldSuggestedSize = this._suggestedBitmapSize;
@@ -4257,8 +4173,7 @@ const DevicePixelContentBoxBinding = (function () {
         if (oldSuggestedSize === null && newSuggestedSize === null) {
             return;
         }
-        if (oldSuggestedSize !== null && newSuggestedSize !== null
-            && equalSizes(oldSuggestedSize, newSuggestedSize)) {
+        if (oldSuggestedSize !== null && newSuggestedSize !== null && equalSizes(oldSuggestedSize, newSuggestedSize)) {
             return;
         }
         this._suggestedBitmapSize = newSuggestedSize;
@@ -4278,16 +4193,14 @@ const DevicePixelContentBoxBinding = (function () {
         }
         isDevicePixelContentBoxSupported()
             .then(function (isSupported) {
-                return isSupported ?
-                    _this._initResizeObserver() :
-                    _this._initDevicePixelRatioObservable();
+                return isSupported ? _this._initResizeObserver() : _this._initDevicePixelRatioObservable();
             });
     };
-    // devicePixelRatio approach
+
     DevicePixelContentBoxBinding.prototype._initDevicePixelRatioObservable = function () {
         var _this = this;
         if (this._canvasElement === null) {
-            // it looks like we are already dead
+
             return;
         }
         var win = canvasElementWindow(this._canvasElement);
@@ -4303,7 +4216,7 @@ const DevicePixelContentBoxBinding = (function () {
     DevicePixelContentBoxBinding.prototype._invalidateBitmapSize = function () {
         var _a, _b;
         if (this._canvasElement === null) {
-            // it looks like we are already dead
+
             return;
         }
         var win = canvasElementWindow(this._canvasElement);
@@ -4313,20 +4226,18 @@ const DevicePixelContentBoxBinding = (function () {
         var ratio = (_b = (_a = this._devicePixelRatioObservable) === null || _a === void 0 ? void 0 : _a.value) !== null && _b !== void 0 ? _b : win.devicePixelRatio;
         var canvasRects = this._canvasElement.getClientRects();
         var newSize =
-            // eslint-disable-next-line no-negated-condition
-            canvasRects[0] !== undefined ?
-                predictedBitmapSize(canvasRects[0], ratio) :
-                size({
-                    width: this._canvasElementClientSize.width * ratio,
-                    height: this._canvasElementClientSize.height * ratio,
-                });
+
+            canvasRects[0] !== undefined ? predictedBitmapSize(canvasRects[0], ratio) : size({
+                width: this._canvasElementClientSize.width * ratio,
+                height: this._canvasElementClientSize.height * ratio,
+            });
         this._suggestNewBitmapSize(newSize);
     };
-    // ResizeObserver approach
+
     DevicePixelContentBoxBinding.prototype._initResizeObserver = function () {
         var _this = this;
         if (this._canvasElement === null) {
-            // it looks like we are already dead
+
             return;
         }
         this._canvasElementResizeObserver = new ResizeObserver(function (entries) {
@@ -4338,8 +4249,7 @@ const DevicePixelContentBoxBinding = (function () {
             }
             var entrySize = entry.devicePixelContentBoxSize[0];
             var newSize = size({
-                width: entrySize.inlineSize,
-                height: entrySize.blockSize,
+                width: entrySize.inlineSize, height: entrySize.blockSize,
             });
             _this._suggestNewBitmapSize(newSize);
         });
@@ -4356,9 +4266,6 @@ function bindTo(canvasElement, target) {
 }
 
 function canvasElementWindow(canvasElement) {
-    // According to DOM Level 2 Core specification, ownerDocument should never be null for HTMLCanvasElement
-    // see https://www.w3.org/TR/2000/REC-DOM-Level-2-Core-20001113/core.html#node-ownerDoc
-    // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
     return canvasElement.ownerDocument.defaultView;
 }
 
@@ -4379,10 +4286,8 @@ function isDevicePixelContentBoxSupported() {
 
 function predictedBitmapSize(canvasRect, ratio) {
     return size({
-        width: Math.round(canvasRect.left * ratio + canvasRect.width * ratio) -
-            Math.round(canvasRect.left * ratio),
-        height: Math.round(canvasRect.top * ratio + canvasRect.height * ratio) -
-            Math.round(canvasRect.top * ratio),
+        width: Math.round(canvasRect.left * ratio + canvasRect.width * ratio) - Math.round(canvasRect.left * ratio),
+        height: Math.round(canvasRect.top * ratio + canvasRect.height * ratio) - Math.round(canvasRect.top * ratio),
     });
 }
 
@@ -4395,7 +4300,7 @@ var CanvasRenderingTarget2D = /** @class */ (function () {
             throw new TypeError('Rendering target could only be created on a media with positive width and height');
         }
         this._mediaSize = mediaSize;
-        // !Number.isInteger(bitmapSize.width) || !Number.isInteger(bitmapSize.height)
+
         if (bitmapSize.width === 0 || bitmapSize.height === 0) {
             throw new TypeError('Rendering target could only be created using a bitmap with positive integer width and height');
         }
@@ -4406,12 +4311,11 @@ var CanvasRenderingTarget2D = /** @class */ (function () {
     CanvasRenderingTarget2D.prototype.useMediaCoordinateSpace = function (f) {
         try {
             this._context.save();
-            // do not use resetTransform to support old versions of Edge
+
             this._context.setTransform(1, 0, 0, 1, 0, 0);
             this._context.scale(this._horizontalPixelRatio, this._verticalPixelRatio);
             return f({
-                context: this._context,
-                mediaSize: this._mediaSize,
+                context: this._context, mediaSize: this._mediaSize,
             });
         } finally {
             this._context.restore();
@@ -4420,7 +4324,7 @@ var CanvasRenderingTarget2D = /** @class */ (function () {
     CanvasRenderingTarget2D.prototype.useBitmapCoordinateSpace = function (f) {
         try {
             this._context.save();
-            // do not use resetTransform to support old versions of Edge
+
             this._context.setTransform(1, 0, 0, 1, 0, 0);
             return f({
                 context: this._context,
@@ -4436,16 +4340,12 @@ var CanvasRenderingTarget2D = /** @class */ (function () {
     Object.defineProperty(CanvasRenderingTarget2D.prototype, "_horizontalPixelRatio", {
         get: function () {
             return this._bitmapSize.width / this._mediaSize.width;
-        },
-        enumerable: false,
-        configurable: true
+        }, enumerable: false, configurable: true
     });
     Object.defineProperty(CanvasRenderingTarget2D.prototype, "_verticalPixelRatio", {
         get: function () {
             return this._bitmapSize.height / this._mediaSize.height;
-        },
-        enumerable: false,
-        configurable: true
+        }, enumerable: false, configurable: true
     });
     return CanvasRenderingTarget2D;
 }());
@@ -4469,15 +4369,6 @@ function tryCreateCanvasRenderingTarget2D(binding, contextOptions) {
     return new CanvasRenderingTarget2D(context, mediaSize, bitmapSize);
 }
 
-/**
- * When you're trying to use the library in server-side context (for instance in SSR)
- * you don't have some browser-specific variables like navigator or window
- * and if the library will use them on the top level of the library
- * the import will fail due ReferenceError
- * thus, this allows use the navigator on the top level and being imported in server-side context as well
- * See issue #446
- */
-    // eslint-disable-next-line @typescript-eslint/tslint/config
 const isRunningOnClientSide = typeof window !== 'undefined';
 
 function isFF() {
@@ -4491,7 +4382,7 @@ function isIOS() {
     if (!isRunningOnClientSide) {
         return false;
     }
-    // eslint-disable-next-line deprecation/deprecation
+
     return /iPhone|iPad|iPod/.test(window.navigator.platform);
 }
 
@@ -4502,20 +4393,17 @@ function isChrome() {
     return window.chrome !== undefined;
 }
 
-// Determine whether the browser is running on windows.
 function isWindows() {
     var _a;
     if (!isRunningOnClientSide) {
         return false;
     }
-    // more accurate if available
     if ((_a = navigator === null || navigator === void 0 ? void 0 : navigator.userAgentData) === null || _a === void 0 ? void 0 : _a.platform) {
         return navigator.userAgentData.platform === 'Windows';
     }
     return navigator.userAgent.toLowerCase().indexOf('win') >= 0;
 }
 
-// Determine whether the browser is Chromium based.
 function isChromiumBased() {
     if (!isRunningOnClientSide) {
         return false;
@@ -4528,9 +4416,6 @@ function isChromiumBased() {
     });
 }
 
-// on Hi-DPI CSS size * Device Pixel Ratio should be integer to avoid smoothing
-// For chart widget we decrease the size because we must be inside container.
-// For time axis this is not important, since it just affects space for pane widgets
 function suggestChartSize(originalSize) {
     const integerWidth = Math.floor(originalSize.width);
     const integerHeight = Math.floor(originalSize.height);
@@ -4599,18 +4484,14 @@ class KineticAnimation {
         if (time - this._position1.time > 50 /* Constants.MaxStartDelay */) {
             return;
         }
-        // To calculate all the rest parameters we should calculate the speed af first
         let totalDistance = 0;
         const speed1 = speedPxPerMSec(this._position1, this._position2, this._maxSpeed);
         const distance1 = distanceBetweenPoints(this._position1, this._position2);
-        // We're calculating weighted average speed
-        // Than more distance for a segment, than more its weight
         const speedItems = [speed1];
         const distanceItems = [distance1];
         totalDistance += distance1;
         if (this._position3 !== null) {
             const speed2 = speedPxPerMSec(this._position2, this._position3, this._maxSpeed);
-            // stop at this moment if direction of the segment is opposite
             if (Math.sign(speed2) === Math.sign(speed1)) {
                 const distance2 = distanceBetweenPoints(this._position2, this._position3);
                 speedItems.push(speed2);
@@ -4661,11 +4542,9 @@ function createBoundCanvas(parentElement, size) {
     const canvas = doc.createElement('canvas');
     parentElement.appendChild(canvas);
     const binding = bindTo(canvas, {
-        type: 'device-pixel-content-box',
-        options: {
+        type: 'device-pixel-content-box', options: {
             allowResizeObserver: false,
-        },
-        transform: (bitmapSize, canvasElementClientSize) => ({
+        }, transform: (bitmapSize, canvasElementClientSize) => ({
             width: Math.max(bitmapSize.width, canvasElementClientSize.width),
             height: Math.max(bitmapSize.height, canvasElementClientSize.height),
         }),
@@ -4676,10 +4555,8 @@ function createBoundCanvas(parentElement, size) {
 
 function releaseCanvas(canvas) {
     var _a;
-    // This function fixes the iOS Safari error "Total canvas memory use exceeds the maximum limit".
-    // Seems that iOS Safari stores canvas elements for some additional time internally.
-    // So if we create/destroy a lot of canvas elements in a short period of time we can get this error.
-    // We resize the canvas to 1x1 pixels to force it to release memmory resources.
+
+
     canvas.width = 1;
     canvas.height = 1;
     (_a = canvas.getContext('2d')) === null || _a === void 0 ? void 0 : _a.clearRect(0, 0, 1, 1);
@@ -4711,7 +4588,7 @@ function preventScrollByWheelClick(el) {
     }
     el.addEventListener('mousedown', (e) => {
         if (e.button === 1 /* MouseEventButton.Middle */) {
-            // prevent incorrect scrolling event
+
             e.preventDefault();
             return false;
         }
@@ -4719,14 +4596,13 @@ function preventScrollByWheelClick(el) {
     });
 }
 
-// TODO: get rid of a lot of boolean flags, probably we should replace it with some enum
+
 class MouseEventHandler {
     constructor(target, handler, options) {
         this._clickCount = 0;
         this._clickTimeoutId = null;
         this._clickPosition = {
-            x: Number.NEGATIVE_INFINITY,
-            y: Number.POSITIVE_INFINITY
+            x: Number.NEGATIVE_INFINITY, y: Number.POSITIVE_INFINITY
         };
         this._tapCount = 0;
         this._tapTimeoutId = null;
@@ -4750,8 +4626,8 @@ class MouseEventHandler {
         this._preventTouchDragProcess = false;
         this._mousePressed = false;
         this._lastTouchEventTimeStamp = 0;
-        // for touchstart/touchmove/touchend events we handle only first touch
-        // i.e. we don't support several active touches at the same time (except pinch event)
+
+
         this._activeTouchId = null;
         this._acceptMouseLeave = !isIOS();
 
@@ -4818,8 +4694,7 @@ class MouseEventHandler {
         this._clickCount = 0;
         this._clickTimeoutId = null;
         this._clickPosition = {
-            x: Number.NEGATIVE_INFINITY,
-            y: Number.POSITIVE_INFINITY
+            x: Number.NEGATIVE_INFINITY, y: Number.POSITIVE_INFINITY
         };
     }
 
@@ -4856,33 +4731,29 @@ class MouseEventHandler {
         if (this._preventTouchDragProcess) {
             return;
         }
-        // prevent pinch if move event comes faster than the second touch
+
         this._pinchPrevented = true;
         const moveInfo = this._touchMouseMoveWithDownInfo(getPosition(touch), ensureNotNull(this._touchMoveStartPosition));
         const {
-            xOffset: xOffset,
-            yOffset: yOffset,
-            manhattanDistance: manhattanDistance
+            xOffset: xOffset, yOffset: yOffset, manhattanDistance: manhattanDistance
         } = moveInfo;
         if (!this._touchMoveExceededManhattanDistance && manhattanDistance < 5 /* Constants.CancelTapManhattanDistance */) {
             return;
         }
         if (!this._touchMoveExceededManhattanDistance) {
-            // first time when current position exceeded manhattan distance
-            // vertical drag is more important than horizontal drag
-            // because we scroll the page vertically often than horizontally
+
+
             const correctedXOffset = xOffset * 0.5;
-            // a drag can be only if touch page scroll isn't allowed
+
             const isVertDrag = yOffset >= correctedXOffset && !this._options.treatVertTouchDragAsPageScroll();
             const isHorzDrag = correctedXOffset > yOffset && !this._options.treatHorzTouchDragAsPageScroll();
-            // if drag event happened then we should revert preventDefault state to original one
-            // and try to process the drag event
-            // else we shouldn't prevent default of the event and ignore processing the drag event
+
+
             if (!isVertDrag && !isHorzDrag) {
                 this._preventTouchDragProcess = true;
             }
             this._touchMoveExceededManhattanDistance = true;
-            // if manhattan distance is more that 5 - we should cancel tap event
+
             this._cancelTap = true;
             this._clearLongTapTimeout();
             this._resetTapTimeout();
@@ -4890,8 +4761,8 @@ class MouseEventHandler {
         if (!this._preventTouchDragProcess) {
             const compatEvent = this._makeCompatEvent(moveEvent, touch);
             this._processTouchEvent(compatEvent, this._handler.touchMoveEvent);
-            // we should prevent default in case of touch only
-            // to prevent scroll of the page
+
+
             preventDefault(moveEvent);
         }
     }
@@ -4903,12 +4774,12 @@ class MouseEventHandler {
         const moveInfo = this._touchMouseMoveWithDownInfo(getPosition(moveEvent), ensureNotNull(this._mouseMoveStartPosition));
         const {manhattanDistance: manhattanDistance} = moveInfo;
         if (manhattanDistance >= 5 /* Constants.CancelClickManhattanDistance */) {
-            // if manhattan distance is more that 5 - we should cancel click event
+
             this._cancelClick = true;
             this._resetClickTimeout();
         }
         if (this._cancelClick) {
-            // if this._cancelClick is true, that means that minimum manhattan distance is already exceeded
+
             const compatEvent = this._makeCompatEvent(moveEvent);
             this._processMouseEvent(compatEvent, this._handler.pressedMouseMoveEvent);
         }
@@ -4919,17 +4790,15 @@ class MouseEventHandler {
         const yOffset = Math.abs(startPosition.y - currentPosition.y);
         const manhattanDistance = xOffset + yOffset;
         return {
-            xOffset: xOffset,
-            yOffset: yOffset,
-            manhattanDistance: manhattanDistance,
+            xOffset: xOffset, yOffset: yOffset, manhattanDistance: manhattanDistance,
         };
     }
 
     _touchEndHandler(touchEndEvent) {
         let touch = touchWithId(touchEndEvent.changedTouches, ensureNotNull(this._activeTouchId));
         if (touch === null && touchEndEvent.touches.length === 0) {
-            // something went wrong, somehow we missed the required touchend event
-            // probably the browser has not sent this event
+
+
             touch = touchEndEvent.changedTouches[0];
         }
         if (touch === null) {
@@ -4947,14 +4816,14 @@ class MouseEventHandler {
         this._processTouchEvent(compatEvent, this._handler.touchEndEvent);
         ++this._tapCount;
         if (this._tapTimeoutId && this._tapCount > 1) {
-            // check that both clicks are near enough
+
             const {manhattanDistance: manhattanDistance} = this._touchMouseMoveWithDownInfo(getPosition(touch), this._tapPosition);
             this._resetTapTimeout();
         } else {
             if (!this._cancelTap) {
                 this._processTouchEvent(compatEvent, this._handler.tapEvent);
-                // do not fire mouse events if tap handler was executed
-                // prevent click event on new dom element (who appeared after tap)
+
+
                 if (this._handler.tapEvent) {
                     preventDefault(touchEndEvent);
                 }
@@ -4966,7 +4835,7 @@ class MouseEventHandler {
         if (touchEndEvent.touches.length === 0) {
             if (this._longTapActive) {
                 this._longTapActive = false;
-                // prevent native click event
+
                 preventDefault(touchEndEvent);
             }
         }
@@ -5086,7 +4955,6 @@ class MouseEventHandler {
 
     _init() {
         this._target.addEventListener('mouseenter', this._mouseEnterHandler.bind(this));
-        // Do not show context menu when something went wrong
         this._target.addEventListener('touchcancel', this._clearLongTapTimeout.bind(this));
         {
             const doc = this._target.ownerDocument;
@@ -5123,9 +4991,7 @@ class MouseEventHandler {
     }
 
     _initPinch() {
-        if (this._handler.pinchStartEvent === undefined &&
-            this._handler.pinchEvent === undefined &&
-            this._handler.pinchEndEvent === undefined) {
+        if (this._handler.pinchStartEvent === undefined && this._handler.pinchEvent === undefined && this._handler.pinchEndEvent === undefined) {
             return;
         }
         this._target.addEventListener('touchstart', (event) => this._checkPinchState(event.touches), {passive: true});
@@ -5187,13 +5053,13 @@ class MouseEventHandler {
             return;
         }
         if (!this._acceptMouseLeave) {
-            // mobile Safari sometimes emits mouse leave event for no reason, there is no way to handle it in other way
-            // just ignore this event if there was no mouse move or mouse enter events
+
+
             return;
         }
         const compatEvent = this._makeCompatEvent(event);
         this._processMouseEvent(compatEvent, this._handler.mouseLeaveEvent);
-        // accept all mouse leave events if it's not an iOS device
+
         this._acceptMouseLeave = !isIOS();
     }
 
@@ -5205,7 +5071,7 @@ class MouseEventHandler {
         const compatEvent = this._makeCompatEvent(event, touch);
         this._processTouchEvent(compatEvent, this._handler.longTapEvent);
         this._cancelTap = true;
-        // long tap is active until touchend event with 0 touches occurred
+
         this._longTapActive = true;
     }
 
@@ -5230,8 +5096,6 @@ class MouseEventHandler {
     }
 
     _makeCompatEvent(event, touch) {
-        // TouchEvent has no clientX/Y coordinates:
-        // We have to use the last Touch instead
         const eventLike = touch || event;
         const box = this._target.getBoundingClientRect() || {left: 0, top: 0};
         return {
@@ -5253,7 +5117,6 @@ class MouseEventHandler {
             view: event.view,
             preventDefault: () => {
                 if (event.type !== 'touchstart') {
-                    // touchstart is passive and cannot be prevented
                     preventDefault(event);
                 }
             },
@@ -5279,13 +5142,12 @@ function preventDefault(event) {
 
 function getPosition(eventLike) {
     return {
-        x: eventLike.pageX,
-        y: eventLike.pageY,
+        x: eventLike.pageX, y: eventLike.pageY,
     };
 }
 
 function eventTimeStamp(e) {
-    // for some reason e.timestamp is always 0 on iPad with magic mouse, so we use performance.now() as a fallback
+
     return e.timeStamp || performance.now();
 }
 
@@ -5298,11 +5160,9 @@ function touchWithId(touches, id) {
     return null;
 }
 
-// returns true if item is above reference
+
 function comparePrimitiveZOrder(item, reference) {
-    return (!reference ||
-        (item === 'top' && reference !== 'top') ||
-        (item === 'normal' && reference === 'bottom'));
+    return (!reference || (item === 'top' && reference !== 'top') || (item === 'normal' && reference === 'bottom'));
 }
 
 function findBestPrimitiveHitTest(sources, x, y) {
@@ -5322,18 +5182,15 @@ function findBestPrimitiveHitTest(sources, x, y) {
         return null;
     }
     return {
-        hit: bestPrimitiveHit,
-        source: bestHitSource,
+        hit: bestPrimitiveHit, source: bestHitSource,
     };
 }
 
 function convertPrimitiveHitResult(primitiveHit) {
     return {
-        source: primitiveHit.source,
-        object: {
+        source: primitiveHit.source, object: {
             externalId: primitiveHit.hit.externalId,
-        },
-        cursorStyle: primitiveHit.hit.cursorStyle,
+        }, cursorStyle: primitiveHit.hit.cursorStyle,
     };
 }
 
@@ -5349,8 +5206,7 @@ function hitTestPaneView(paneViews, x, y) {
             const result = renderer.hitTest(x, y);
             if (result !== null) {
                 return {
-                    view: paneView,
-                    object: result,
+                    view: paneView, object: result,
                 };
             }
         }
@@ -5362,22 +5218,20 @@ function hitTestPane(pane, x, y) {
     const sources = pane.orderedSources();
     const bestPrimitiveHit = findBestPrimitiveHitTest(sources, x, y);
     if ((bestPrimitiveHit === null || bestPrimitiveHit === void 0 ? void 0 : bestPrimitiveHit.hit.zOrder) === 'top') {
-        // a primitive hit on the 'top' layer will always beat the built-in hit tests
-        // (on normal layer) so we can return early here.
+
+
         return convertPrimitiveHitResult(bestPrimitiveHit);
     }
     for (const source of sources) {
         if (bestPrimitiveHit && bestPrimitiveHit.source === source && bestPrimitiveHit.hit.zOrder !== 'bottom' && !bestPrimitiveHit.hit.isBackground) {
-            // a primitive will be drawn above a built-in item like a series marker
-            // therefore it takes precedence here.
+
+
             return convertPrimitiveHitResult(bestPrimitiveHit);
         }
         const sourceResult = hitTestPaneView(source.paneViews(pane), x, y);
         if (sourceResult !== null) {
             return {
-                source: source,
-                view: sourceResult.view,
-                object: sourceResult.object,
+                source: source, view: sourceResult.view, object: sourceResult.object,
             };
         }
         if (bestPrimitiveHit && bestPrimitiveHit.source === source && bestPrimitiveHit.hit.zOrder !== 'bottom' && bestPrimitiveHit.hit.isBackground) {
@@ -5385,7 +5239,7 @@ function hitTestPane(pane, x, y) {
         }
     }
     if (bestPrimitiveHit === null || bestPrimitiveHit === void 0 ? void 0 : bestPrimitiveHit.hit) {
-        // return primitive hits for the 'bottom' layer
+
         return convertPrimitiveHitResult(bestPrimitiveHit);
     }
     return null;
@@ -5396,7 +5250,7 @@ function buildPriceAxisViewsGetter(zOrder, priceScaleId) {
         var _a, _b, _c, _d;
         const psId = (_b = (_a = source.priceScale()) === null || _a === void 0 ? void 0 : _a.id()) !== null && _b !== void 0 ? _b : '';
         if (psId !== priceScaleId) {
-            // exclude if source is using a different price scale.
+
             return [];
         }
         return (_d = (_c = source.pricePaneViews) === null || _c === void 0 ? void 0 : _c.call(source, zOrder)) !== null && _d !== void 0 ? _d : [];
@@ -5529,13 +5383,8 @@ class PriceAxisWidget {
         }
         ctx.restore();
         const resultTickMarksMaxWidth = tickMarkMaxWidth || 34 /* Constants.DefaultOptimalWidth */;
-        const res = Math.ceil(rendererOptions.borderSize +
-            rendererOptions.tickLength +
-            rendererOptions.paddingInner +
-            rendererOptions.paddingOuter +
-            5 /* Constants.LabelOffset */ +
-            resultTickMarksMaxWidth);
-        // make it even, remove this after migration to perfect fancy canvas
+        const res = Math.ceil(rendererOptions.borderSize + rendererOptions.tickLength + rendererOptions.paddingInner + rendererOptions.paddingOuter + 5 /* Constants.LabelOffset */ + resultTickMarksMaxWidth);
+
         return suggestPriceScaleWidth(res);
     }
 
@@ -5680,8 +5529,8 @@ class PriceAxisWidget {
                 }
             }
         };
-        // calculate max and min coordinates for views on selection
-        // crosshair individually
+
+
         addViewsForSources(this._pane.state().orderedSources());
         return res;
     }
@@ -5720,9 +5569,7 @@ class PriceAxisWidget {
         const tickMarks = this._priceScale.marks();
         const priceScaleOptions = this._priceScale.options();
         const rendererOptions = this.rendererOptions();
-        const tickMarkLeftX = this._isLeft ?
-            (this._size.width - rendererOptions.tickLength) :
-            0;
+        const tickMarkLeftX = this._isLeft ? (this._size.width - rendererOptions.tickLength) : 0;
         if (priceScaleOptions.borderVisible && priceScaleOptions.ticksVisible) {
             target.useBitmapCoordinateSpace(({context: ctx, horizontalPixelRatio, verticalPixelRatio}) => {
                 ctx.fillStyle = priceScaleOptions.borderColor;
@@ -5741,9 +5588,7 @@ class PriceAxisWidget {
             ctx.font = this._baseFont();
             ctx.fillStyle = (_a = priceScaleOptions.textColor) !== null && _a !== void 0 ? _a : this._layoutOptions.textColor;
             ctx.textAlign = this._isLeft ? 'right' : 'left';
-            const textLeftX = this._isLeft ?
-                Math.round(tickMarkLeftX - rendererOptions.paddingInner) :
-                Math.round(tickMarkLeftX + rendererOptions.tickLength + rendererOptions.paddingInner);
+            const textLeftX = this._isLeft ? Math.round(tickMarkLeftX - rendererOptions.paddingInner) : Math.round(tickMarkLeftX + rendererOptions.tickLength + rendererOptions.paddingInner);
             const yMidCorrections = tickMarks.map((mark) => this._widthCache.yMidCorrection(ctx, mark.label));
             for (let i = tickMarks.length; i--;) {
                 const tickMark = tickMarks[i];
@@ -5758,11 +5603,11 @@ class PriceAxisWidget {
         }
         let center = this._size.height / 2;
         const views = [];
-        const orderedSources = this._priceScale.orderedSources().slice(); // Copy of array
+        const orderedSources = this._priceScale.orderedSources().slice();
         const pane = this._pane;
         const paneState = pane.state();
         const rendererOptions = this.rendererOptions();
-        // if we are default price scale, append labels from no-scale
+
         const isDefault = this._priceScale === paneState.defaultVisiblePriceScale();
         if (isDefault) {
             this._pane.state().orderedSources().forEach((source) => {
@@ -5776,7 +5621,7 @@ class PriceAxisWidget {
         const updateForSources = (sources) => {
             sources.forEach((source) => {
                 const sourceViews = source.priceAxisViews(paneState, priceScale);
-                // never align selected sources
+
                 sourceViews.forEach((view) => {
                     view.setFixedCoordinate(null);
                     if (view.isVisible()) {
@@ -5801,12 +5646,12 @@ class PriceAxisWidget {
         if (this._size === null) {
             return;
         }
-        // split into two parts
+
         const top = views.filter((view) => view.coordinate() <= center);
         const bottom = views.filter((view) => view.coordinate() > center);
-        // sort top from center to top
+
         top.sort((l, r) => r.coordinate() - l.coordinate());
-        // share center label
+
         if (top.length && bottom.length) {
             bottom.push(top[0]);
         }
@@ -5863,7 +5708,7 @@ class PriceAxisWidget {
             return;
         }
         const model = this._pane.chart().model();
-        const views = []; // array of arrays
+        const views = [];
         const pane = this._pane.state();
         const v = model.crosshairSource().priceAxisViews(pane, this._priceScale);
         if (v.length) {
@@ -6090,8 +5935,7 @@ class PaneWidget {
         const hitTest = this.hitTest(x, y);
         this._chart.setCursorStyle((_a = hitTest === null || hitTest === void 0 ? void 0 : hitTest.cursorStyle) !== null && _a !== void 0 ? _a : null);
         this._model().setHoveredSource(hitTest && {
-            source: hitTest.source,
-            object: hitTest.object
+            source: hitTest.source, object: hitTest.object
         });
     }
 
@@ -6167,8 +6011,7 @@ class PaneWidget {
         const crosshair = this._model().crosshairSource();
         if (this._startTrackPoint !== null && crosshair.visible()) {
             this._initCrosshairPosition = {
-                x: crosshair.appliedX(),
-                y: crosshair.appliedY()
+                x: crosshair.appliedX(), y: crosshair.appliedY()
             };
             this._startTrackPoint = {x: event.localX, y: event.localY};
         }
@@ -6181,7 +6024,7 @@ class PaneWidget {
         const x = event.localX;
         const y = event.localY;
         if (this._startTrackPoint !== null) {
-            // tracking mode: move crosshair
+
             this._exitTrackingModeOnNextTry = false;
             const origPoint = ensureNotNull(this._initCrosshairPosition);
             const newX = origPoint.x + (x - this._startTrackPoint.x);
@@ -6240,8 +6083,8 @@ class PaneWidget {
                 if (priceScale !== null) {
                     pane.recalculatePriceScale(priceScale);
                 }
-                // for overlay drawings price scale is owner's price scale
-                // however owner's price scale could not contain ds
+
+
                 source.updateAllViews();
             }
         }
@@ -6317,8 +6160,7 @@ class PaneWidget {
         const y = event.localY;
         if (delegate.hasListeners()) {
             delegate.fire(this._model().timeScale().coordinateToIndex(x), {
-                x,
-                y
+                x, y
             }, event);
         }
     }
@@ -6363,9 +6205,7 @@ class PaneWidget {
         const state = ensureNotNull(this._state);
         const hoveredSource = state.model().hoveredSource();
         const isHovered = hoveredSource !== null && hoveredSource.source === source;
-        const objecId = hoveredSource !== null && isHovered && hoveredSource.object !== undefined
-            ? hoveredSource.object.hitTestData
-            : undefined;
+        const objecId = hoveredSource !== null && isHovered && hoveredSource.object !== undefined ? hoveredSource.object.hitTestData : undefined;
         const drawRendererFn = (renderer) => drawFn(renderer, target, isHovered, objecId);
         drawSourcePaneViews(paneViewsGetter, drawRendererFn, source, state);
     }
@@ -6431,8 +6271,7 @@ class PaneWidget {
         this._setCrosshairPosition(crossHairPosition.x, crossHairPosition.y, event);
         const crosshair = this._model().crosshairSource();
         this._initCrosshairPosition = {
-            x: crosshair.appliedX(),
-            y: crosshair.appliedY()
+            x: crosshair.appliedX(), y: crosshair.appliedY()
         };
     }
 
@@ -6470,10 +6309,10 @@ class PaneWidget {
         }
         this._model().stopTimeScaleAnimation();
         if (document.activeElement !== document.body && document.activeElement !== document.documentElement) {
-            // If any focusable element except the page itself is focused, remove the focus
+
             ensureNotNull(document.activeElement).blur();
         } else {
-            // Clear selection
+
             const selection = document.getSelection();
             if (selection !== null) {
                 selection.removeAllRanges();
@@ -6497,24 +6336,17 @@ class PaneWidget {
         const chartOptions = this._chart.options();
         const scrollOptions = chartOptions.handleScroll;
         const kineticScrollOptions = chartOptions.kineticScroll;
-        if ((!scrollOptions.pressedMouseMove || event.isTouch) &&
-            (!scrollOptions.horzTouchDrag && !scrollOptions.vertTouchDrag || !event.isTouch)) {
+        if ((!scrollOptions.pressedMouseMove || event.isTouch) && (!scrollOptions.horzTouchDrag && !scrollOptions.vertTouchDrag || !event.isTouch)) {
             return;
         }
         const priceScale = this._state.defaultPriceScale();
         const now = performance.now();
         if (this._startScrollingPos === null && !this._preventScroll(event)) {
             this._startScrollingPos = {
-                x: event.clientX,
-                y: event.clientY,
-                timestamp: now,
-                localX: event.localX,
-                localY: event.localY,
+                x: event.clientX, y: event.clientY, timestamp: now, localX: event.localX, localY: event.localY,
             };
         }
-        if (this._startScrollingPos !== null &&
-            !this._isScrolling &&
-            (this._startScrollingPos.x !== event.clientX || this._startScrollingPos.y !== event.clientY)) {
+        if (this._startScrollingPos !== null && !this._isScrolling && (this._startScrollingPos.x !== event.clientX || this._startScrollingPos.y !== event.clientY)) {
             if (event.isTouch && kineticScrollOptions.touch || !event.isTouch && kineticScrollOptions.mouse) {
                 const barSpacing = timeScale.barSpacing();
                 this._scrollXAnimation = new KineticAnimation(0.2 /* KineticScrollConstants.MinScrollSpeed */ / barSpacing, 7 /* KineticScrollConstants.MaxScrollSpeed */ / barSpacing, 0.997 /* KineticScrollConstants.DumpingCoeff */, 15 /* KineticScrollConstants.ScrollMinMove */ / barSpacing);
@@ -6529,7 +6361,7 @@ class PaneWidget {
             this._isScrolling = true;
         }
         if (this._isScrolling) {
-            // this allows scrolling not default price scales
+
             if (!priceScale.isEmpty()) {
                 model.scrollPriceTo(this._state, priceScale, event.localY);
             }
@@ -6796,14 +6628,7 @@ class TimeAxisWidget {
 
     optimalHeight() {
         const rendererOptions = this._getRendererOptions();
-        return Math.ceil(
-            // rendererOptions.offsetSize +
-            rendererOptions.borderSize +
-            rendererOptions.tickLength +
-            rendererOptions.fontSize +
-            rendererOptions.paddingTop +
-            rendererOptions.paddingBottom +
-            rendererOptions.labelBottomOffset);
+        return Math.ceil(rendererOptions.borderSize + rendererOptions.tickLength + rendererOptions.fontSize + rendererOptions.paddingTop + rendererOptions.paddingBottom + rendererOptions.labelBottomOffset);
     }
 
     update() {
@@ -6891,13 +6716,10 @@ class TimeAxisWidget {
             });
         }
         target.useMediaCoordinateSpace(({context: ctx}) => {
-            const yText = (rendererOptions.borderSize +
-                rendererOptions.tickLength +
-                rendererOptions.paddingTop +
-                rendererOptions.fontSize / 2);
+            const yText = (rendererOptions.borderSize + rendererOptions.tickLength + rendererOptions.paddingTop + rendererOptions.fontSize / 2);
             ctx.textAlign = 'center';
             ctx.fillStyle = this._textColor();
-            // draw base marks
+
             ctx.font = this._baseFont();
             for (const tickMark of tickMarks) {
                 if (tickMark.weight < maxWeight) {
@@ -7059,12 +6881,12 @@ class ChartWidget {
         this._timeAxisWidget = new TimeAxisWidget(this, this._horzScaleBehavior);
         this._tableElement.appendChild(this._timeAxisWidget.getElement());
         const usedObserver = options.autoSize && this._installObserver();
-        // observer could not fire event immediately for some cases
-        // so we have to set initial size manually
+
+
         let width = this._options.width;
         let height = this._options.height;
-        // ignore width/height options if observer has actually been used
-        // however respect options if installing resize observer failed
+
+
         if (usedObserver || width === 0 || height === 0) {
             const containerRect = container.getBoundingClientRect();
             width = width || containerRect.width;
@@ -7105,10 +6927,8 @@ class ChartWidget {
             paneWidget.destroy();
         }
         this._paneWidgets = [];
-        // for (const paneSeparator of this._paneSeparators) {
-        // 	this._destroySeparator(paneSeparator);
-        // }
-        // this._paneSeparators = [];
+
+
         ensureNotNull(this._timeAxisWidget).destroy();
         if (this._element.parentElement !== null) {
             this._element.parentElement.removeChild(this._element);
@@ -7178,12 +6998,9 @@ class ChartWidget {
         if (this._paneWidgets.length === 0) {
             return 0;
         }
-        // we don't need to worry about exactly pane widget here
-        // because all pane widgets have the same width of price axis widget
-        // see _adjustSizeImpl
-        const priceAxisWidget = position === 'left'
-            ? this._paneWidgets[0].leftPriceAxisWidget()
-            : this._paneWidgets[0].rightPriceAxisWidget();
+
+
+        const priceAxisWidget = position === 'left' ? this._paneWidgets[0].leftPriceAxisWidget() : this._paneWidgets[0].rightPriceAxisWidget();
         return ensureNotNull(priceAxisWidget).getWidth();
     }
 
@@ -7202,7 +7019,7 @@ class ChartWidget {
 
     _applyAutoSizeOptions(options) {
         if (options.autoSize && !this._observer) {
-            // installing observer will override resize if successful
+
             this._installObserver();
         }
         if (!options.autoSize && (options.width !== undefined || options.height !== undefined)) {
@@ -7228,9 +7045,9 @@ class ChartWidget {
         const width = this._width;
         const height = this._height;
         const paneWidth = Math.max(width - leftPriceAxisWidth - rightPriceAxisWidth, 0);
-        // const separatorCount = this._paneSeparators.length;
-        // const separatorHeight = SEPARATOR_HEIGHT;
-        const separatorsHeight = 0; // separatorHeight * separatorCount;
+
+
+        const separatorsHeight = 0;
         const timeAxisVisible = this._options.timeScale.visible;
         let timeAxisHeight = timeAxisVisible ? Math.max(this._timeAxisWidget.optimalHeight(), this._options.timeScale.minimumHeight) : 0;
         timeAxisHeight = suggestTimeScaleHeight(timeAxisHeight);
@@ -7262,8 +7079,7 @@ class ChartWidget {
             }
         }
         this._timeAxisWidget.setSizes(size({
-            width: timeAxisVisible ? paneWidth : 0,
-            height: timeAxisHeight
+            width: timeAxisVisible ? paneWidth : 0, height: timeAxisHeight
         }), timeAxisVisible ? leftPriceAxisWidth : 0, timeAxisVisible ? rightPriceAxisWidth : 0);
         this._model.setWidth(paneWidth);
         if (this._leftPriceAxisWidth !== leftPriceAxisWidth) {
@@ -7285,26 +7101,22 @@ class ChartWidget {
     _determineWheelSpeedAdjustment(event) {
         switch (event.deltaMode) {
             case event.DOM_DELTA_PAGE:
-                // one screen at time scroll mode
+
                 return 120;
             case event.DOM_DELTA_LINE:
-                // one line at time scroll mode
+
                 return 32;
         }
         if (!windowsChrome) {
             return 1;
         }
-        // Chromium on Windows has a bug where the scroll speed isn't correctly
-        // adjusted for high density displays. We need to correct for this so that
-        // scroll speed is consistent between browsers.
-        // https://bugs.chromium.org/p/chromium/issues/detail?id=1001735
-        // https://bugs.chromium.org/p/chromium/issues/detail?id=1207308
+
+
         return (1 / window.devicePixelRatio);
     }
 
     _onMousewheel(event) {
-        if ((event.deltaX === 0 || !this._options.handleScroll.mouseWheel) &&
-            (event.deltaY === 0 || !this._options.handleScale.mouseWheel)) {
+        if ((event.deltaX === 0 || !this._options.handleScroll.mouseWheel) && (event.deltaY === 0 || !this._options.handleScale.mouseWheel)) {
             return;
         }
         const scrollSpeedAdjustment = this._determineWheelSpeedAdjustment(event);
@@ -7319,30 +7131,27 @@ class ChartWidget {
             this.model().zoomTime(scrollPosition, zoomScale);
         }
         if (deltaX !== 0 && this._options.handleScroll.mouseWheel) {
-            this.model().scrollChart(deltaX * -80); // 80 is a made up coefficient, and minus is for the "natural" scroll
+            this.model().scrollChart(deltaX * -80);
         }
     }
 
     _drawImpl(invalidateMask, time) {
         var _a;
         const invalidationType = invalidateMask.fullInvalidation();
-        // actions for full invalidation ONLY (not shared with light)
+
         if (invalidationType === 3 /* InvalidationLevel.Full */) {
             this._updateGui();
         }
-        // light or full invalidate actions
-        if (invalidationType === 3 /* InvalidationLevel.Full */ ||
-            invalidationType === 2 /* InvalidationLevel.Light */) {
+
+        if (invalidationType === 3 /* InvalidationLevel.Full */ || invalidationType === 2 /* InvalidationLevel.Light */) {
             this._applyMomentaryAutoScale(invalidateMask);
             this._applyTimeScaleInvalidations(invalidateMask, time);
             this._timeAxisWidget.update();
             this._paneWidgets.forEach((pane) => {
                 pane.updatePriceAxisWidgets();
             });
-            // In the case a full invalidation has been postponed during the draw, reapply
-            // the timescale invalidations. A full invalidation would mean there is a change
-            // in the timescale width (caused by price scale changes) that needs to be drawn
-            // right away to avoid flickering.
+
+
             if (((_a = this._invalidateMask) === null || _a === void 0 ? void 0 : _a.fullInvalidation()) === 3 /* InvalidationLevel.Full */) {
                 this._invalidateMask.merge(invalidateMask);
                 this._updateGui();
@@ -7432,10 +7241,7 @@ class ChartWidget {
         this._syncGuiWithModel();
     }
 
-    // private _destroySeparator(separator: PaneSeparator): void {
-    // 	this._tableElement.removeChild(separator.getElement());
-    // 	separator.destroy();
-    // }
+
     _syncGuiWithModel() {
         const panes = this._model.panes();
         const targetPaneWidgetsCount = panes.length;
@@ -7471,7 +7277,7 @@ class ChartWidget {
         if (index !== null) {
             const serieses = this._model.serieses();
             serieses.forEach((s) => {
-                // TODO: replace with search left
+
                 const data = s.bars().search(index);
                 if (data !== null) {
                     seriesData.set(s, data);
@@ -7486,12 +7292,8 @@ class ChartWidget {
             }
         }
         const hoveredSource = this.model().hoveredSource();
-        const hoveredSeries = hoveredSource !== null && hoveredSource.source instanceof Series
-            ? hoveredSource.source
-            : undefined;
-        const hoveredObject = hoveredSource !== null && hoveredSource.object !== undefined
-            ? hoveredSource.object.externalId
-            : undefined;
+        const hoveredSeries = hoveredSource !== null && hoveredSource.source instanceof Series ? hoveredSource.source : undefined;
+        const hoveredObject = hoveredSource !== null && hoveredSource.object !== undefined ? hoveredSource.object.externalId : undefined;
         return {
             originalTime: clientTime,
             index: index !== null && index !== void 0 ? index : undefined,
@@ -7533,24 +7335,21 @@ function isWhitespaceData(data) {
 }
 
 function isFulfilledData(data) {
-    return (data.open !== undefined ||
-        data.value !== undefined);
+    return (data.open !== undefined || data.value !== undefined);
 }
 
 function __rest(s, e) {
     let i;
     let p;
     const t = {};
-    for (p in s) if (Object.prototype.hasOwnProperty.call(s, p) && e.indexOf(p) < 0)
-        t[p] = s[p];
+    for (p in s) if (Object.prototype.hasOwnProperty.call(s, p) && e.indexOf(p) < 0) t[p] = s[p];
     if (s != null && typeof Object.getOwnPropertySymbols === "function") {
         i = 0;
     }
     {
         p = Object.getOwnPropertySymbols(s);
         for (; i < p.length; i++) {
-            if (e.indexOf(p[i]) < 0 && Object.prototype.propertyIsEnumerable.call(s, p[i]))
-                t[p[i]] = s[p[i]];
+            if (e.indexOf(p[i]) < 0 && Object.prototype.propertyIsEnumerable.call(s, p[i])) t[p[i]] = s[p[i]];
         }
     }
     return t;
@@ -7559,10 +7358,7 @@ function __rest(s, e) {
 function getColoredLineBasedSeriesPlotRow(time, index, item, originalTime) {
     const val = item.value;
     const res = {
-        index: index,
-        time: time,
-        value: [val, val, val, val],
-        originalTime: originalTime
+        index: index, time: time, value: [val, val, val, val], originalTime: originalTime
     };
     if (item.color !== undefined) {
         res.color = item.color;
@@ -7572,10 +7368,7 @@ function getColoredLineBasedSeriesPlotRow(time, index, item, originalTime) {
 
 function getBarSeriesPlotRow(time, index, item, originalTime) {
     const res = {
-        index: index,
-        time: time,
-        value: [item.open, item.high, item.low, item.close],
-        originalTime: originalTime
+        index: index, time: time, value: [item.open, item.high, item.low, item.close], originalTime: originalTime
     };
     if (item.color !== undefined) {
         res.color = item.color;
@@ -7585,10 +7378,7 @@ function getBarSeriesPlotRow(time, index, item, originalTime) {
 
 function getCandlestickSeriesPlotRow(time, index, item, originalTime) {
     const res = {
-        index: index,
-        time: time,
-        value: [item.open, item.high, item.low, item.close],
-        originalTime: originalTime
+        index: index, time: time, value: [item.open, item.high, item.low, item.close], originalTime: originalTime
     };
     if (item.color !== undefined) {
         res.color = item.color;
@@ -7610,12 +7400,7 @@ function getCustomSeriesPlotRow(time, index, item, originalTime, dataToPlotRow) 
     const value = [last, max, min, last];
     const _a = item, {color} = _a, data = __rest(_a, ["time", "color"]);
     return {
-        index: index,
-        time: time,
-        value: value,
-        originalTime: originalTime,
-        data: data,
-        color: color
+        index: index, time: time, value: value, originalTime: originalTime, data: data, color: color
     };
 }
 
@@ -7641,9 +7426,7 @@ function wrapWhitespaceData(createPlotRowFn) {
     return (time, index, bar, originalTime, dataToPlotRow, customIsWhitespace) => {
         if (isWhitespaceDataWithCustomCheck(bar, customIsWhitespace)) {
             return wrapCustomValues({
-                time: time,
-                index: index,
-                originalTime: originalTime
+                time: time, index: index, originalTime: originalTime
             }, bar);
         }
         return wrapCustomValues(createPlotRowFn(time, index, bar, originalTime, dataToPlotRow), bar);
@@ -7660,7 +7443,7 @@ function getSeriesPlotRowCreator(seriesType) {
     return seriesPlotRowFnMap[seriesType];
 }
 
-/// <reference types="_build-time-constants" />
+
 function createEmptyTimePointData(timePoint) {
     return {index: 0, mapping: new Map(), timePoint: timePoint};
 }
@@ -7670,8 +7453,7 @@ function seriesRowsFirstAndLastTime(seriesRows, bh) {
         return undefined;
     }
     return {
-        firstTime: bh.key(seriesRows[0].time),
-        lastTime: bh.key(seriesRows[seriesRows.length - 1].time),
+        firstTime: bh.key(seriesRows[0].time), lastTime: bh.key(seriesRows[seriesRows.length - 1].time),
     };
 }
 
@@ -7680,8 +7462,7 @@ function seriesUpdateInfo(seriesRows, prevSeriesRows, bh) {
     const prevFirstAndLastTime = seriesRowsFirstAndLastTime(prevSeriesRows, bh);
     if (firstAndLastTime !== undefined && prevFirstAndLastTime !== undefined) {
         return {
-            lastBarUpdatedOrNewBarsAddedToTheRight: firstAndLastTime.lastTime >= prevFirstAndLastTime.lastTime &&
-                firstAndLastTime.firstTime >= prevFirstAndLastTime.firstTime,
+            lastBarUpdatedOrNewBarsAddedToTheRight: firstAndLastTime.lastTime >= prevFirstAndLastTime.lastTime && firstAndLastTime.firstTime >= prevFirstAndLastTime.firstTime,
         };
     }
     return undefined;
@@ -7699,12 +7480,12 @@ function timeScalePointTime(mergedPointData) {
 
 class DataLayer {
     constructor(horzScaleBehavior) {
-        // note that _pointDataByTimePoint and _seriesRowsBySeries shares THE SAME objects in their values between each other
-        // it's just different kind of maps to make usages/perf better
+
+
         this._pointDataByTimePoint = new Map();
         this._seriesRowsBySeries = new Map();
         this._seriesLastTimePoint = new Map();
-        // this is kind of "dest" values (in opposite to "source" ones) - we don't need to modify it manually, the only by calling _updateTimeScalePoints or updateSeriesData methods
+
         this._sortedTimePoints = [];
         this._horzScaleBehavior = horzScaleBehavior;
     }
@@ -7719,17 +7500,17 @@ class DataLayer {
     setSeriesData(series, data) {
         let needCleanupPoints = this._pointDataByTimePoint.size !== 0;
         let isTimeScaleAffected = false;
-        // save previous series rows data before it's replaced inside this._setRowsToSeries
+
         const prevSeriesRows = this._seriesRowsBySeries.get(series);
         if (prevSeriesRows !== undefined) {
             if (this._seriesRowsBySeries.size === 1) {
                 needCleanupPoints = false;
                 isTimeScaleAffected = true;
-                // perf optimization - if there is only 1 series, then we can just clear and fill everything from scratch
+
                 this._pointDataByTimePoint.clear();
             } else {
-                // perf optimization - actually we have to use this._pointDataByTimePoint for going through here
-                // but as soon as this._sortedTimePoints is just a different form of _pointDataByTimePoint we can use it as well
+
+
                 for (const point of this._sortedTimePoints) {
                     if (point.pointData.mapping.delete(series)) {
                         isTimeScaleAffected = true;
@@ -7749,7 +7530,7 @@ class DataLayer {
                 const horzItemKey = this._horzScaleBehavior.key(time);
                 let timePointData = this._pointDataByTimePoint.get(horzItemKey);
                 if (timePointData === undefined) {
-                    // the indexes will be sync later
+
                     timePointData = createEmptyTimePointData(time);
                     this._pointDataByTimePoint.set(horzItemKey, timePointData);
                     isTimeScaleAffected = true;
@@ -7760,15 +7541,15 @@ class DataLayer {
             });
         }
         if (needCleanupPoints) {
-            // we deleted the old data from mapping and added the new ones
-            // so there might be empty points now, let's remove them first
+
+
             this._cleanupPointsData();
         }
         this._setRowsToSeries(series, seriesRows);
         let firstChangedPointIndex = -1;
         if (isTimeScaleAffected) {
-            // then generate the time scale points
-            // timeWeight will be updates in _updateTimeScalePoints later
+
+
             const newTimeScalePoints = [];
             this._pointDataByTimePoint.forEach((pointData) => {
                 newTimeScalePoints.push({
@@ -7795,10 +7576,8 @@ class DataLayer {
     }
 
     _cleanupPointsData() {
-        // let's treat all current points as "potentially removed"
-        // we could create an array with actually potentially removed points
-        // but most likely this array will be similar to _sortedTimePoints so let's avoid using additional memory
-        // note that we can use _sortedTimePoints here since a point might be removed only it was here previously
+
+
         for (const point of this._sortedTimePoints) {
             if (point.pointData.mapping.size === 0) {
                 this._pointDataByTimePoint.delete(this._horzScaleBehavior.key(point.time));
@@ -7813,7 +7592,7 @@ class DataLayer {
      */
     _replaceTimeScalePoints(newTimePoints) {
         let firstChangedPointIndex = -1;
-        // search the first different point and "syncing" time weight by the way
+
         for (let index = 0; index < this._sortedTimePoints.length && index < newTimePoints.length; ++index) {
             const oldPoint = this._sortedTimePoints[index];
             const newPoint = newTimePoints[index];
@@ -7821,25 +7600,25 @@ class DataLayer {
                 firstChangedPointIndex = index;
                 break;
             }
-            // re-assign point's time weight for points if time is the same (and all prior times was the same)
+
             newPoint.timeWeight = oldPoint.timeWeight;
             assignIndexToPointData(newPoint.pointData, index);
         }
         if (firstChangedPointIndex === -1 && this._sortedTimePoints.length !== newTimePoints.length) {
-            // the common part of the prev and the new points are the same
-            // so the first changed point is the next after the common part
+
+
             firstChangedPointIndex = Math.min(this._sortedTimePoints.length, newTimePoints.length);
         }
         if (firstChangedPointIndex === -1) {
-            // if no time scale changed, then do nothing
+
             return -1;
         }
-        // if time scale points are changed that means that we need to make full update to all series (with clearing points)
-        // but first we need to synchronize indexes and re-fill time weights
+
+
         for (let index = firstChangedPointIndex; index < newTimePoints.length; ++index) {
             assignIndexToPointData(newTimePoints[index].pointData, index);
         }
-        // re-fill time weights for point after the first changed one
+
         this._horzScaleBehavior.fillWeightsForPoints(newTimePoints, firstChangedPointIndex);
         this._sortedTimePoints = newTimePoints;
         return firstChangedPointIndex;
@@ -7847,7 +7626,7 @@ class DataLayer {
 
     _getBaseIndex() {
         if (this._seriesRowsBySeries.size === 0) {
-            // if we have no data then 'reset' the base index to null
+
             return null;
         }
         let baseIndex = 0;
@@ -7861,23 +7640,20 @@ class DataLayer {
 
     _getUpdateResponse(updatedSeries, firstChangedPointIndex, info) {
         const dataUpdateResponse = {
-            series: new Map(),
-            timeScale: {
+            series: new Map(), timeScale: {
                 baseIndex: this._getBaseIndex(),
             },
         };
         if (firstChangedPointIndex !== -1) {
-            // TODO: it's possible to make perf improvements by checking what series has data after firstChangedPointIndex
-            // but let's skip for now
+
+
             this._seriesRowsBySeries.forEach((data, s) => {
                 dataUpdateResponse.series.set(s, {
-                    data: data,
-                    info: s === updatedSeries ? info : undefined,
+                    data: data, info: s === updatedSeries ? info : undefined,
                 });
             });
-            // if the series data was set to [] it will have already been removed from _seriesRowBySeries
-            // meaning the forEach above won't add the series to the data update response
-            // so we handle that case here
+
+
             if (!this._seriesRowsBySeries.has(updatedSeries)) {
                 dataUpdateResponse.series.set(updatedSeries, {data: [], info: info});
             }
@@ -7885,10 +7661,9 @@ class DataLayer {
             dataUpdateResponse.timeScale.firstChangedPointIndex = firstChangedPointIndex;
         } else {
             const seriesData = this._seriesRowsBySeries.get(updatedSeries);
-            // if no seriesData found that means that we just removed the series
+
             dataUpdateResponse.series.set(updatedSeries, {
-                data: seriesData || [],
-                info: info
+                data: seriesData || [], info: info
             });
         }
         return dataUpdateResponse;
@@ -7896,9 +7671,9 @@ class DataLayer {
 }
 
 function assignIndexToPointData(pointData, index) {
-    // first, nevertheless update index of point data ("make it valid")
+
     pointData.index = index;
-    // and then we need to sync indexes for all series
+
     pointData.mapping.forEach((seriesRow) => {
         seriesRow.index = index;
     });
@@ -7906,8 +7681,7 @@ function assignIndexToPointData(pointData, index) {
 
 function singleValueData(plotRow) {
     const data = {
-        value: plotRow.value[3 /* PlotRowValueIndex.Close */],
-        time: plotRow.originalTime,
+        value: plotRow.value[3 /* PlotRowValueIndex.Close */], time: plotRow.originalTime,
     };
     if (plotRow.customValues !== undefined) {
         data.customValues = plotRow.customValues;
@@ -7962,10 +7736,7 @@ function candlestickData(plotRow) {
 
 function getSeriesDataCreator(seriesType) {
     const seriesPlotRowToDataMap = {
-        Line: (lineData),
-        Bar: (barData),
-        Candlestick: (candlestickData),
-        Custom: (customData),
+        Line: (lineData), Bar: (barData), Candlestick: (candlestickData), Custom: (customData),
     };
     return seriesPlotRowToDataMap[seriesType];
 }
@@ -7983,39 +7754,28 @@ const crosshairOptionsDefaults = {
         visible: true,
         labelVisible: true,
         labelBackgroundColor: '#131722',
-    },
-    horzLine: {
+    }, horzLine: {
         color: '#9598A1',
         width: 1,
         style: 3 /* LineStyle.LargeDashed */,
         visible: true,
         labelVisible: true,
         labelBackgroundColor: '#131722',
-    },
-    mode: 0 /* CrosshairMode.Normal */,
+    }, mode: 0 /* CrosshairMode.Normal */,
 };
 
 const gridOptionsDefaults = {
     vertLines: {
-        color: '#D6DCDE',
-        style: 0 /* LineStyle.Solid */,
-        visible: true,
-    },
-    horzLines: {
-        color: '#D6DCDE',
-        style: 0 /* LineStyle.Solid */,
-        visible: true,
+        color: '#D6DCDE', style: 0 /* LineStyle.Solid */, visible: true,
+    }, horzLines: {
+        color: '#D6DCDE', style: 0 /* LineStyle.Solid */, visible: true,
     },
 };
 
 const layoutOptionsDefaults = {
     background: {
-        type: "solid" /* ColorType.Solid */,
-        color: '#FFFFFF',
-    },
-    textColor: '#191919',
-    fontSize: 12,
-    fontFamily: defaultFontFamily,
+        type: "solid" /* ColorType.Solid */, color: '#FFFFFF',
+    }, textColor: '#191919', fontSize: 12, fontFamily: defaultFontFamily,
 };
 
 const priceScaleOptionsDefaults = {
@@ -8029,8 +7789,7 @@ const priceScaleOptionsDefaults = {
     visible: false,
     ticksVisible: false,
     scaleMargins: {
-        bottom: 0.1,
-        top: 0.2,
+        bottom: 0.1, top: 0.2,
     },
     minimumWidth: 0,
 };
@@ -8069,26 +7828,18 @@ function chartOptionsDefaults() {
         rightPriceScale: Object.assign(Object.assign({}, priceScaleOptionsDefaults), {visible: true}),
         timeScale: timeScaleOptionsDefaults,
         localization: {
-            locale: isRunningOnClientSide ? navigator.language : '',
-            dateFormat: 'dd MMM \'yy',
+            locale: isRunningOnClientSide ? navigator.language : '', dateFormat: 'dd MMM \'yy',
         },
         handleScroll: {
-            mouseWheel: true,
-            pressedMouseMove: true,
-            horzTouchDrag: true,
-            vertTouchDrag: true,
+            mouseWheel: true, pressedMouseMove: true, horzTouchDrag: true, vertTouchDrag: true,
         },
         handleScale: {
             axisPressedMouseMove: {
-                time: true,
-                price: true,
-            },
-            mouseWheel: true,
-            pinch: true,
+                time: true, price: true,
+            }, mouseWheel: true, pinch: true,
         },
         kineticScroll: {
-            mouse: false,
-            touch: true,
+            mouse: false, touch: true,
         },
         trackingMode: {
             exitMode: 1 /* TrackingModeExitMode.OnNextTap */,
@@ -8152,22 +7903,17 @@ function checkBarItem(type, barItem) {
     if (!isFulfilledData(barItem)) {
         return;
     }
-    assert(
-        typeof barItem.open === 'number', `${type} series item data value of open must be a number, got=${typeof barItem.open}, value=${barItem.open}`);
-    assert(
-        typeof barItem.high === 'number', `${type} series item data value of high must be a number, got=${typeof barItem.high}, value=${barItem.high}`);
-    assert(
-        typeof barItem.low === 'number', `${type} series item data value of low must be a number, got=${typeof barItem.low}, value=${barItem.low}`);
-    assert(
-        typeof barItem.close === 'number', `${type} series item data value of close must be a number, got=${typeof barItem.close}, value=${barItem.close}`);
+    assert(typeof barItem.open === 'number', `${type} series item data value of open must be a number, got=${typeof barItem.open}, value=${barItem.open}`);
+    assert(typeof barItem.high === 'number', `${type} series item data value of high must be a number, got=${typeof barItem.high}, value=${barItem.high}`);
+    assert(typeof barItem.low === 'number', `${type} series item data value of low must be a number, got=${typeof barItem.low}, value=${barItem.low}`);
+    assert(typeof barItem.close === 'number', `${type} series item data value of close must be a number, got=${typeof barItem.close}, value=${barItem.close}`);
 }
 
 function checkLineItem(type, lineItem) {
     if (!isFulfilledData(lineItem)) {
         return;
     }
-    assert(
-        typeof lineItem.value === 'number', `${type} series item data value must be a number, got=${typeof lineItem.value}, value=${lineItem.value}`);
+    assert(typeof lineItem.value === 'number', `${type} series item data value must be a number, got=${typeof lineItem.value}, value=${lineItem.value}`);
 }
 
 class SeriesApi {
@@ -8270,18 +8016,14 @@ function migrateHandleScaleScrollOptions(options) {
         const handleScale = options.handleScale;
         options.handleScale = {
             axisPressedMouseMove: {
-                time: handleScale,
-                price: handleScale,
-            },
-            mouseWheel: handleScale,
-            pinch: handleScale,
+                time: handleScale, price: handleScale,
+            }, mouseWheel: handleScale, pinch: handleScale,
         };
     } else if (options.handleScale !== undefined) {
         const {axisPressedMouseMove, _} = options.handleScale;
         if (isBoolean(axisPressedMouseMove)) {
             options.handleScale.axisPressedMouseMove = {
-                time: axisPressedMouseMove,
-                price: axisPressedMouseMove,
+                time: axisPressedMouseMove, price: axisPressedMouseMove,
             };
         }
     }
@@ -8308,9 +8050,7 @@ class ChartApi {
         this._clickedDelegate = new Delegate();
         this._crosshairMovedDelegate = new Delegate();
         this._dataLayer = new DataLayer(horzScaleBehavior);
-        const internalOptions = (options === undefined) ?
-            clone(chartOptionsDefaults()) :
-            merge(clone(chartOptionsDefaults()), toInternalOptions(options));
+        const internalOptions = (options === undefined) ? clone(chartOptionsDefaults()) : merge(clone(chartOptionsDefaults()), toInternalOptions(options));
         this._horzScaleBehavior = horzScaleBehavior;
         this._chartWidget = new ChartWidget(container, internalOptions, horzScaleBehavior);
         this._chartWidget.clicked().subscribe((paramSupplier) => {
@@ -8394,9 +8134,7 @@ class ChartApi {
             priceLineColor: '',
             priceLineStyle: 2 /* LineStyle.Dashed */,
             priceFormat: {
-                type: 'price',
-                precision: 2,
-                minMove: 0.01,
+                type: 'price', precision: 2, minMove: 0.01,
             },
         }, styleDefaults, options);
         const series = this._chartWidget.model().createSeries(type, strictOptions);
@@ -8449,8 +8187,5 @@ function createChart(container, userOptions) {
 }
 
 export let Charts = Object.freeze({
-    __proto__: null,
-    createChart: createChart,
-    isBusinessDay: isBusinessDay,
-    isUTCTimestamp: isUTCTimestamp,
+    __proto__: null, createChart: createChart, isBusinessDay: isBusinessDay, isUTCTimestamp: isUTCTimestamp,
 });
