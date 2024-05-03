@@ -4552,7 +4552,6 @@ class TimeScale {
             && !handleScroll.mouseWheel
             && !handleScroll.pressedMouseMove
             && !handleScroll.vertTouchDrag
-            && !handleScale.axisDoubleClickReset.time
             && !handleScale.axisPressedMouseMove.time
             && !handleScale.mouseWheel
             && !handleScale.pinch;
@@ -6266,47 +6265,12 @@ class MouseEventHandler {
         // for touchstart/touchmove/touchend events we handle only first touch
         // i.e. we don't support several active touches at the same time (except pinch event)
         this._activeTouchId = null;
-        // accept all mouse leave events if it's not an iOS device
-        // see _mouseEnterHandler, _mouseMoveHandler, _mouseLeaveHandler
         this._acceptMouseLeave = !isIOS();
-        /**
-         * In Firefox mouse events dont't fire if the mouse position is outside of the browser's border.
-         * To prevent the mouse from hanging while pressed we're subscribing on the mouseleave event of the document element.
-         * We're subscribing on mouseleave, but this event is actually fired on mouseup outside of the browser's border.
-         */
+
         this._onFirefoxOutsideMouseUp = (mouseUpEvent) => {
             this._mouseUpHandler(mouseUpEvent);
         };
-        /**
-         * Safari doesn't fire touchstart/mousedown events on double tap since iOS 13.
-         * There are two possible solutions:
-         * 1) Call preventDefault in touchEnd handler. But it also prevents click event from firing.
-         * 2) Add listener on dblclick event that fires with the preceding mousedown/mouseup.
-         * https://developer.apple.com/forums/thread/125073
-         */
-        this._onMobileSafariDoubleClick = (dblClickEvent) => {
-            if (this._firesTouchEvents(dblClickEvent)) {
-                const compatEvent = this._makeCompatEvent(dblClickEvent);
-                ++this._tapCount;
-                if (this._tapTimeoutId && this._tapCount > 1) {
-                    const {manhattanDistance: manhattanDistance} = this._touchMouseMoveWithDownInfo(getPosition(dblClickEvent), this._tapPosition);
-                    if (manhattanDistance < 30 /* Constants.DoubleTapManhattanDistance */ && !this._cancelTap) {
-                        this._processTouchEvent(compatEvent, this._handler.doubleTapEvent);
-                    }
-                    this._resetTapTimeout();
-                }
-            } else {
-                const compatEvent = this._makeCompatEvent(dblClickEvent);
-                ++this._clickCount;
-                if (this._clickTimeoutId && this._clickCount > 1) {
-                    const {manhattanDistance: manhattanDistance} = this._touchMouseMoveWithDownInfo(getPosition(dblClickEvent), this._clickPosition);
-                    if (manhattanDistance < 5 /* Constants.DoubleClickManhattanDistance */ && !this._cancelClick) {
-                        this._processMouseEvent(compatEvent, this._handler.mouseDoubleClickEvent);
-                    }
-                    this._resetClickTimeout();
-                }
-            }
-        };
+
         this._target = target;
         this._handler = handler;
         this._options = options;
@@ -6497,9 +6461,6 @@ class MouseEventHandler {
         if (this._tapTimeoutId && this._tapCount > 1) {
             // check that both clicks are near enough
             const {manhattanDistance: manhattanDistance} = this._touchMouseMoveWithDownInfo(getPosition(touch), this._tapPosition);
-            if (manhattanDistance < 30 /* Constants.DoubleTapManhattanDistance */ && !this._cancelTap) {
-                this._processTouchEvent(compatEvent, this._handler.doubleTapEvent);
-            }
             this._resetTapTimeout();
         } else {
             if (!this._cancelTap) {
@@ -6511,8 +6472,6 @@ class MouseEventHandler {
                 }
             }
         }
-        // prevent, for example, safari's dblclick-to-zoom or fast-click after long-tap
-        // we handle mouseDoubleClickEvent here ourselves
         if (this._tapCount === 0) {
             preventDefault(touchEndEvent);
         }
@@ -6546,11 +6505,7 @@ class MouseEventHandler {
         this._processMouseEvent(compatEvent, this._handler.mouseUpEvent);
         ++this._clickCount;
         if (this._clickTimeoutId && this._clickCount > 1) {
-            // check that both clicks are near enough
             const {manhattanDistance: manhattanDistance} = this._touchMouseMoveWithDownInfo(getPosition(mouseUpEvent), this._clickPosition);
-            if (manhattanDistance < 5 /* Constants.DoubleClickManhattanDistance */ && !this._cancelClick) {
-                this._processMouseEvent(compatEvent, this._handler.mouseDoubleClickEvent);
-            }
             this._resetClickTimeout();
         } else {
             if (!this._cancelClick) {
@@ -6668,22 +6623,13 @@ class MouseEventHandler {
             doc.addEventListener('mousedown', outsideHandler);
             doc.addEventListener('touchstart', outsideHandler, {passive: true});
         }
-        if (isIOS()) {
-            this._unsubscribeMobileSafariEvents = () => {
-                this._target.removeEventListener('dblclick', this._onMobileSafariDoubleClick);
-            };
-            this._target.addEventListener('dblclick', this._onMobileSafariDoubleClick);
-        }
+
         this._target.addEventListener('mouseleave', this._mouseLeaveHandler.bind(this));
         this._target.addEventListener('touchstart', this._touchStartHandler.bind(this), {passive: true});
         preventScrollByWheelClick(this._target);
         this._target.addEventListener('mousedown', this._mouseDownHandler.bind(this));
         this._initPinch();
-        // Hey mobile Safari, what's up?
-        // If mobile Safari doesn't have any touchmove handler with passive=false
-        // it treats a touchstart and the following touchmove events as cancelable=false,
-        // so we can't prevent them (as soon we subscribe on touchmove inside touchstart's handler).
-        // And we'll get scroll of the page along with chart's one instead of only chart's scroll.
+
         this._target.addEventListener('touchmove', () => {
         }, {passive: false});
     }
@@ -7026,8 +6972,6 @@ class PriceAxisWidget {
             mouseDownOutsideEvent: this._mouseDownOutsideEvent.bind(this),
             mouseUpEvent: this._mouseUpEvent.bind(this),
             touchEndEvent: this._mouseUpEvent.bind(this),
-            mouseDoubleClickEvent: this._mouseDoubleClickEvent.bind(this),
-            doubleTapEvent: this._mouseDoubleClickEvent.bind(this),
             mouseEnterEvent: this._mouseEnterEvent.bind(this),
             mouseLeaveEvent: this._mouseLeaveEvent.bind(this),
         };
@@ -7232,12 +7176,6 @@ class PriceAxisWidget {
         const pane = this._pane.state();
         this._mousedown = false;
         model.endScalePrice(pane, this._priceScale);
-    }
-
-    _mouseDoubleClickEvent(e) {
-        if (this._options.handleScale.axisDoubleClickReset.price) {
-            this.reset();
-        }
     }
 
     _mouseEnterEvent(e) {
@@ -7510,7 +7448,6 @@ class PaneWidget {
         this._startScrollingPos = null;
         this._isScrolling = false;
         this._clicked = new Delegate();
-        this._dblClicked = new Delegate();
         this._prevPinchScale = 0;
         this._longTap = false;
         this._startTrackPoint = null;
@@ -7691,17 +7628,6 @@ class PaneWidget {
         this._fireClickedDelegate(event);
     }
 
-    mouseDoubleClickEvent(event) {
-        if (this._state === null) {
-            return;
-        }
-        this._fireMouseClickDelegate(this._dblClicked, event);
-    }
-
-    doubleTapEvent(event) {
-        this.mouseDoubleClickEvent(event);
-    }
-
     pressedMouseMoveEvent(event) {
         this._onMouseEvent();
         this._pressedMouseTouchMoveEvent(event);
@@ -7743,10 +7669,6 @@ class PaneWidget {
 
     clicked() {
         return this._clicked;
-    }
-
-    dblClicked() {
-        return this._dblClicked;
     }
 
     pinchStartEvent() {
@@ -8364,16 +8286,6 @@ class TimeAxisWidget {
         this.mouseUpEvent();
     }
 
-    mouseDoubleClickEvent() {
-        if (this._chart.options().handleScale.axisDoubleClickReset.time) {
-            this._chart.model().resetTimeScale();
-        }
-    }
-
-    doubleTapEvent() {
-        this.mouseDoubleClickEvent();
-    }
-
     mouseEnterEvent() {
         if (this._chart.model().options().handleScale.axisPressedMouseMove.time) {
             this._setCursor(1 /* CursorType.EwResize */);
@@ -8652,7 +8564,6 @@ class ChartWidget {
         this._invalidateMask = null;
         this._drawPlanned = false;
         this._clicked = new Delegate();
-        this._dblClicked = new Delegate();
         this._crosshairMoved = new Delegate();
         this._observer = null;
         this._cursorStyleOverride = null;
@@ -8719,7 +8630,6 @@ class ChartWidget {
         for (const paneWidget of this._paneWidgets) {
             this._tableElement.removeChild(paneWidget.getElement());
             paneWidget.clicked().unsubscribeAll(this);
-            paneWidget.dblClicked().unsubscribeAll(this);
             paneWidget.destroy();
         }
         this._paneWidgets = [];
@@ -8733,8 +8643,6 @@ class ChartWidget {
         }
         this._crosshairMoved.destroy();
         this._clicked.destroy();
-        this._dblClicked.destroy();
-        this._uninstallObserver();
     }
 
     resize(width, height, forceRepaint = false) {
@@ -8785,10 +8693,6 @@ class ChartWidget {
 
     clicked() {
         return this._clicked;
-    }
-
-    dblClicked() {
-        return this._dblClicked;
     }
 
     crosshairMoved() {
@@ -9067,31 +8971,16 @@ class ChartWidget {
         const panes = this._model.panes();
         const targetPaneWidgetsCount = panes.length;
         const actualPaneWidgetsCount = this._paneWidgets.length;
-        // Remove (if needed) pane widgets and separators
         for (let i = targetPaneWidgetsCount; i < actualPaneWidgetsCount; i++) {
             const paneWidget = ensureDefined(this._paneWidgets.pop());
             this._tableElement.removeChild(paneWidget.getElement());
             paneWidget.clicked().unsubscribeAll(this);
-            paneWidget.dblClicked().unsubscribeAll(this);
             paneWidget.destroy();
-            // const paneSeparator = this._paneSeparators.pop();
-            // if (paneSeparator !== undefined) {
-            // 	this._destroySeparator(paneSeparator);
-            // }
         }
-        // Create (if needed) new pane widgets and separators
         for (let i = actualPaneWidgetsCount; i < targetPaneWidgetsCount; i++) {
             const paneWidget = new PaneWidget(this, panes[i]);
             paneWidget.clicked().subscribe(this._onPaneWidgetClicked.bind(this), this);
-            paneWidget.dblClicked().subscribe(this._onPaneWidgetDblClicked.bind(this), this);
             this._paneWidgets.push(paneWidget);
-            // create and insert separator
-            // if (i > 1) {
-            // 	const paneSeparator = new PaneSeparator(this, i - 1, i, true);
-            // 	this._paneSeparators.push(paneSeparator);
-            // 	this._tableElement.insertBefore(paneSeparator.getElement(), this._timeAxisWidget.getElement());
-            // }
-            // insert paneWidget
             this._tableElement.insertBefore(paneWidget.getElement(), this._timeAxisWidget.getElement());
         }
         for (let i = 0; i < targetPaneWidgetsCount; i++) {
@@ -9147,10 +9036,6 @@ class ChartWidget {
 
     _onPaneWidgetClicked(time, point, event) {
         this._clicked.fire(() => this._getMouseEventParamsImpl(time, point, event));
-    }
-
-    _onPaneWidgetDblClicked(time, point, event) {
-        this._dblClicked.fire(() => this._getMouseEventParamsImpl(time, point, event));
     }
 
     _onPaneWidgetCrosshairMoved(time, point, event) {
@@ -9821,10 +9706,6 @@ function chartOptionsDefaults() {
                 time: true,
                 price: true,
             },
-            axisDoubleClickReset: {
-                time: true,
-                price: true,
-            },
             mouseWheel: true,
             pinch: true,
         },
@@ -10011,10 +9892,6 @@ function migrateHandleScaleScrollOptions(options) {
     if (isBoolean(options.handleScale)) {
         const handleScale = options.handleScale;
         options.handleScale = {
-            axisDoubleClickReset: {
-                time: handleScale,
-                price: handleScale,
-            },
             axisPressedMouseMove: {
                 time: handleScale,
                 price: handleScale,
@@ -10023,17 +9900,11 @@ function migrateHandleScaleScrollOptions(options) {
             pinch: handleScale,
         };
     } else if (options.handleScale !== undefined) {
-        const {axisPressedMouseMove, axisDoubleClickReset} = options.handleScale;
+        const {axisPressedMouseMove, _} = options.handleScale;
         if (isBoolean(axisPressedMouseMove)) {
             options.handleScale.axisPressedMouseMove = {
                 time: axisPressedMouseMove,
                 price: axisPressedMouseMove,
-            };
-        }
-        if (isBoolean(axisDoubleClickReset)) {
-            options.handleScale.axisDoubleClickReset = {
-                time: axisDoubleClickReset,
-                price: axisDoubleClickReset,
             };
         }
     }
@@ -10058,7 +9929,6 @@ class ChartApi {
         this._seriesMap = new Map();
         this._seriesMapReversed = new Map();
         this._clickedDelegate = new Delegate();
-        this._dblClickedDelegate = new Delegate();
         this._crosshairMovedDelegate = new Delegate();
         this._dataLayer = new DataLayer(horzScaleBehavior);
         const internalOptions = (options === undefined) ?
@@ -10069,11 +9939,6 @@ class ChartApi {
         this._chartWidget.clicked().subscribe((paramSupplier) => {
             if (this._clickedDelegate.hasListeners()) {
                 this._clickedDelegate.fire(this._convertMouseParams(paramSupplier()));
-            }
-        }, this);
-        this._chartWidget.dblClicked().subscribe((paramSupplier) => {
-            if (this._dblClickedDelegate.hasListeners()) {
-                this._dblClickedDelegate.fire(this._convertMouseParams(paramSupplier()));
             }
         }, this);
         this._chartWidget.crosshairMoved().subscribe((paramSupplier) => {
