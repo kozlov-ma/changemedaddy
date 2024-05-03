@@ -15,12 +15,18 @@ func NewInMem() *inmem {
 	return &inmem{}
 }
 
-func (m *inmem) Save(_ context.Context, i *idea.Idea) error {
+func (m *inmem) Save(_ context.Context, ni *idea.Idea) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
 
-	i.ID = len(m.ideas)
-	m.ideas = append(m.ideas, i)
+	for _, i := range m.ideas {
+		if i.Slug == ni.Slug {
+			return idea.ErrConflict
+		}
+	}
+
+	ni.ID = len(m.ideas)
+	m.ideas = append(m.ideas, ni)
 
 	return nil
 }
@@ -54,7 +60,9 @@ func (i *inmem) FindByAnalystID(_ context.Context, id int) ([]*idea.Idea, error)
 
 	var ideas []*idea.Idea
 	for _, i := range i.ideas {
-		ideas = append(ideas, i)
+		if i.AuthorID == id {
+			ideas = append(ideas, i)
+		}
 	}
 
 	return ideas, nil

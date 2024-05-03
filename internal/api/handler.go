@@ -66,9 +66,11 @@ func (h *handler) MustEcho() *echo.Echo {
 	e.POST("/register", h.newAnalyst) // >>>>>> TODO >>>> limit this somehow
 
 	ae := e.Group("/analyst", h.analystMiddleware)
-	ae.GET("/id/:analystID", h.getAnalyst)
+	ae.GET("/i/:analystID", h.getAnalyst)
 	ae.GET("/:analystSlug", h.getAnalyst)
 	ae.GET("/:analystSlug/idea/:ideaSlug", h.getIdea, h.ideaMiddleware)
+	ae.GET("/:analystSlug/new_idea", h.ideaForm)
+	ae.POST("/:analystSlug/idea", h.addIdea)
 
 	e.GET("/empty", func(c echo.Context) error { return c.NoContent(200) })
 

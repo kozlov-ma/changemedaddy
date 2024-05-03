@@ -32,7 +32,7 @@ func New(ctx context.Context, as analystSaver, co CreationOptions) (*Analyst, er
 	if len(co.Name) < 2 {
 		return nil, ErrNameTooShort
 	} else if len(co.Name) > 55 {
-		return nil, ErrNameTooShort
+		return nil, ErrNameTooLong
 	}
 
 	a := &Analyst{
@@ -56,9 +56,19 @@ type ideaSaver interface {
 	Save(ctx context.Context, i *idea.Idea) error
 }
 
-func (a *Analyst) NewIdea(ctx context.Context, is ideaSaver, opt idea.CreationOptions) (*idea.Idea, error) {
-	opt.AuthorName = a.Name
-	opt.AuthorID = a.ID
+type IdeaCreationOptions struct {
+	Name       string `form:"name"`
+	SourceLink string `form:"source_link"`
+}
+
+func (a *Analyst) NewIdea(ctx context.Context, is ideaSaver, io IdeaCreationOptions) (*idea.Idea, error) {
+	opt := idea.CreationOptions{
+		Name:       io.Name,
+		AuthorName: a.Name,
+		AuthorSlug: a.Slug,
+		AuthorID:   a.ID,
+		SourceLink: io.SourceLink,
+	}
 
 	i, err := idea.New(ctx, is, opt)
 	if err != nil {

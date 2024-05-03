@@ -175,6 +175,10 @@ type positionUpdater interface {
 }
 
 func (wp WithProfit) Close(ctx context.Context, pu positionUpdater) error {
+	if wp.Status == Closed {
+		return ErrClosedPositionModified
+	}
+
 	wp.Status = Closed
 	wp.ClosedPrice = wp.Instrument.Price
 
@@ -188,6 +192,10 @@ func (wp WithProfit) Close(ctx context.Context, pu positionUpdater) error {
 }
 
 func (p *Position) ChangeDeadline(ctx context.Context, pu positionUpdater, newDeadline time.Time) error {
+	if p.Status == Closed {
+		return ErrClosedPositionModified
+	}
+
 	old := p.Deadline
 	p.Deadline = newDeadline
 
@@ -201,6 +209,10 @@ func (p *Position) ChangeDeadline(ctx context.Context, pu positionUpdater, newDe
 }
 
 func (p *Position) ChangeTargetPrice(ctx context.Context, pu positionUpdater, newTargetPrice decimal.Decimal) error {
+	if p.Status == Closed {
+		return ErrClosedPositionModified
+	}
+
 	assert.That(newTargetPrice.GreaterThan(decimal.Zero), "non-positive target price in trusted data")
 
 	old := p.TargetPrice

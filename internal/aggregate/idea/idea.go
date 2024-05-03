@@ -3,12 +3,18 @@ package idea
 import (
 	"changemedaddy/internal/domain/instrument"
 	"changemedaddy/internal/domain/position"
-	"changemedaddy/internal/pkg/assert"
 	"context"
 	"fmt"
 
 	"github.com/gosimple/slug"
 	"github.com/greatcloak/decimal"
+)
+
+type Status string
+
+const (
+	Active Status = "active"
+	Closed Status = "closed"
 )
 
 type Idea struct {
@@ -20,6 +26,7 @@ type Idea struct {
 	AuthorSlug  string `bson:"author_slug"`
 	SourceLink  string `bson:"source_link"`
 	PositionIDs []int  `bson:"position_ids"`
+	Status      Status `bson:"status"`
 }
 
 // ideaSaver saves Idea s.
@@ -36,19 +43,26 @@ func (i *Idea) Save(ctx context.Context, is ideaSaver) error {
 type CreationOptions struct {
 	Name       string
 	AuthorName string
+	AuthorSlug string
 	AuthorID   int
 	SourceLink string
 }
 
 func New(ctx context.Context, is ideaSaver, opt CreationOptions) (*Idea, error) {
-	assert.That(len(opt.Name) > 0, "empty idea name in trusted data")
+	if len(opt.Name) < 3 {
+		return nil, ErrNameTooShort
+	} else if len(opt.Name) > 55 {
+		return nil, ErrNameTooLong
+	}
 
 	i := &Idea{
 		Name:       opt.Name,
 		Slug:       slug.Make(opt.Name),
+		AuthorSlug: opt.AuthorSlug,
 		AuthorID:   opt.AuthorID,
 		AuthorName: opt.AuthorName,
 		SourceLink: opt.SourceLink,
+		Status:     Active,
 	}
 
 	err := i.Save(ctx, is)
@@ -61,10 +75,6 @@ func New(ctx context.Context, is ideaSaver, opt CreationOptions) (*Idea, error) 
 
 type positionSaver interface {
 	Save(ctx context.Context, p *position.Position) error
-}
-
-type priceProvider interface {
-	Price(ctx context.Context, i *instrument.Instrument) (decimal.Decimal, error)
 }
 
 type instrumentProvider interface {
@@ -96,15 +106,27 @@ func (i *Idea) NewPosition(ctx context.Context, mp marketProvider, ps positionSa
 	return p, nil
 }
 
-// type WithProfit struct {
-// 	*Idea
-// 	Positions []position.WithProfit
-// 	ProfitP   decimal.Decimal
-// }
+type positionUpdater interface {
+	Update(ctx context.Context, p *position.Position) error
+}
 
-// type priceProvider interface {
-// 	Price(ctx context.Context, i *instrument.Instrument) (decimal.Decimal, error)
-// }
+func (i *Idea) Close(ctx context.Context, mp marketProvider, pu positionUpdater) error {
+	panic("need to implement")
+}
+
+type WithProfit struct {
+	*Idea
+	Positions []position.WithProfit
+	ProfitP   decimal.Decimal
+}
+
+type priceProvider interface {
+	Price(ctx context.Context, i *instrument.Instrument) (decimal.Decimal, error)
+}
+
+func (i *Idea) WithProfit(ctx context.Context, pp priceProvider) (WithProfit, error) {
+	panic("need to implement in future")
+}
 
 // func (i *Idea) WithProfit(ctx context.Context, pp priceProvider) (WithProfit, error) {
 // 	var (

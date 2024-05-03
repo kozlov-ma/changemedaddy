@@ -1,0 +1,64 @@
+<form hx-post="/analyst/{{ .AnalystSlug }}/idea">
+  <div class="w-full flex flex-col items-center justify-center">
+    <div class="w-full bg-white rounded-lg shadow-md p-6">
+      <div class="flex flex-col justify-between gap-y-6">
+        <div>
+          <label>
+            <span class="text-gray-500 mr-2"> Название </span>
+            <input
+              name="name"
+              type="text"
+              placeholder="Глобалтранс Ракета!"
+              class="text-xl font-bold w-55 outline-none rounded-md {{ if .NameTooShort | or .NameTooLong | or .NameTaken }} border-2 border-solid border-red-500 {{ end }}"
+              value="{{ .PrevName }}"
+              required
+            />
+          </label>
+
+          {{ if .NameTooShort }}
+          <span class="text-red-500"> Слишком короткое название. </span>
+          {{ end }} {{ if .NameTooLong }}
+          <span class="text-red-500">
+            Название должно быть короче 50 символов.
+          </span>
+          {{ end }} {{ if .NameTaken }}
+          <span class="text-red-500">
+            Идея под названием &laquo;{{ .PrevName }}&raquo; уже
+            существует.</span
+          >
+          {{ end }}
+        </div>
+
+        <div>
+          <label>
+            <span class="text-gray-500 mr-2">
+              Ссылка на Ваш ресурс (необязательно)</span
+            >
+            <input
+              name="source_link"
+              type="text"
+              placeholder="example.com/gltr-rocket"
+              class="w-48 italic outline-none rounded-md"
+              value="{{ .PrevLink }}"
+            />
+          </label>
+        </div>
+
+        <div class="flex-row">
+          <button
+            class="bg-green-100 mr-2 p-2 rounded-md text-green-500 hover:text-gray-600 hover:bg-green-300 transition duration-300"
+          >
+            <span>Сохранить</span>
+          </button>
+
+          <button
+            hx-get="/empty"
+            class="bg-red-100 p-2 rounded-md text-red-500 hover:text-gray-600 hover:bg-red-300 transition duration-300"
+          >
+            <span>Отмена</span>
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+</form>

@@ -13,14 +13,19 @@ type AnalystComponent struct {
 	ID    int
 	Name  string
 	Slug  string
-	Ideas []*idea.Idea
+	Ideas []IdeaComponent
 }
 
 func Analyst(a *analyst.Analyst, ideas []*idea.Idea) AnalystComponent {
+	var ii []IdeaComponent
+	for _, i := range ideas {
+		ii = append(ii, Idea(i))
+	}
+
 	return AnalystComponent{
 		Name:  a.Name,
 		Slug:  a.Slug,
-		Ideas: ideas,
+		Ideas: ii,
 	}
 }
 

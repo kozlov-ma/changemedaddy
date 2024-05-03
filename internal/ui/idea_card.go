@@ -1,8 +1,6 @@
 package ui
 
 import (
-	"changemedaddy/internal/aggregate/idea"
-
 	"github.com/labstack/echo/v4"
 )
 
@@ -10,13 +8,15 @@ type IdeaCardComponent struct {
 	Name        string
 	AnalystSlug string
 	Slug        string
+	IsActive    bool
 }
 
-func IdeaCard(i *idea.Idea) IdeaCardComponent {
+func IdeaCard(i IdeaComponent) IdeaCardComponent {
 	return IdeaCardComponent{
 		Name:        i.Name,
 		AnalystSlug: i.AuthorSlug,
 		Slug:        i.Slug,
+		IsActive:    i.IsActive,
 	}
 }
 
