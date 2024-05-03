@@ -1,4 +1,4 @@
-import {Charts} from "./chart";
+import {Charts} from "./model";
 
 const DayInSeconds = 86400
 
