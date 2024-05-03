@@ -4,6 +4,7 @@ import (
 	"changemedaddy/internal/domain/instrument"
 	"changemedaddy/internal/pkg/assert"
 	"context"
+	"errors"
 	"fmt"
 	"time"
 
@@ -18,14 +19,20 @@ type (
 	Position struct {
 		ID int
 		// Author      *analyst.Analyst
-		Instrument  *instrument.Instrument
-		Type        Type
-		Status      Status
+
+		Instrument *instrument.Instrument
+
+		Type   Type
+		Status Status
+
 		OpenPrice   decimal.Decimal
 		TargetPrice decimal.Decimal
 		ClosedPrice decimal.Decimal
-		Deadline    time.Time
-		OpenDate    time.Time
+
+		Deadline time.Time
+		OpenDate time.Time
+
+		IdeaPartP decimal.Decimal
 	}
 )
 
@@ -52,17 +59,41 @@ type marketProvider interface {
 	instrumentProvider
 }
 
-type PositionOptions struct {
-	Ticker      string          `json:"ticker"`
-	Type        Type            `json:"type"`
-	TargetPrice decimal.Decimal `json:"target_price"`
-	Deadline    time.Time       `json:"deadline"`
+type CreationOptions struct {
+	Ticker      string `form:"ticker"`
+	Type        Type   `form:"type"`
+	TargetPrice string `form:"target_price"`
+	Deadline    string `form:"deadline"`
 }
 
-func NewPosition(ctx context.Context, mp marketProvider, ps positionSaver, opt PositionOptions) (*Position, error) {
+func New(ctx context.Context, mp marketProvider, ps positionSaver, opt CreationOptions) (*Position, error) {
+	var parseError error
+
 	i, err := mp.Find(ctx, opt.Ticker)
-	if err != nil {
+	if errors.Is(instrument.ErrNotFound, err) {
+		parseError = errors.Join(parseError, err, ErrTicker)
+	} else if err != nil {
 		return nil, fmt.Errorf("couldn't get instrument: %w", err)
+	}
+
+	if opt.Type != Long && opt.Type != Short {
+		parseError = errors.Join(parseError, ErrParseType)
+	}
+
+	tp, err := decimal.NewFromString(opt.TargetPrice)
+	if err != nil || tp.LessThan(decimal.Zero) {
+		parseError = errors.Join(parseError, err, ErrTargerPrice)
+	}
+
+	deadline, err := time.Parse("2.01.2006", opt.Deadline)
+	if err != nil {
+		parseError = errors.Join(parseError, err, ErrParseDeadline)
+	} else if deadline.Before(time.Now()) {
+		parseError = errors.Join(parseError, ErrParseDeadline)
+	}
+
+	if parseError != nil {
+		return nil, parseError
 	}
 
 	wp, err := i.WithPrice(ctx, mp)
@@ -75,8 +106,8 @@ func NewPosition(ctx context.Context, mp marketProvider, ps positionSaver, opt P
 		Type:        opt.Type,
 		Status:      Active,
 		OpenPrice:   wp.Price,
-		TargetPrice: opt.TargetPrice,
-		Deadline:    opt.Deadline,
+		TargetPrice: tp,
+		Deadline:    deadline,
 		OpenDate:    time.Now(),
 	}
 
