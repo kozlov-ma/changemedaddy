@@ -603,17 +603,6 @@ class PriceDataSource extends DataSource {
 }
 
 const barStyleFnMap = {
-    Bar: (findBar, barStyle, barIndex, precomputedBars) => {
-        var _a;
-        const upColor = barStyle.upColor;
-        const downColor = barStyle.downColor;
-        const currentBar = ensureNotNull(findBar(barIndex, precomputedBars));
-        const isUp = ensure(currentBar.value[0 /* PlotRowValueIndex.Open */]) <= ensure(currentBar.value[3 /* PlotRowValueIndex.Close */]);
-        return {
-            barColor: (_a = currentBar.color) !== null && _a !== void 0 ? _a : (isUp ? upColor : downColor),
-        };
-    },
-    // eslint-disable-next-line @typescript-eslint/naming-convention
     Candlestick: (findBar, candlestickStyle, barIndex, precomputedBars) => {
         var _a, _b, _c;
         const upColor = candlestickStyle.upColor;
@@ -630,55 +619,12 @@ const barStyleFnMap = {
             barWickColor: (_c = currentBar.wickColor) !== null && _c !== void 0 ? _c : (isUp ? wickUpColor : wickDownColor),
         };
     },
-    // eslint-disable-next-line @typescript-eslint/naming-convention
-    Custom: (findBar, customStyle, barIndex, precomputedBars) => {
-        var _a;
-        const currentBar = ensureNotNull(findBar(barIndex, precomputedBars));
-        return {
-            barColor: (_a = currentBar.color) !== null && _a !== void 0 ? _a : customStyle.color,
-        };
-    },
-    // eslint-disable-next-line @typescript-eslint/naming-convention
-    Area: (findBar, areaStyle, barIndex, precomputedBars) => {
-        var _a, _b, _c, _d;
-        const currentBar = ensureNotNull(findBar(barIndex, precomputedBars));
-        return {
-            barColor: (_a = currentBar.lineColor) !== null && _a !== void 0 ? _a : areaStyle.lineColor,
-            lineColor: (_b = currentBar.lineColor) !== null && _b !== void 0 ? _b : areaStyle.lineColor,
-            topColor: (_c = currentBar.topColor) !== null && _c !== void 0 ? _c : areaStyle.topColor,
-            bottomColor: (_d = currentBar.bottomColor) !== null && _d !== void 0 ? _d : areaStyle.bottomColor,
-        };
-    },
-    // eslint-disable-next-line @typescript-eslint/naming-convention
-    Baseline: (findBar, baselineStyle, barIndex, precomputedBars) => {
-        var _a, _b, _c, _d, _e, _f;
-        const currentBar = ensureNotNull(findBar(barIndex, precomputedBars));
-        const isAboveBaseline = currentBar.value[3 /* PlotRowValueIndex.Close */] >= baselineStyle.baseValue.price;
-        return {
-            barColor: isAboveBaseline ? baselineStyle.topLineColor : baselineStyle.bottomLineColor,
-            topLineColor: (_a = currentBar.topLineColor) !== null && _a !== void 0 ? _a : baselineStyle.topLineColor,
-            bottomLineColor: (_b = currentBar.bottomLineColor) !== null && _b !== void 0 ? _b : baselineStyle.bottomLineColor,
-            topFillColor1: (_c = currentBar.topFillColor1) !== null && _c !== void 0 ? _c : baselineStyle.topFillColor1,
-            topFillColor2: (_d = currentBar.topFillColor2) !== null && _d !== void 0 ? _d : baselineStyle.topFillColor2,
-            bottomFillColor1: (_e = currentBar.bottomFillColor1) !== null && _e !== void 0 ? _e : baselineStyle.bottomFillColor1,
-            bottomFillColor2: (_f = currentBar.bottomFillColor2) !== null && _f !== void 0 ? _f : baselineStyle.bottomFillColor2,
-        };
-    },
-    // eslint-disable-next-line @typescript-eslint/naming-convention
     Line: (findBar, lineStyle, barIndex, precomputedBars) => {
         var _a, _b;
         const currentBar = ensureNotNull(findBar(barIndex, precomputedBars));
         return {
             barColor: (_a = currentBar.color) !== null && _a !== void 0 ? _a : lineStyle.color,
             lineColor: (_b = currentBar.color) !== null && _b !== void 0 ? _b : lineStyle.color,
-        };
-    },
-    // eslint-disable-next-line @typescript-eslint/naming-convention
-    Histogram: (findBar, histogramStyle, barIndex, precomputedBars) => {
-        var _a;
-        const currentBar = ensureNotNull(findBar(barIndex, precomputedBars));
-        return {
-            barColor: (_a = currentBar.color) !== null && _a !== void 0 ? _a : histogramStyle.color,
         };
     },
 };
@@ -1172,16 +1118,11 @@ class Series extends PriceDataSource {
         if (!isInteger(startTimePoint) || !isInteger(endTimePoint) || this._data.isEmpty()) {
             return null;
         }
-        const plots = this._seriesType === 'Line' || this._seriesType === 'Area' || this._seriesType === 'Baseline' || this._seriesType === 'Histogram'
+        const plots = this._seriesType === 'Line'
             ? [3 /* PlotRowValueIndex.Close */]
             : [2 /* PlotRowValueIndex.Low */, 1 /* PlotRowValueIndex.High */];
         const barsMinMax = this._data.minMaxOnRangeCached(startTimePoint, endTimePoint, plots);
         let range = barsMinMax !== null ? new PriceRangeImpl(barsMinMax.min, barsMinMax.max) : null;
-        if (this.seriesType() === 'Histogram') {
-            const base = this._options.base;
-            const rangeWithBase = new PriceRangeImpl(base, base);
-            range = range !== null ? range.merge(rangeWithBase) : rangeWithBase;
-        }
         this._primitives.forEach((primitive) => {
             const primitiveAutoscale = primitive.autoscaleInfo(startTimePoint, endTimePoint);
             if (primitiveAutoscale === null || primitiveAutoscale === void 0 ? void 0 : primitiveAutoscale.priceRange) {
@@ -5800,7 +5741,6 @@ class PriceAxisWidget {
             ctx.font = this._baseFont();
             ctx.fillStyle = (_a = priceScaleOptions.textColor) !== null && _a !== void 0 ? _a : this._layoutOptions.textColor;
             ctx.textAlign = this._isLeft ? 'right' : 'left';
-            ctx.textBaseline = 'middle';
             const textLeftX = this._isLeft ?
                 Math.round(tickMarkLeftX - rendererOptions.paddingInner) :
                 Math.round(tickMarkLeftX + rendererOptions.tickLength + rendererOptions.paddingInner);
@@ -6956,7 +6896,6 @@ class TimeAxisWidget {
                 rendererOptions.paddingTop +
                 rendererOptions.fontSize / 2);
             ctx.textAlign = 'center';
-            ctx.textBaseline = 'middle';
             ctx.fillStyle = this._textColor();
             // draw base marks
             ctx.font = this._baseFont();
@@ -7023,7 +6962,6 @@ class TimeAxisWidget {
         if (this._rendererOptions === null) {
             this._rendererOptions = {
                 borderSize: 1 /* Constants.BorderSize */,
-                baselineOffset: NaN,
                 paddingTop: NaN,
                 paddingBottom: NaN,
                 paddingHorizontal: NaN,
@@ -7043,7 +6981,6 @@ class TimeAxisWidget {
             rendererOptions.paddingTop = 3 * fontSize / 12;
             rendererOptions.paddingBottom = 3 * fontSize / 12;
             rendererOptions.paddingHorizontal = 9 * fontSize / 12;
-            rendererOptions.baselineOffset = 0;
             rendererOptions.labelBottomOffset = 4 * fontSize / 12;
             rendererOptions.widthCache.reset();
         }
@@ -7214,9 +7151,6 @@ class ChartWidget {
 
     applyOptions(options) {
         const currentlyHasMouseWheelListener = shouldSubscribeMouseWheel(this._options);
-        // we don't need to merge options here because it's done in chart model
-        // and since both model and widget share the same object it will be done automatically for widget as well
-        // not ideal solution for sure, but it work's for now ¯\_(ツ)_/¯
         this._model.applyOptions(options);
         const shouldHaveMouseWheelListener = shouldSubscribeMouseWheel(this._options);
         if (shouldHaveMouseWheelListener !== currentlyHasMouseWheelListener) {
@@ -7636,55 +7570,6 @@ function getColoredLineBasedSeriesPlotRow(time, index, item, originalTime) {
     return res;
 }
 
-function getAreaSeriesPlotRow(time, index, item, originalTime) {
-    const val = item.value;
-    const res = {
-        index: index,
-        time: time,
-        value: [val, val, val, val],
-        originalTime: originalTime
-    };
-    if (item.lineColor !== undefined) {
-        res.lineColor = item.lineColor;
-    }
-    if (item.topColor !== undefined) {
-        res.topColor = item.topColor;
-    }
-    if (item.bottomColor !== undefined) {
-        res.bottomColor = item.bottomColor;
-    }
-    return res;
-}
-
-function getBaselineSeriesPlotRow(time, index, item, originalTime) {
-    const val = item.value;
-    const res = {
-        index: index,
-        time: time,
-        value: [val, val, val, val],
-        originalTime: originalTime
-    };
-    if (item.topLineColor !== undefined) {
-        res.topLineColor = item.topLineColor;
-    }
-    if (item.bottomLineColor !== undefined) {
-        res.bottomLineColor = item.bottomLineColor;
-    }
-    if (item.topFillColor1 !== undefined) {
-        res.topFillColor1 = item.topFillColor1;
-    }
-    if (item.topFillColor2 !== undefined) {
-        res.topFillColor2 = item.topFillColor2;
-    }
-    if (item.bottomFillColor1 !== undefined) {
-        res.bottomFillColor1 = item.bottomFillColor1;
-    }
-    if (item.bottomFillColor2 !== undefined) {
-        res.bottomFillColor2 = item.bottomFillColor2;
-    }
-    return res;
-}
-
 function getBarSeriesPlotRow(time, index, item, originalTime) {
     const res = {
         index: index,
@@ -7769,9 +7654,6 @@ function getSeriesPlotRowCreator(seriesType) {
     const seriesPlotRowFnMap = {
         Candlestick: wrapWhitespaceData(getCandlestickSeriesPlotRow),
         Bar: wrapWhitespaceData(getBarSeriesPlotRow),
-        Area: wrapWhitespaceData(getAreaSeriesPlotRow),
-        Baseline: wrapWhitespaceData(getBaselineSeriesPlotRow),
-        Histogram: wrapWhitespaceData(getColoredLineBasedSeriesPlotRow),
         Line: wrapWhitespaceData(getColoredLineBasedSeriesPlotRow),
         Custom: wrapWhitespaceData(getCustomSeriesPlotRow),
     };
@@ -8041,43 +7923,6 @@ function lineData(plotRow) {
     return result;
 }
 
-function areaData(plotRow) {
-    const result = singleValueData(plotRow);
-    if (plotRow.lineColor !== undefined) {
-        result.lineColor = plotRow.lineColor;
-    }
-    if (plotRow.topColor !== undefined) {
-        result.topColor = plotRow.topColor;
-    }
-    if (plotRow.bottomColor !== undefined) {
-        result.bottomColor = plotRow.bottomColor;
-    }
-    return result;
-}
-
-function baselineData(plotRow) {
-    const result = singleValueData(plotRow);
-    if (plotRow.topLineColor !== undefined) {
-        result.topLineColor = plotRow.topLineColor;
-    }
-    if (plotRow.bottomLineColor !== undefined) {
-        result.bottomLineColor = plotRow.bottomLineColor;
-    }
-    if (plotRow.topFillColor1 !== undefined) {
-        result.topFillColor1 = plotRow.topFillColor1;
-    }
-    if (plotRow.topFillColor2 !== undefined) {
-        result.topFillColor2 = plotRow.topFillColor2;
-    }
-    if (plotRow.bottomFillColor1 !== undefined) {
-        result.bottomFillColor1 = plotRow.bottomFillColor1;
-    }
-    if (plotRow.bottomFillColor2 !== undefined) {
-        result.bottomFillColor2 = plotRow.bottomFillColor2;
-    }
-    return result;
-}
-
 function ohlcData(plotRow) {
     const data = {
         open: plotRow.value[0 /* PlotRowValueIndex.Open */],
@@ -8117,10 +7962,7 @@ function candlestickData(plotRow) {
 
 function getSeriesDataCreator(seriesType) {
     const seriesPlotRowToDataMap = {
-        Area: (areaData),
         Line: (lineData),
-        Baseline: (baselineData),
-        Histogram: (lineData),
         Bar: (barData),
         Candlestick: (candlestickData),
         Custom: (customData),
@@ -8551,10 +8393,6 @@ class ChartApi {
             priceLineWidth: 1,
             priceLineColor: '',
             priceLineStyle: 2 /* LineStyle.Dashed */,
-            baseLineVisible: true,
-            baseLineWidth: 1,
-            baseLineColor: '#B2B5BE',
-            baseLineStyle: 0 /* LineStyle.Solid */,
             priceFormat: {
                 type: 'price',
                 precision: 2,
