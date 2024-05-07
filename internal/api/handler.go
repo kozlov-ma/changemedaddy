@@ -41,6 +41,7 @@ type handler struct {
 
 func (h *handler) MustEcho() *echo.Echo {
 	e := echo.New()
+	e.Static("/static", "web/chart")
 
 	e.Use(slogecho.New(h.log))
 	ui.NewRenderer().Register(e)
