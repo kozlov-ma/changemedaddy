@@ -47,6 +47,11 @@ type templateRenderer struct {
 }
 
 func NewRenderer() *templateRenderer {
+	funcs := template.FuncMap{
+		"IdeaCard": IdeaCard,
+		"Position": Position,
+	}
+
 	funcMap := template.FuncMap{
 		"chartDateFormat": func(t time.Time) string {
 			return t.Format(chart.DateFormat)
@@ -58,6 +63,7 @@ func NewRenderer() *templateRenderer {
 	funcMap = mergeFuncMaps(funcMap, sprig.FuncMap())
 
 	return &templateRenderer{
+		templates: template.Must(template.New("").Funcs(sprig.FuncMap()).Funcs(funcs).ParseGlob("web/template/*.html")),
 		templates: template.Must(template.New("").Funcs(funcMap).ParseGlob("web/template/*.html")),
 	}
 }

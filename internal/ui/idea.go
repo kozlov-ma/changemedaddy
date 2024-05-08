@@ -11,21 +11,28 @@ import (
 type IdeaComponent struct {
 	ID   int
 	Name string
+	Slug string
 
 	AuthorName string
+	AuthorSlug string
 
 	SourceLink string
 
 	PositionIDs []int
+
+	IsActive bool
 }
 
 func Idea(i *idea.Idea) IdeaComponent {
 	return IdeaComponent{
 		ID:          i.ID,
 		Name:        i.Name,
+		Slug:        i.Slug,
 		AuthorName:  i.AuthorName,
+		AuthorSlug:  i.AuthorSlug,
 		SourceLink:  i.SourceLink,
 		PositionIDs: i.PositionIDs,
+		IsActive:    i.Status == idea.Active,
 	}
 }
 

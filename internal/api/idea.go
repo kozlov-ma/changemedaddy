@@ -1,6 +1,7 @@
 package api
 
 import (
+	"changemedaddy/internal/aggregate/analyst"
 	"changemedaddy/internal/aggregate/idea"
 	"changemedaddy/internal/domain/position"
 	"changemedaddy/internal/ui"
@@ -12,23 +13,51 @@ import (
 
 func (h *handler) ideaMiddleware(next echo.HandlerFunc) echo.HandlerFunc {
 	return func(c echo.Context) error {
-		idS := c.Param("ideaID")
-		id, err := strconv.Atoi(idS)
-		if err != nil {
-			h.log.Debug("tried to get idea with wrong id", "id", id, "err", err)
-			ui.Render404(c)
-			return err
+		var i *idea.Idea
+
+		a, _ := c.Get("analyst").(*analyst.Analyst)
+		slug := c.Param("ideaSlug")
+		if a != nil && slug != "" {
+			ia, err := h.ir.FindBySlug(c.Request().Context(), a.ID, slug)
+			if errors.Is(err, idea.ErrNotFound) {
+				h.log.Debug("couldn't find idea: given slug does not exist", "slug", slug)
+				ui.Render404(c)
+				return err
+			} else if err != nil {
+				h.log.Error("couldn't find idea", "slug", slug, "err", err)
+				ui.Render500(c)
+				return err
+			}
+
+			i = ia
 		}
 
-		i, err := h.ir.Find(c.Request().Context(), id)
-		if errors.Is(err, idea.ErrNotFound) {
-			h.log.Debug("couldn't find idea: given id does not exist", "id", id)
-			ui.Render404(c)
-			return err
-		} else if err != nil {
-			h.log.Error("couldn't find idea", "id", id, "err", err)
-			ui.Render500(c)
-			return err
+		if i != nil {
+			c.Set("idea", i)
+			return next(c)
+		}
+
+		idS := c.Param("ideaID")
+		if idS != "" {
+			id, err := strconv.Atoi(idS)
+			if err != nil {
+				h.log.Debug("tried to get idea with wrong id", "id", id, "err", err)
+				ui.Render404(c)
+				return err
+			}
+
+			ia, err := h.ir.Find(c.Request().Context(), id)
+			if errors.Is(err, idea.ErrNotFound) {
+				h.log.Debug("couldn't find idea: given id does not exist", "id", id)
+				ui.Render404(c)
+				return err
+			} else if err != nil {
+				h.log.Error("couldn't find idea", "id", id, "err", err)
+				ui.Render500(c)
+				return err
+			}
+
+			i = ia
 		}
 
 		c.Set("idea", i)
@@ -44,7 +73,7 @@ func (h *handler) getIdea(c echo.Context) error {
 func (h *handler) addPosition(c echo.Context) error {
 	var opt position.CreationOptions
 	if err := c.Bind(&opt); err != nil {
-		h.log.Debug("couldn't bind position creation options", "err", err)
+		h.log.Warn("couldn't bind position creation options", "err", err)
 		ui.Render400(c)
 		return err
 	}
