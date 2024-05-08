@@ -21,7 +21,7 @@ func main() {
 		Ticker:      "MGNT",
 		Type:        position.Long,
 		TargetPrice: "11000",
-		Deadline:    "31.05.2024",
+		Deadline:    "09.05.2024",
 	})
 
 	if err != nil {

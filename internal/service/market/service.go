@@ -51,7 +51,7 @@ func (s *fakeService) Price(ctx context.Context, i *instrument.Instrument) (deci
 
 func (s *fakeService) GetCandles(ctx context.Context, i *instrument.WithInterval) ([]chart.Candle, error) {
 	if i.Instrument.Ticker == "MGNT" || i.Instrument.Ticker == "SBER" {
-		candlesCount := int(i.CurTime.Sub(i.OpenedAt).Hours() / 24)
+		candlesCount := int(i.Deadline.Sub(i.OpenedAt).Hours() / 24)
 		candles := make([]chart.Candle, 0)
 
 		prevClose := 1000

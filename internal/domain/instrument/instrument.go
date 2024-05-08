@@ -21,7 +21,7 @@ type WithPrice struct {
 type WithInterval struct {
 	*Instrument
 	OpenedAt time.Time
-	CurTime  time.Time
+	Deadline time.Time
 }
 
 type priceProvider interface {
@@ -40,16 +40,16 @@ func (i *Instrument) WithPrice(ctx context.Context, pp priceProvider) (WithPrice
 	}, nil
 }
 
-func (i *Instrument) WithInterval(ctx context.Context, openedAt time.Time, curTime time.Time) (WithInterval, error) {
-	if openedAt.After(curTime) {
-		return WithInterval{}, fmt.Errorf("openedAt %s > curTime %s", openedAt, curTime)
+func (i *Instrument) WithInterval(ctx context.Context, openedAt time.Time, deadline time.Time) (WithInterval, error) {
+	if openedAt.After(deadline) {
+		return WithInterval{}, fmt.Errorf("openedAt %s > deadline %s", openedAt, deadline)
 	}
-	if curTime.After(time.Now()) {
-		return WithInterval{}, fmt.Errorf("curTime %s > now %s", openedAt, time.Now())
+	if openedAt.After(time.Now()) {
+		return WithInterval{}, fmt.Errorf("openedAt %s > now %s", openedAt, time.Now())
 	}
 	return WithInterval{
 		Instrument: i,
 		OpenedAt:   openedAt,
-		CurTime:    curTime,
+		Deadline:   deadline,
 	}, nil
 }

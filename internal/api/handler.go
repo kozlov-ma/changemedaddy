@@ -54,7 +54,7 @@ func (h *handler) MustEcho() *echo.Echo {
 	ie.POST("/:ideaID/position", h.addPosition)
 	e.GET("/position/:positionID", h.getPosition)
 
-	e.GET("/chart/:ticker/from/:openedAt/to/:curTime", h.getChart)
+	e.GET("/chart/:ticker/from/:openedAt/to/:deadline", h.getChart)
 
 	e.GET("/empty", func(c echo.Context) error { return c.NoContent(200) })
 

@@ -16,7 +16,7 @@ func (h *handler) getChart(c echo.Context) error {
 		_ = c.Render(http.StatusBadRequest, "chart.html", []chart.Candle{})
 		return err
 	}
-	curTime, err := time.Parse(chart.DateFormat, c.Param("curTime"))
+	deadline, err := time.Parse(chart.DateFormat, c.Param("deadline"))
 	if err != nil {
 		_ = c.Render(http.StatusBadRequest, "chart.html", []chart.Candle{})
 		return err
@@ -26,7 +26,7 @@ func (h *handler) getChart(c echo.Context) error {
 		_ = c.Render(http.StatusBadRequest, "chart.html", []chart.Candle{})
 		return err
 	}
-	interval, err := i.WithInterval(ctx, openedAt, curTime)
+	interval, err := i.WithInterval(ctx, openedAt, deadline)
 	if err != nil {
 		_ = c.Render(http.StatusBadRequest, "chart.html", []chart.Candle{})
 		return err
