@@ -14,7 +14,7 @@ var (
 
 func parseTable(json string) (map[string][]string, error) {
 	columns, err := func() ([]string, error) {
-		cols := gjson.Get(json, ".columns")
+		cols := gjson.Get(json, "columns")
 		if !cols.Exists() {
 			return nil, errNoColumns
 		}
@@ -30,7 +30,7 @@ func parseTable(json string) (map[string][]string, error) {
 		return nil, fmt.Errorf("couldn't parse columns: %w", err)
 	}
 
-	data := gjson.Get(json, ".data")
+	data := gjson.Get(json, "data")
 	if !data.Exists() {
 		return nil, errNoData
 	}
