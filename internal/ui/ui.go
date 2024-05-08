@@ -1,15 +1,31 @@
 package ui
 
 import (
+	"changemedaddy/internal/domain/chart"
 	"changemedaddy/internal/pkg/assert"
 	"fmt"
+	"github.com/goodsign/monday"
 	"html/template"
 	"io"
+	"time"
 
 	"github.com/Masterminds/sprig"
 	"github.com/greatcloak/decimal"
 	"github.com/labstack/echo/v4"
 )
+
+func mergeFuncMaps(a template.FuncMap, b template.FuncMap) template.FuncMap {
+	result := make(template.FuncMap)
+	for k, v := range a {
+		result[k] = v
+	}
+	for k, v := range b {
+		if _, ok := result[k]; !ok {
+			result[k] = v
+		}
+	}
+	return result
+}
 
 func mustTemplate(s string) template.Template {
 	t, err := template.New("").Funcs(sprig.FuncMap()).Parse(s)
@@ -31,8 +47,18 @@ type templateRenderer struct {
 }
 
 func NewRenderer() *templateRenderer {
+	funcMap := template.FuncMap{
+		"chartDateFormat": func(t time.Time) string {
+			return t.Format(chart.DateFormat)
+		},
+		"ruDateFormat": func(t time.Time) string {
+			return monday.Format(t, "2 January 2006", monday.LocaleRuRU)
+		},
+	}
+	funcMap = mergeFuncMaps(funcMap, sprig.FuncMap())
+
 	return &templateRenderer{
-		templates: template.Must(template.New("").Funcs(sprig.FuncMap()).ParseGlob("web/template/*.html")),
+		templates: template.Must(template.New("").Funcs(funcMap).ParseGlob("web/template/*.html")),
 	}
 }
 

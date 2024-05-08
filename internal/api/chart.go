@@ -1,40 +1,41 @@
 package api
 
 import (
+	"changemedaddy/internal/domain/chart"
 	"github.com/labstack/echo/v4"
 	"net/http"
 	"time"
 )
 
-func (h *handler) getCandles(c echo.Context) error {
-	const layout = "2006-01-02"
+func (h *handler) getChart(c echo.Context) error {
+	ctx := c.Request().Context()
+
 	ticker := c.Param("ticker")
-	openedAt, err := time.Parse(layout, c.Param("openedAt"))
+	openedAt, err := time.Parse(chart.DateFormat, c.Param("openedAt"))
 	if err != nil {
-		_ = c.JSON(http.StatusBadRequest, nil)
+		_ = c.Render(http.StatusBadRequest, "chart.html", []chart.Candle{})
 		return err
 	}
-	curTime, err := time.Parse(layout, c.Param("curTime"))
+	curTime, err := time.Parse(chart.DateFormat, c.Param("curTime"))
 	if err != nil {
-		_ = c.JSON(http.StatusBadRequest, nil)
+		_ = c.Render(http.StatusBadRequest, "chart.html", []chart.Candle{})
 		return err
 	}
-	i, err := h.mp.Find(c.Request().Context(), ticker)
+	i, err := h.mp.Find(ctx, ticker)
 	if err != nil {
-		_ = c.JSON(http.StatusBadRequest, nil)
+		_ = c.Render(http.StatusBadRequest, "chart.html", []chart.Candle{})
 		return err
 	}
-	interval, err := i.WithInterval(c.Request().Context(), openedAt, curTime)
+	interval, err := i.WithInterval(ctx, openedAt, curTime)
 	if err != nil {
-		_ = c.JSON(http.StatusBadRequest, nil)
-		return err
-	}
-
-	candles, err := h.mp.GetCandles(c.Request().Context(), &interval)
-	if err != nil {
-		_ = c.JSON(http.StatusBadRequest, nil)
+		_ = c.Render(http.StatusBadRequest, "chart.html", []chart.Candle{})
 		return err
 	}
 
-	return c.JSON(http.StatusOK, candles)
+	candles, err := h.mp.GetCandles(ctx, &interval)
+	if err != nil {
+		_ = c.Render(http.StatusBadRequest, "chart.html", []chart.Candle{})
+		return err
+	}
+	return c.Render(http.StatusOK, "chart.html", candles)
 }

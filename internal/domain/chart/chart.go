@@ -1,5 +1,7 @@
 package chart
 
+const DateFormat = "2006-01-02"
+
 type Candle struct {
 	Time  string `json:"time"`
 	Open  int    `json:"open"`

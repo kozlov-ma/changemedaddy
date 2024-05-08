@@ -26,15 +26,15 @@
                                 {{ .AssetName }}
                             </h2>
                             {{ if .Type | eq "LONG" }}
-                            <span
-                                class="bg-green-100 text-green-800 px-3 py-1 rounded-full text-sm"
-                            >
+                                <span
+                                        class="bg-green-100 text-green-800 px-3 py-1 rounded-full text-sm"
+                                >
                                 {{ .Type }}
                             </span>
                             {{ else }}
-                            <span
-                                class="bg-red-100 text-red-800 px-3 py-1 rounded-full text-sm"
-                            >
+                                <span
+                                        class="bg-red-100 text-red-800 px-3 py-1 rounded-full text-sm"
+                                >
                                 {{ .Type }}
                             </span>
                             {{ end }}
@@ -42,22 +42,22 @@
                         <div class="flex items-center justify-between mb-4">
                             <p class="ticker text-gray-500">{{ .Ticker }}</p>
                             {{ if.Profitable }}
-                            <p class="curprice text-green-500 font-bold">
-                                {{ .CurPrice }} ({{ .ProfitP }}%)
-                            </p>
+                                <p class="curprice text-green-500 font-bold">
+                                    {{ .CurPrice }} ({{ .ProfitP }}%)
+                                </p>
                             {{ else }}
-                            <p class="curprice text-red-500 font-bold">
-                                {{ .CurPrice }} ({{ .ProfitP }}%)
-                            </p>
+                                <p class="curprice text-red-500 font-bold">
+                                    {{ .CurPrice }} ({{ .ProfitP }}%)
+                                </p>
                             {{ end }}
                         </div>
-                        <chart src={{ .Ticker }}></chart>
-                            <div id="chart-container"></div>
-                            <button id="scrollBtn">>></button>
-                            <script src="/static/dist/bundle.js"></script>
-                        </div>
                         <div
-                            class="posinfo grid grid-cols-2 auto-rows-auto gap-4 mb-6"
+                                hx-get="/chart/{{ .Ticker }}/from/{{ .OpenDate | chartDateFormat }}/to/{{ .Deadline| chartDateFormat }}"
+                                hx-trigger="load"
+                                hx-swap="outerHTML"
+                        ></div>
+                        <div
+                                class="posinfo grid grid-cols-2 auto-rows-auto gap-4 mb-6"
                         >
                             <div>
                                 <p class="name text-gray-500 mb-1">
@@ -74,26 +74,26 @@
                                 </p>
                             </div>
                             {{ if .Type | eq "LONG" }}
-                            <div>
-                                <p class="name text-gray-500 mb-1">Апсайд</p>
-                                <p class="value text-green-500 font-medium">
-                                    {{ .Change }} ( {{ .ChangeP }}%)
-                                </p>
-                            </div>
+                                <div>
+                                    <p class="name text-gray-500 mb-1">Апсайд</p>
+                                    <p class="value text-green-500 font-medium">
+                                        {{ .Change }} ( {{ .ChangeP }}%)
+                                    </p>
+                                </div>
                             {{ else }}
-                            <div>
-                                <p class="name text-gray-500 mb-1">Даунсайд</p>
-                                <p class="value text-red-500 font-medium">
-                                    {{ .Change }} ( {{ .ChangeP }}%)
-                                </p>
-                            </div>
+                                <div>
+                                    <p class="name text-gray-500 mb-1">Даунсайд</p>
+                                    <p class="value text-red-500 font-medium">
+                                        {{ .Change }} ( {{ .ChangeP }}%)
+                                    </p>
+                                </div>
                             {{ end }}
                             <div>
                                 <p class="name text-gray-500 mb-1">
                                     Дата открытия
                                 </p>
                                 <p class="value text-gray-900 font-medium">
-                                    {{ .OpenDate }}
+                                    {{ .OpenDate | ruDateFormat }}
                                 </p>
                             </div>
                             <div>
@@ -101,35 +101,35 @@
                                     Дата открытия
                                 </p>
                                 <p class="value text-gray-900 font-medium">
-                                    {{ .OpenDate }}
+                                    {{ .OpenDate | ruDateFormat}}
                                 </p>
                             </div>
                             {{ if .IsClosed }}
-                            <div>
-                                <p class="name text-gray-500 mb-1">
-                                    Дата закрытия
-                                </p>
-                                <p class="value text-gray-900 font-medium">
-                                    {{ .Deadline }}
-                                </p>
-                            </div>
-                            <div>
-                                <p class="name text-gray-500 mb-1">
-                                    Цена закрытия
-                                </p>
-                                <p class="value text-gray-900 font-medium">
-                                    {{ .Close }}
-                                </p>
-                            </div>
+                                <div>
+                                    <p class="name text-gray-500 mb-1">
+                                        Дата закрытия
+                                    </p>
+                                    <p class="value text-gray-900 font-medium">
+                                        {{ .Deadline | ruDateFormat }}
+                                    </p>
+                                </div>
+                                <div>
+                                    <p class="name text-gray-500 mb-1">
+                                        Цена закрытия
+                                    </p>
+                                    <p class="value text-gray-900 font-medium">
+                                        {{ .Close }}
+                                    </p>
+                                </div>
                             {{ else }}
-                            <div>
-                                <p class="name text-gray-500 mb-1">
-                                    Срок позиции
-                                </p>
-                                <p class="value text-gray-900 font-medium">
-                                    до {{ .Deadline }}
-                                </p>
-                            </div>
+                                <div>
+                                    <p class="name text-gray-500 mb-1">
+                                        Срок позиции
+                                    </p>
+                                    <p class="value text-gray-900 font-medium">
+                                        до {{ .Deadline | ruDateFormat }}
+                                    </p>
+                                </div>
                             {{ end }}
                         </div>
                     </div>

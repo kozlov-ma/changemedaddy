@@ -3,10 +3,10 @@ package ui
 import (
 	_ "embed"
 	"strings"
+	"time"
 
 	"changemedaddy/internal/domain/position"
 
-	"github.com/goodsign/monday"
 	"github.com/greatcloak/decimal"
 	"github.com/labstack/echo/v4"
 )
@@ -31,8 +31,8 @@ type PositionComponent struct {
 	ChangeP     string
 	ChangeUp    bool
 
-	Deadline string
-	OpenDate string
+	Deadline time.Time
+	OpenDate time.Time
 }
 
 func Position(p position.WithProfit) PositionComponent {
@@ -55,8 +55,8 @@ func Position(p position.WithProfit) PositionComponent {
 		Change:      withSign(p.TargetPrice.Sub(p.Instrument.Price)),
 		ChangeP:     withSign(p.TargetPrice.Sub(p.Instrument.Price).Div(p.Instrument.Price).Mul(decimal.NewFromInt(100)).Round(2)),
 
-		Deadline: monday.Format(p.Deadline, "2 January 2006", monday.LocaleRuRU),
-		OpenDate: monday.Format(p.OpenDate, "2 January 2006", monday.LocaleRuRU),
+		Deadline: p.Deadline,
+		OpenDate: p.Deadline,
 	}
 }
 

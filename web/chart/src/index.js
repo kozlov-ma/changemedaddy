@@ -1,7 +1,5 @@
 import {Charts} from "./model";
 
-const DayInSeconds = 86400
-
 const turquoise = '#03866a'
 const red = '#dc2020'
 const lightGrey = "rgba(140,137,137,0.2)"
@@ -10,37 +8,6 @@ const grey = "rgba(79,75,75,0.2)"
 function getTimeInSecondsFromString(s) {
     return new Date(s).getTime() / 1000
 }
-
-const chartContainer = document.getElementById('chart-container')
-const chart = Charts.createChart(chartContainer, {
-    grid: {
-        vertLines: {color: lightGrey},
-        horzLines: {color: lightGrey},
-    },
-    height: 600,
-});
-
-chart.priceScale("right").applyOptions({
-    borderVisible: false,
-    autoScale: false,
-    scaleMargins: {
-        top: 0.1,
-        bottom: 0.2,
-    },
-})
-
-chart.timeScale("down").applyOptions({
-    barSpacing: 10,
-    borderVisible: false
-})
-
-const series = chart.addCandlestickSeries({
-    upColor: turquoise,
-    downColor: red,
-    borderVisible: false,
-    wickUpColor: turquoise,
-    wickDownColor: red,
-});
 
 function generateRandomData(num) {
     const data = [];
@@ -75,6 +42,37 @@ function generateRandomData(num) {
     return data;
 }
 
+const chartContainer = document.getElementById('chart-container')
+console.log(chartContainer.dataset.src)
+const chart = Charts.createChart(chartContainer, {
+    grid: {
+        vertLines: {color: lightGrey},
+        horzLines: {color: lightGrey},
+    },
+    height: 600,
+});
+
+chart.priceScale("right").applyOptions({
+    borderVisible: false,
+    autoScale: false,
+    scaleMargins: {
+        top: 0.1,
+        bottom: 0.2,
+    },
+})
+chart.timeScale("down").applyOptions({
+    barSpacing: 10,
+    borderVisible: false
+})
+
+const series = chart.addCandlestickSeries({
+    upColor: turquoise,
+    downColor: red,
+    borderVisible: false,
+    wickUpColor: turquoise,
+    wickDownColor: red,
+});
+
 const data = generateRandomData(100);
 
 series.setData(data);
@@ -103,8 +101,6 @@ function scrollToNow() {
     chart.timeScale().scrollToRealTime();
 }
 
-scrollToNow();
-
 document.getElementById('scrollBtn').addEventListener('click', () => {
     scrollToNow();
 });
@@ -115,3 +111,5 @@ const chartResizeListener = () => {
 };
 
 window.addEventListener("resize", chartResizeListener);
+
+scrollToNow();
