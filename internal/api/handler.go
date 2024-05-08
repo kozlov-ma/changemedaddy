@@ -47,6 +47,7 @@ type handler struct {
 	pos positionRepo
 	mp  marketProvider
 	ir  ideaRepo
+	ar  analystRepo
 	log *slog.Logger
 }
 

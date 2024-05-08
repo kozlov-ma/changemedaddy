@@ -56,7 +56,7 @@ func Position(p position.WithProfit) PositionComponent {
 		ChangeP:     withSign(p.TargetPrice.Sub(p.Instrument.Price).Div(p.Instrument.Price).Mul(decimal.NewFromInt(100)).Round(2)),
 
 		Deadline: p.Deadline,
-		OpenDate: p.Deadline,
+		OpenDate: p.OpenDate,
 	}
 }
 
