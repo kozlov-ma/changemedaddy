@@ -2,6 +2,7 @@ package api
 
 import (
 	"changemedaddy/internal/aggregate/idea"
+	"changemedaddy/internal/domain/chart"
 	"changemedaddy/internal/domain/instrument"
 	"changemedaddy/internal/domain/position"
 	"changemedaddy/internal/ui"
@@ -29,6 +30,7 @@ type (
 	marketProvider interface {
 		Find(ctx context.Context, ticker string) (*instrument.Instrument, error)
 		Price(ctx context.Context, i *instrument.Instrument) (decimal.Decimal, error)
+		GetCandles(ctx context.Context, i *instrument.WithInterval) ([]chart.Candle, error)
 	}
 )
 
@@ -50,8 +52,9 @@ func (h *handler) MustEcho() *echo.Echo {
 	ie.GET("/:ideaID", h.getIdea)
 	ie.GET("/:ideaID/new_position", h.positionForm)
 	ie.POST("/:ideaID/position", h.addPosition)
-
 	e.GET("/position/:positionID", h.getPosition)
+
+	e.GET("/chart/:ticker/from/:openedAt/to/:curTime", h.getCandles)
 
 	e.GET("/empty", func(c echo.Context) error { return c.NoContent(200) })
 

@@ -3,6 +3,7 @@ package instrument
 import (
 	"context"
 	"fmt"
+	"time"
 
 	"github.com/greatcloak/decimal"
 )
@@ -15,6 +16,12 @@ type Instrument struct {
 type WithPrice struct {
 	*Instrument
 	Price decimal.Decimal
+}
+
+type WithInterval struct {
+	*Instrument
+	OpenedAt time.Time
+	CurTime  time.Time
 }
 
 type priceProvider interface {
@@ -30,5 +37,19 @@ func (i *Instrument) WithPrice(ctx context.Context, pp priceProvider) (WithPrice
 	return WithPrice{
 		Instrument: i,
 		Price:      price,
+	}, nil
+}
+
+func (i *Instrument) WithInterval(ctx context.Context, openedAt time.Time, curTime time.Time) (WithInterval, error) {
+	if openedAt.After(curTime) {
+		return WithInterval{}, fmt.Errorf("openedAt %s > curTime %s", openedAt, curTime)
+	}
+	if curTime.After(time.Now()) {
+		return WithInterval{}, fmt.Errorf("curTime %s > now %s", openedAt, time.Now())
+	}
+	return WithInterval{
+		Instrument: i,
+		OpenedAt:   openedAt,
+		CurTime:    curTime,
 	}, nil
 }
