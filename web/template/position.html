@@ -51,11 +51,7 @@
                                 </p>
                             {{ end }}
                         </div>
-                        <div
-                                hx-get="/chart/{{ .Ticker }}/from/{{ .OpenDate | chartDateFormat }}/to/{{ .Deadline| chartDateFormat }}"
-                                hx-trigger="load"
-                                hx-swap="outerHTML"
-                        ></div>
+                        <chart-component url="http://localhost:8080/chart-data/{{ .Ticker }}/from/{{ .OpenDate | chartDateFormat }}/to/{{ .Deadline | chartDateFormat }}"></chart-component>
                         <div
                                 class="posinfo grid grid-cols-2 auto-rows-auto gap-4 mb-6"
                         >

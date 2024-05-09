@@ -64,7 +64,7 @@ func (h *handler) MustEcho() *echo.Echo {
 	ie.POST("/:ideaID/position", h.addPosition)
 	e.GET("/position/:positionID", h.getPosition)
 
-	e.GET("/chart/:ticker/from/:openedAt/to/:deadline", h.getChart)
+	e.GET("/chart-data/:ticker/from/:openedAt/to/:deadline", h.getChartData)
 
 	e.GET("/register", h.register)    // >>>>>> TODO >>>> add auth here
 	e.POST("/register", h.newAnalyst) // >>>>>> TODO >>>> limit this somehow
