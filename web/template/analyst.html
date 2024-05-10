@@ -21,7 +21,8 @@
       {{ range $i := .Ideas }}
       <div>{{ template "idea_card.html" $i | IdeaCard}}</div>
       {{ end }}
-
+      <!--  -->
+      {{ if .IsOwner }}
       <button
         hx-get="/analyst/{{ .Slug }}/new_idea"
         hx-swap="beforebegin"
@@ -30,6 +31,7 @@
       >
         Создать Новую Идею
       </button>
+      {{ end }}
     </div>
   </body>
 </html>

@@ -5,6 +5,7 @@ import (
 	"changemedaddy/internal/repository/analystrepo"
 	"changemedaddy/internal/repository/idearepo"
 	"changemedaddy/internal/repository/positionrepo"
+	"changemedaddy/internal/service/auth"
 	"changemedaddy/internal/service/market"
 	"log/slog"
 	"os"
@@ -17,12 +18,14 @@ func main() {
 
 	ar := analystrepo.NewInmem()
 
-	handler := slog.NewJSONHandler(os.Stdout, &slog.HandlerOptions{
+	handler := slog.NewJSONHandler(os.Stderr, &slog.HandlerOptions{
 		AddSource: true,
 		Level:     slog.LevelDebug,
 	})
 	log := slog.New(handler)
 
-	err := api.NewHandler(posRepo, ideaRepo, mp, ar, log).MustEcho().Start(":8080")
+	as := auth.NewFake()
+
+	err := api.NewHandler(posRepo, ideaRepo, mp, ar, as, log).MustEcho().Start(":8080")
 	panic(err)
 }

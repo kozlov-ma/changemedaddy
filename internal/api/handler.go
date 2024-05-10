@@ -41,6 +41,11 @@ type (
 		Find(ctx context.Context, id int) (*analyst.Analyst, error)
 		FindBySlug(ctx context.Context, slug string) (*analyst.Analyst, error)
 	}
+
+	authService interface {
+		GetID(ctx context.Context, cookie string) (int, error)
+		RegID(ctx context.Context, id int) (string, error)
+	}
 )
 
 type handler struct {
@@ -48,6 +53,7 @@ type handler struct {
 	mp  marketProvider
 	ir  ideaRepo
 	ar  analystRepo
+	as  authService
 	log *slog.Logger
 }
 
@@ -58,10 +64,8 @@ func (h *handler) MustEcho() *echo.Echo {
 	e.Use(slogecho.New(h.log))
 	ui.NewRenderer().Register(e)
 
-	ie := e.Group("/idea", h.ideaMW)
-	ie.GET("/:ideaID", h.getIdea)
+	ie := e.Group("/idea", h.ideaMW, h.authMW)
 	ie.GET("/:ideaID/new_position", h.positionForm)
-	ie.POST("/:ideaID/position", h.addPosition, h.authMW)
 	e.GET("/position/:positionID", h.getPosition)
 
 	e.GET("/chart-data/:ticker/from/:openedAt/to/:deadline", h.getChartData)
@@ -69,24 +73,31 @@ func (h *handler) MustEcho() *echo.Echo {
 	e.GET("/register", h.register)    // >>>>>> TODO >>>> add auth here
 	e.POST("/register", h.newAnalyst) // >>>>>> TODO >>>> limit this somehow
 
-	ae := e.Group("/analyst", h.analystMiddleware)
+	ae := e.Group("/analyst", h.analystMiddleware, h.authMW)
 	ae.GET("/i/:analystID", h.getAnalyst)
 	ae.GET("/:analystSlug", h.getAnalyst)
 	ae.GET("/:analystSlug/idea/:ideaSlug", h.getIdea, h.ideaMW)
 	ae.GET("/:analystSlug/new_idea", h.ideaForm)
-	ae.POST("/:analystSlug/idea", h.addIdea, h.authMW)
+	ae.POST("/:analystSlug/idea", h.addIdea, h.ownerMW)
+	ie.POST("/:analystSlug/idea/:ideaSlug/position", h.addPosition, h.ideaMW, h.ownerMW)
 
 	e.GET("/empty", func(c echo.Context) error { return c.NoContent(200) })
+
+	e.GET("/400", func(c echo.Context) error { return ui.Render400(c) })
+	e.GET("/401", func(c echo.Context) error { return ui.Render401(c) })
+	e.GET("/404", func(c echo.Context) error { return ui.Render404(c) })
+	e.GET("/500", func(c echo.Context) error { return ui.Render500(c) })
 
 	return e
 }
 
-func NewHandler(pr positionRepo, ir ideaRepo, mp marketProvider, ar analystRepo, log *slog.Logger) *handler {
+func NewHandler(pr positionRepo, ir ideaRepo, mp marketProvider, ar analystRepo, as authService, log *slog.Logger) *handler {
 	return &handler{
 		pos: pr,
 		mp:  mp,
 		ir:  ir,
 		ar:  ar,
+		as:  as,
 		log: log,
 	}
 }

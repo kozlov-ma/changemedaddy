@@ -14,6 +14,8 @@ type AnalystComponent struct {
 	Name  string
 	Slug  string
 	Ideas []IdeaComponent
+
+	IsOwner bool
 }
 
 func Analyst(a *analyst.Analyst, ideas []*idea.Idea) AnalystComponent {
@@ -26,6 +28,20 @@ func Analyst(a *analyst.Analyst, ideas []*idea.Idea) AnalystComponent {
 		Name:  a.Name,
 		Slug:  a.Slug,
 		Ideas: ii,
+	}
+}
+
+func Owner(a *analyst.Analyst, ideas []*idea.Idea) AnalystComponent {
+	var ii []IdeaComponent
+	for _, i := range ideas {
+		ii = append(ii, Idea(i))
+	}
+
+	return AnalystComponent{
+		Name:    a.Name,
+		Slug:    a.Slug,
+		Ideas:   ii,
+		IsOwner: true,
 	}
 }
 
