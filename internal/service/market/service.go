@@ -4,7 +4,6 @@ import (
 	"changemedaddy/internal/domain/chart"
 	"changemedaddy/internal/domain/instrument"
 	"context"
-	"fmt"
 	"github.com/greatcloak/decimal"
 	"math/rand"
 	"strings"
@@ -64,9 +63,9 @@ func (s *fakeService) GetCandles(ctx context.Context, i *instrument.WithInterval
 			low := min(opn, cls) - rand.Intn(11)
 
 			curDate = curDate.AddDate(0, 0, 1)
-			year, month, day := curDate.Date()
+
 			candles = append(candles, chart.Candle{
-				Time:  fmt.Sprintf("%d-%02d-%02d", year, int(month), day),
+				Time:  int(curDate.Unix()),
 				Open:  opn,
 				High:  high,
 				Low:   low,

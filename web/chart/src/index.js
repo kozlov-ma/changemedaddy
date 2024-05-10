@@ -10,6 +10,21 @@ function getTimeInSecondsFromString(s) {
     return new Date(s).getTime() / 1000
 }
 
+function getStingDateYYYYMMDD(timestamp) {
+    const dateObject = new Date(timestamp * 1000);
+    const year = dateObject.getFullYear();
+    const month = String(dateObject.getMonth() + 1).padStart(2, '0');
+    const day = String(dateObject.getDate()).padStart(2, '0');
+
+    return `${year}-${month}-${day}`;
+}
+
+function timestampHaveSimilarDate(timestamp1, timestamp2) {
+    const date1 = getStingDateYYYYMMDD(timestamp1);
+    const date2 = getStingDateYYYYMMDD(timestamp2);
+    return date1 === date2;
+}
+
 function generateRandomData(num) {
     const data = [];
 
@@ -29,7 +44,7 @@ function generateRandomData(num) {
         const month = String(curDate.getMonth() + 1).padStart(2, '0');
         const day = String(curDate.getDate()).padStart(2, '0');
         data.push({
-            time: `${year}-${month}-${day}`,
+            time: Date.parse(`${year}-${month}-${day}`)/1000,
             open: open,
             high: high,
             low: low,
@@ -43,21 +58,33 @@ function generateRandomData(num) {
     return data;
 }
 
-function fromJSONToChartData(jsonArr) {
-    return jsonArr.map(e => {
+function fromJSONToChartOption(jsonArr) {
+    let timeVisible = false;
+    let prevTime = null;
+
+    return [jsonArr.map(e => {
         const open = e['open'];
         const close = e['close'];
         const color = close >= open ? turquoise : red;
+        const time = e['time'];
+
+        if (timeVisible === false) {
+            if (prevTime === null) {
+                prevTime = time;
+            } else {
+                timeVisible = timestampHaveSimilarDate(prevTime, time);
+            }
+        }
 
         return {
-            time: e['time'],
+            time: time,
             open: open,
             high: e['high'],
             low: e['low'],
             close: close,
             color: color
         }
-    });
+    }), timeVisible];
 }
 
 class ChartComponent extends HTMLElement {
@@ -90,16 +117,17 @@ class ChartComponent extends HTMLElement {
                 return response.json();
             })
             .then(json => {
-                return fromJSONToChartData(json);
+                return fromJSONToChartOption(json);
             })
-            .then(data => this.render(data))
+            .then(option => this.render(option))
             .catch(error => {
                 console.error(error);
-                this.render([]);
+                this.render([[], false]);
             });
     }
 
     setChartData(data) {
+        console.log(data);
         this.series.setData(data);
 
         if (data.length > 0) {
@@ -108,17 +136,19 @@ class ChartComponent extends HTMLElement {
                 value: data[0].open
             }]);
 
-            let startRangeString = data.length >= 60 ? data[data.length - 60]['time'] : data[0]['time']
-            let endRangeString = data[data.length - 1]['time']
+            let startRange = data.length >= 60 ? data[data.length - 60]['time'] : data[0]['time']
+            let endRange = data[data.length - 1]['time']
             this.chart.timeScale().setVisibleRange({
-                from: getTimeInSecondsFromString(startRangeString),
-                to: getTimeInSecondsFromString(endRangeString),
+                from: startRange,
+                to: endRange,
             });
         }
     }
 
 
-    render(data) {
+    render(option) {
+        const [data, timeVisible] = option
+
         const chartContainer = this.shadowRoot.getElementById('chart-container')
         const chart = Charts.createChart(chartContainer, {
             grid: {
@@ -139,6 +169,7 @@ class ChartComponent extends HTMLElement {
         });
         this.chart.timeScale("down").applyOptions({
             barSpacing: 10,
+            timeVisible: timeVisible,
             borderVisible: false
         });
 
@@ -158,7 +189,6 @@ class ChartComponent extends HTMLElement {
             lineWidth: 1,
         });
 
-        console.log(data);
         this.setChartData(data);
 
         function scrollToNow() {

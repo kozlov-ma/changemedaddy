@@ -216,6 +216,8 @@ class Crosshair extends DataSource {
 
     updateAllViews() {
         this._paneView.update();
+        this._priceAxisViews.forEach((value) => value.update());
+        this._timeAxisView.update();
     }
 
     _priceScaleByPane(pane) {

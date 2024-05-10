@@ -74,7 +74,6 @@ export function ensure(value) {
 
 export function merge(dst, ...sources) {
     for (const src of sources) {
-        // eslint-disable-next-line no-restricted-syntax
         for (const i in src) {
             if (src[i] === undefined) {
                 continue;
@@ -82,7 +81,6 @@ export function merge(dst, ...sources) {
             if ('object' !== typeof src[i] || dst[i] === undefined || Array.isArray(src[i])) {
                 dst[i] = src[i];
             } else {
-                // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
                 merge(dst[i], src[i]);
             }
         }
