@@ -11,7 +11,7 @@ import (
 	"github.com/labstack/echo/v4"
 )
 
-func (h *handler) ideaMiddleware(next echo.HandlerFunc) echo.HandlerFunc {
+func (h *handler) ideaMW(next echo.HandlerFunc) echo.HandlerFunc {
 	return func(c echo.Context) error {
 		var i *idea.Idea
 

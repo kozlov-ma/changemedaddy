@@ -58,10 +58,10 @@ func (h *handler) MustEcho() *echo.Echo {
 	e.Use(slogecho.New(h.log))
 	ui.NewRenderer().Register(e)
 
-	ie := e.Group("/idea", h.ideaMiddleware)
+	ie := e.Group("/idea", h.ideaMW)
 	ie.GET("/:ideaID", h.getIdea)
 	ie.GET("/:ideaID/new_position", h.positionForm)
-	ie.POST("/:ideaID/position", h.addPosition)
+	ie.POST("/:ideaID/position", h.addPosition, h.authMW)
 	e.GET("/position/:positionID", h.getPosition)
 
 	e.GET("/chart-data/:ticker/from/:openedAt/to/:deadline", h.getChartData)
@@ -72,9 +72,9 @@ func (h *handler) MustEcho() *echo.Echo {
 	ae := e.Group("/analyst", h.analystMiddleware)
 	ae.GET("/i/:analystID", h.getAnalyst)
 	ae.GET("/:analystSlug", h.getAnalyst)
-	ae.GET("/:analystSlug/idea/:ideaSlug", h.getIdea, h.ideaMiddleware)
+	ae.GET("/:analystSlug/idea/:ideaSlug", h.getIdea, h.ideaMW)
 	ae.GET("/:analystSlug/new_idea", h.ideaForm)
-	ae.POST("/:analystSlug/idea", h.addIdea)
+	ae.POST("/:analystSlug/idea", h.addIdea, h.authMW)
 
 	e.GET("/empty", func(c echo.Context) error { return c.NoContent(200) })
 
