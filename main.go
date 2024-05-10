@@ -5,13 +5,14 @@ import (
 	"changemedaddy/internal/repository/analystrepo"
 	"changemedaddy/internal/repository/idearepo"
 	"changemedaddy/internal/repository/positionrepo"
-	"changemedaddy/internal/service/auth"
 	"changemedaddy/internal/service/market"
+	"changemedaddy/internal/service/tokenauth"
 	"log/slog"
 	"os"
 )
 
 func main() {
+
 	posRepo := positionrepo.NewInMem()
 	ideaRepo := idearepo.NewInMem()
 	mp := market.NewFakeService()
@@ -24,7 +25,12 @@ func main() {
 	})
 	log := slog.New(handler)
 
-	as := auth.NewFake()
+	as := tokenauth.NewFake(ar)
+
+	// generate some fake data
+	func() {
+		as.RegisterAs("test", "test analyst")
+	}()
 
 	err := api.NewHandler(posRepo, ideaRepo, mp, ar, as, log).MustEcho().Start(":8080")
 	panic(err)

@@ -17,3 +17,7 @@ func Render500(c echo.Context) error {
 func Render401(c echo.Context) error {
 	return c.Render(401, "401.html", nil)
 }
+
+func RenderWrongToken(c echo.Context) error {
+	return c.Render(401, "wrong_token.html", nil)
+}

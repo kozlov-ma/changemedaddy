@@ -67,7 +67,8 @@ func (h *handler) ideaMW(next echo.HandlerFunc) echo.HandlerFunc {
 
 func (h *handler) getIdea(c echo.Context) error {
 	i := c.Get("idea").(*idea.Idea)
-	return ui.Idea(i).Render(c)
+	isOwner := c.Get("isOwner").(bool)
+	return ui.Idea(i, isOwner).Render(c)
 }
 
 func (h *handler) addPosition(c echo.Context) error {
@@ -82,7 +83,8 @@ func (h *handler) addPosition(c echo.Context) error {
 	p, err := i.NewPosition(c.Request().Context(), h.mp, h.pos, h.ir, opt)
 	if errors.Is(err, position.ErrTicker) || errors.Is(err, position.ErrParseType) || errors.Is(err, position.ErrTargerPrice) || errors.Is(err, position.ErrParseDeadline) {
 		pf := ui.PositionForm{
-			IdeaID:        i.ID,
+			IdeaSlug:      i.Slug,
+			AnalystSlug:   i.AuthorSlug,
 			PrevTicker:    opt.Ticker,
 			WrongTicker:   errors.Is(err, position.ErrTicker),
 			PrevTarget:    opt.TargetPrice,
@@ -110,5 +112,5 @@ func (h *handler) addPosition(c echo.Context) error {
 
 func (h *handler) positionForm(c echo.Context) error {
 	i := c.Get("idea").(*idea.Idea)
-	return ui.NewPosition(i.ID).Render(c)
+	return ui.NewPosition(i.Slug, i.AuthorSlug).Render(c)
 }

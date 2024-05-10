@@ -21,9 +21,11 @@ type IdeaComponent struct {
 	PositionIDs []int
 
 	IsActive bool
+
+	IsOwner bool
 }
 
-func Idea(i *idea.Idea) IdeaComponent {
+func Idea(i *idea.Idea, isOwner bool) IdeaComponent {
 	return IdeaComponent{
 		ID:          i.ID,
 		Name:        i.Name,
@@ -33,6 +35,7 @@ func Idea(i *idea.Idea) IdeaComponent {
 		SourceLink:  i.SourceLink,
 		PositionIDs: i.PositionIDs,
 		IsActive:    i.Status == idea.Active,
+		IsOwner:     isOwner,
 	}
 }
 

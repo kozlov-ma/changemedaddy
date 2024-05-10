@@ -5,10 +5,7 @@ import (
 	"changemedaddy/internal/aggregate/idea"
 	"changemedaddy/internal/ui"
 	"errors"
-	"fmt"
-	"net/http"
 	"strconv"
-	"time"
 
 	"github.com/labstack/echo/v4"
 )
@@ -52,49 +49,6 @@ func (h *handler) analystMiddleware(next echo.HandlerFunc) echo.HandlerFunc {
 		c.Set("analyst", a)
 		return next(c)
 	}
-}
-
-func (h *handler) register(c echo.Context) error {
-	return ui.NewAnalyst().Render(c)
-}
-
-func writeCookie(c echo.Context, name, value string) {
-	cookie := new(http.Cookie)
-	cookie.Name = name
-	cookie.Value = value
-	cookie.Expires = time.Now().Add(100 * 24 * 365 * time.Hour)
-	c.SetCookie(cookie)
-}
-
-func (h *handler) newAnalyst(c echo.Context) error {
-	var co analyst.CreationOptions
-	if err := c.Bind(&co); err != nil {
-		h.log.Warn("couldn't bind analyst creation options", "err", err)
-		return c.Redirect(307, "/400")
-	}
-
-	a, err := analyst.New(c.Request().Context(), h.ar, co)
-	if errors.Is(err, analyst.ErrNameTooShort) || errors.Is(err, analyst.ErrNameTooLong) || errors.Is(err, analyst.ErrDuplicateName) {
-		ui.AnalystForm{
-			PrevName:     co.Name,
-			NameTooLong:  errors.Is(err, analyst.ErrNameTooLong),
-			NameTooShort: errors.Is(err, analyst.ErrNameTooShort),
-			NameTaken:    errors.Is(err, analyst.ErrDuplicateName),
-		}.Render(c)
-		return err
-	} else if err != nil {
-		h.log.Error("couldn't create analyst", "err", err)
-		return c.Redirect(307, "/500")
-	}
-
-	cookie, err := h.as.RegID(c.Request().Context(), a.ID)
-	if err != nil {
-		panic(err) // TODO fix that
-	}
-
-	writeCookie(c, "user", cookie)
-
-	return c.Redirect(http.StatusFound, fmt.Sprintf("/analyst/%s", a.Slug))
 }
 
 func (h *handler) getAnalyst(c echo.Context) error {
@@ -157,5 +111,5 @@ func (h *handler) addIdea(c echo.Context) error {
 		return c.Redirect(307, "/500")
 	}
 
-	return ui.IdeaCard(ui.Idea(i)).Render(c)
+	return ui.IdeaCard(ui.Idea(i, false)).Render(c)
 }

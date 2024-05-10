@@ -21,7 +21,7 @@ type AnalystComponent struct {
 func Analyst(a *analyst.Analyst, ideas []*idea.Idea) AnalystComponent {
 	var ii []IdeaComponent
 	for _, i := range ideas {
-		ii = append(ii, Idea(i))
+		ii = append(ii, Idea(i, false))
 	}
 
 	return AnalystComponent{
@@ -34,7 +34,7 @@ func Analyst(a *analyst.Analyst, ideas []*idea.Idea) AnalystComponent {
 func Owner(a *analyst.Analyst, ideas []*idea.Idea) AnalystComponent {
 	var ii []IdeaComponent
 	for _, i := range ideas {
-		ii = append(ii, Idea(i))
+		ii = append(ii, Idea(i, true))
 	}
 
 	return AnalystComponent{

@@ -42,9 +42,8 @@ type (
 		FindBySlug(ctx context.Context, slug string) (*analyst.Analyst, error)
 	}
 
-	authService interface {
-		GetID(ctx context.Context, cookie string) (int, error)
-		RegID(ctx context.Context, id int) (string, error)
+	tokenAuthService interface {
+		Auth(ctx context.Context, token string) (*analyst.Analyst, error)
 	}
 )
 
@@ -53,7 +52,7 @@ type handler struct {
 	mp  marketProvider
 	ir  ideaRepo
 	ar  analystRepo
-	as  authService
+	as  tokenAuthService
 	log *slog.Logger
 }
 
@@ -64,22 +63,21 @@ func (h *handler) MustEcho() *echo.Echo {
 	e.Use(slogecho.New(h.log))
 	ui.NewRenderer().Register(e)
 
-	ie := e.Group("/idea", h.ideaMW, h.authMW)
-	ie.GET("/:ideaID/new_position", h.positionForm)
 	e.GET("/position/:positionID", h.getPosition)
 
 	e.GET("/chart-data/:ticker/from/:openedAt/to/:deadline", h.getChartData)
 
-	e.GET("/register", h.register)    // >>>>>> TODO >>>> add auth here
-	e.POST("/register", h.newAnalyst) // >>>>>> TODO >>>> limit this somehow
+	e.GET("/token_auth/:token", h.tokenAuth)
+	e.POST("/token_auth/:token", h.tokenAuth)
 
-	ae := e.Group("/analyst", h.analystMiddleware, h.authMW)
-	ae.GET("/i/:analystID", h.getAnalyst)
+	ae := e.Group("/analyst", h.analystMiddleware, h.ownerMW)
 	ae.GET("/:analystSlug", h.getAnalyst)
 	ae.GET("/:analystSlug/idea/:ideaSlug", h.getIdea, h.ideaMW)
 	ae.GET("/:analystSlug/new_idea", h.ideaForm)
-	ae.POST("/:analystSlug/idea", h.addIdea, h.ownerMW)
-	ie.POST("/:analystSlug/idea/:ideaSlug/position", h.addPosition, h.ideaMW, h.ownerMW)
+
+	ae.GET("/:analystSlug/idea/:ideaSlug/new_position", h.positionForm, h.onlyOwnerMW, h.ideaMW)
+	ae.POST("/:analystSlug/idea", h.addIdea, h.onlyOwnerMW)
+	ae.POST("/:analystSlug/idea/:ideaSlug/position", h.addPosition, h.onlyOwnerMW, h.ideaMW)
 
 	e.GET("/empty", func(c echo.Context) error { return c.NoContent(200) })
 
@@ -87,11 +85,12 @@ func (h *handler) MustEcho() *echo.Echo {
 	e.GET("/401", func(c echo.Context) error { return ui.Render401(c) })
 	e.GET("/404", func(c echo.Context) error { return ui.Render404(c) })
 	e.GET("/500", func(c echo.Context) error { return ui.Render500(c) })
+	e.GET("/wrongtoken", func(c echo.Context) error { return ui.RenderWrongToken(c) })
 
 	return e
 }
 
-func NewHandler(pr positionRepo, ir ideaRepo, mp marketProvider, ar analystRepo, as authService, log *slog.Logger) *handler {
+func NewHandler(pr positionRepo, ir ideaRepo, mp marketProvider, ar analystRepo, as tokenAuthService, log *slog.Logger) *handler {
 	return &handler{
 		pos: pr,
 		mp:  mp,

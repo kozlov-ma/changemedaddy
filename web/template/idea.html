@@ -50,10 +50,11 @@
                 </div>
             </div>
             {{ end }}
-
+            <!--  -->
+            {{ if .IsOwner }}
             <div class="create-buttons w-full px-4 sm:px-6 lg:px-8 mt-8 flex justify-between">
                 <button
-                    hx-get="/idea/{{ .ID }}/new_position"
+                    hx-get="/analyst/{{ .AuthorSlug }}/idea/{{ .Slug }}/new_position"
                     hx-swap="beforebegin"
                     hx-target=".create-buttons"
                     class="inline-flex items-center justify-center whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 h-10 px-4 py-2"
@@ -61,6 +62,7 @@
                     Добавить Новую Позицию
                 </button>
             </div>
+            {{ end}}
         </div>
         </div>
     </body>

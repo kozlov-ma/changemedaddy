@@ -7,7 +7,8 @@ import (
 )
 
 type PositionForm struct {
-	IdeaID int
+	IdeaSlug    string
+	AnalystSlug string
 
 	PrevTicker  string
 	WrongTicker bool
@@ -21,9 +22,10 @@ type PositionForm struct {
 	WrongDeadline bool
 }
 
-func NewPosition(ideaID int) PositionForm {
+func NewPosition(ideaSlug, analystSlug string) PositionForm {
 	return PositionForm{
-		IdeaID: ideaID,
+		IdeaSlug:    ideaSlug,
+		AnalystSlug: analystSlug,
 	}
 }
 
