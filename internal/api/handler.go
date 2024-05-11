@@ -65,7 +65,7 @@ func (h *handler) MustEcho() *echo.Echo {
 
 	e.GET("/position/:positionID", h.getPosition)
 
-	e.GET("/chart-data/:ticker/from/:openedAt/to/:deadline", h.getChartData)
+	e.GET("/chart-data/:ticker/from/:openedAt/to/:deadline/interval/:interval", h.getChartData)
 
 	e.GET("/token_auth/:token", h.tokenAuth)
 	e.POST("/token_auth/:token", h.tokenAuth)

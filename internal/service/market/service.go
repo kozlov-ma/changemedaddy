@@ -26,6 +26,23 @@ var (
 		"TQLV", "TQNE", "TQNL",
 		"TQPI", "TQTF",
 	)
+
+	MarkerIntervalToDuration = map[int]time.Duration{
+		1:  1 * time.Minute,
+		10: 2 * 60 * time.Minute,
+		6:  2 * time.Minute,
+		7:  3 * time.Minute,
+		11: 4 * 60 * time.Minute,
+		4:  60 * time.Minute,
+		2:  5 * time.Minute,
+		8:  10 * time.Minute,
+		3:  15 * time.Minute,
+		9:  30 * time.Minute,
+		5:  24 * 60 * time.Minute,
+		13: 4 * 7 * 24 * 60 * time.Minute,
+		0:  7 * 24 * 60 * time.Minute,
+		12: 7 * 24 * 60 * time.Minute,
+	}
 )
 
 type service struct {
@@ -114,17 +131,21 @@ func (s *service) Price(ctx context.Context, i *instrument.Instrument) (decimal.
 }
 
 func (s *service) GetCandles(ctx context.Context, i *instrument.WithInterval) ([]chart.Candle, error) {
-	to := timeext.Min(i.Deadline, time.Now())
-	candles, err := s.marketDataService.GetHistoricCandles(&investgo.GetHistoricCandlesRequest{
+	from := i.OpenedAt.Local().Add(-120 * MarkerIntervalToDuration[i.MarketInterval])
+	to := timeext.Min(i.Deadline.Local(), time.Now().Local())
+
+	req := &investgo.GetHistoricCandlesRequest{
 		Instrument: i.Uid,
-		Interval:   pb.CandleInterval_CANDLE_INTERVAL_HOUR,
-		From:       time.Now().Add(-48 * time.Hour),
+		Interval:   pb.CandleInterval(i.MarketInterval),
+		From:       from,
 		To:         to,
 		File:       false,
 		FileName:   "",
 		Source:     pb.GetCandlesRequest_CANDLE_SOURCE_UNSPECIFIED,
-	})
+	}
+	candles, err := s.marketDataService.GetHistoricCandles(req)
 	if err != nil {
+		s.logger.Debug("пизда рулям", "req", req)
 		return []chart.Candle{}, fmt.Errorf("fail to get candles %w", err)
 	}
 
