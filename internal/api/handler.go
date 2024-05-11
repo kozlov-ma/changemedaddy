@@ -63,8 +63,6 @@ func (h *handler) MustEcho() *echo.Echo {
 	e.Use(slogecho.New(h.log))
 	ui.NewRenderer().Register(e)
 
-	e.GET("/position/:positionID", h.getPosition)
-
 	e.GET("/chart-data/:ticker/from/:openedAt/to/:deadline/interval/:interval", h.getChartData)
 
 	e.GET("/token_auth/:token", h.tokenAuth)
@@ -74,10 +72,13 @@ func (h *handler) MustEcho() *echo.Echo {
 	ae.GET("/:analystSlug", h.getAnalyst)
 	ae.GET("/:analystSlug/idea/:ideaSlug", h.getIdea, h.ideaMW)
 	ae.GET("/:analystSlug/new_idea", h.ideaForm)
+	ae.GET("/:analystSlug/idea/:ideaSlug/position/:positionID", h.getPosition, h.ideaMW, h.positionMW)
 
 	ae.GET("/:analystSlug/idea/:ideaSlug/new_position", h.positionForm, h.onlyOwnerMW, h.ideaMW)
 	ae.POST("/:analystSlug/idea", h.addIdea, h.onlyOwnerMW)
 	ae.POST("/:analystSlug/idea/:ideaSlug/position", h.addPosition, h.onlyOwnerMW, h.ideaMW)
+	ae.GET("/:analystSlug/idea/:ideaSlug/edit_position/:positionID", h.editPositionForm, h.onlyOwnerMW, h.ideaMW, h.positionMW)
+	ae.PATCH("/:analystSlug/idea/:ideaSlug/position/:positionID", h.editPosition, h.onlyOwnerMW, h.ideaMW, h.positionMW)
 
 	e.GET("/empty", func(c echo.Context) error { return c.NoContent(200) })
 

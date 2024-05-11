@@ -4,10 +4,11 @@ import (
 	"changemedaddy/internal/domain/chart"
 	"changemedaddy/internal/pkg/assert"
 	"fmt"
-	"github.com/goodsign/monday"
 	"html/template"
 	"io"
 	"time"
+
+	"github.com/goodsign/monday"
 
 	"github.com/Masterminds/sprig"
 	"github.com/greatcloak/decimal"
@@ -53,6 +54,9 @@ func NewRenderer() *templateRenderer {
 		},
 		"ruDateFormat": func(t time.Time) string {
 			return monday.Format(t, "2 January 2006", monday.LocaleRuRU)
+		},
+		"shortDateFormat": func(t time.Time) string {
+			return monday.Format(t, "2.01.2006", monday.LocaleRuRU)
 		},
 		"IdeaCard": IdeaCard,
 		"Position": Position,

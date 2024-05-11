@@ -75,8 +75,7 @@ func (h *handler) addPosition(c echo.Context) error {
 	var opt position.CreationOptions
 	if err := c.Bind(&opt); err != nil {
 		h.log.Warn("couldn't bind position creation options", "err", err)
-		ui.Render400(c)
-		return err
+		return c.Redirect(307, "/400")
 	}
 
 	i := c.Get("idea").(*idea.Idea)
@@ -107,7 +106,7 @@ func (h *handler) addPosition(c echo.Context) error {
 		return err
 	}
 
-	return ui.Position(wp).Render(c)
+	return ui.Position(true, i.AuthorSlug, i.Slug, wp).Render(c)
 }
 
 func (h *handler) positionForm(c echo.Context) error {

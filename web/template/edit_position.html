@@ -1,0 +1,110 @@
+<div>
+  <form
+    hx-patch="/analyst/{{ .AuthorSlug }}/idea/{{ .IdeaSlug }}/position/{{ .ID }}"
+    hx-target="this"
+    hx-swap="outerHTML"
+  >
+    <div class="flex flex-col">
+      <div class="mt-4 flex items-center justify-center">
+        <div class="w-full px-4 sm:px-6 lg:px-8">
+          <div class="bg-white rounded-lg shadow-md p-6">
+            <div class="flex flex-col gap-y-6 justify-start">
+              <h2 class="assetname text-2xl font-bold">Новая позиция</h2>
+
+              <div>
+                <div class="flex items-center justify-between mb-4">
+                  <div>
+                    <span class="text-gray-500 mr-2"> Тикер </span>
+                    <span
+                      type="text"
+                      class="text-center text-xl font-bold w-24 outline-none rounded-md"
+                      disabled
+                      >{{ .Ticker }}</span
+                    >
+                  </div>
+                  {{ if .Type | eq "LONG" }}
+                  <span
+                    class="bg-green-100 text-green-800 px-3 py-1 rounded-full text-sm"
+                  >
+                    {{ .Type }}
+                  </span>
+                  {{ else }}
+                  <span
+                    class="bg-red-100 text-red-800 px-3 py-1 rounded-full text-sm"
+                  >
+                    {{ .Type }}
+                  </span>
+                  {{ end }}
+                </div>
+
+                <label>
+                  <span class="text-gray-500 mr-2"> Цель </span>
+                  <input
+                    class="text-lg font-semibold  outline-none rounded-md w-20 text-center {{ if .WrongTarget }} border-2 border-solid border-red-500 {{ end }} [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+                    type="number"
+                    name="target_price"
+                    value="{{ .PrevTarget }}"
+                    placeholder="{{ .TargetHint }}"
+                  />
+
+                  {{ if .WrongTarget }}
+                  <span class="text-red-500"> Неверная целевая цена. </span>
+                  {{ end }}
+                </label>
+              </div>
+
+              <div>
+                <label>
+                  <span class="text-gray-500 mr-2"> Дедлайн </span>
+                  <input
+                    class="text-lg font-semibold outline-none rounded-md w-24 {{ if .WrongDeadline }} border-2 border-solid border-red-500 {{ end }} [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+                    type="text"
+                    name="deadline"
+                    value="{{ .PrevDeadline }}"
+                    placeholder="{{ .DeadlineHint | shortDateFormat }}"
+                  />
+
+                  {{ if .WrongDeadline }}
+                  <span class="text-red-500"> Неверный дедлайн. </span>
+                  {{ end }}
+                </label>
+              </div>
+
+              <div class="flex items-center mb-4">
+                <label
+                  class="text-sm font-medium text-gray-900 dark:text-gray-300"
+                >
+                  <input
+                    type="checkbox"
+                    name="close"
+                    value="true"
+                    class="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600"
+                  />
+
+                  <span class="text-gray-500 font-semibold mr-2">
+                    Закрыть позицию по текущей цене
+                  </span>
+                </label>
+              </div>
+
+              <div class="flex-row">
+                <button
+                  class="bg-green-100 mr-2 p-2 rounded-md text-green-500 hover:text-gray-600 hover:bg-green-300 transition duration-300"
+                >
+                  <span>Сохранить</span>
+                </button>
+
+                <button
+                  hx-get="/analyst/{{ .AuthorSlug }}/idea/{{ .IdeaSlug }}/position/{{ .ID}}"
+                  class="bg-red-100 p-2 rounded-md text-red-500 hover:text-gray-600 hover:bg-red-300 transition duration-300"
+                >
+                  <span>Отмена</span>
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </form>
+</div>

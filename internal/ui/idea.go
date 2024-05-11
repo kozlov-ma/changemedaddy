@@ -17,6 +17,7 @@ type IdeaComponent struct {
 	AuthorSlug string
 
 	SourceLink string
+	HasSource  bool
 
 	PositionIDs []int
 
@@ -33,6 +34,7 @@ func Idea(i *idea.Idea, isOwner bool) IdeaComponent {
 		AuthorName:  i.AuthorName,
 		AuthorSlug:  i.AuthorSlug,
 		SourceLink:  i.SourceLink,
+		HasSource:   len(i.SourceLink) > 0,
 		PositionIDs: i.PositionIDs,
 		IsActive:    i.Status == idea.Active,
 		IsOwner:     isOwner,

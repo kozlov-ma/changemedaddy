@@ -1,7 +1,9 @@
 package main
 
 import (
+	"changemedaddy/internal/aggregate/analyst"
 	"changemedaddy/internal/api"
+	"changemedaddy/internal/domain/position"
 	"changemedaddy/internal/pkg/closer"
 	"changemedaddy/internal/repository/analystrepo"
 	"changemedaddy/internal/repository/idearepo"
@@ -16,6 +18,8 @@ import (
 	"os/signal"
 	"syscall"
 	"time"
+
+	"github.com/greatcloak/decimal"
 )
 
 const (
@@ -43,9 +47,38 @@ func main() {
 
 	// generate some fake data
 	func() {
+		as.RegisterAs("mk0101", "MK")
+
+		an, err := as.Auth(ctx, "mk0101")
+		if err != nil {
+			panic(err)
+		}
+
+		i, err := an.NewIdea(ctx, ideaRepo, analyst.IdeaCreationOptions{
+			Name: "Магнит по 11к",
+		})
+		if err != nil {
+			panic(err)
+		}
+
+		p, err := i.NewPosition(ctx, mp, posRepo, ideaRepo, position.CreationOptions{
+			Ticker:      "MGNT",
+			Type:        position.Long,
+			TargetPrice: "11000",
+			Deadline:    "31.05.2024",
+		})
+		if err != nil {
+			panic(err)
+		}
+
+		p.OpenDate = time.Date(2024, time.March, 10, 13, 31, 32, 0, time.Local)
+		p.OpenPrice = decimal.NewFromInt(7841)
+		if err := p.Save(ctx, posRepo); err != nil {
+			panic(err)
+		}
+
 		as.RegisterAs("test", "test analyst")
 		as.RegisterAs("shemet-no-lifer", "Павел Шеметов")
-		as.RegisterAs("mk0101", "MK")
 		as.RegisterAs("d1sturm", "Иван Домашних")
 	}()
 

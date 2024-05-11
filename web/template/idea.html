@@ -23,12 +23,14 @@
                             <a href="/analyst/{{ .AuthorSlug }}">
                             <p class="by text-gray-500">by {{ .AuthorName }}</p>
                             </a>
+                            {{ if .HasSource }}
                             <a
                                 class="inline-flex items-center justify-center whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 h-10 px-4 py-2"
                                 href="{{ .SourceLink }}"
                             >
                                 Посмотреть Идею
                             </a>
+                            {{ end }}
                         </div>
                     </div>
                 </div>
@@ -36,9 +38,10 @@
         </div>
 
         <div>
-            {{ range $id := .PositionIDs }}
+            {{ $idea := . }}
+            {{ range $id, $p := .PositionIDs }}
             <div
-                hx-get="/position/{{ $id }}"
+                hx-get="/analyst/{{ $idea.AuthorSlug }}/idea/{{ $idea.Slug }}/position/{{ $id }}"
                 hx-trigger="load"
                 hx-swap="outerHTML"
             >

@@ -85,7 +85,7 @@ func New(ctx context.Context, mp marketProvider, ps positionSaver, opt CreationO
 		parseError = errors.Join(parseError, err, ErrTargetPrice)
 	}
 
-	deadline, err := time.Parse("2.01.2006", opt.Deadline)
+	deadline, err := time.ParseInLocation("2.01.2006", opt.Deadline, time.Local)
 	if err != nil {
 		parseError = errors.Join(parseError, err, ErrParseDeadline)
 	} else if deadline.Before(time.Now()) {
@@ -231,4 +231,52 @@ func (p *Position) ChangeTargetPrice(ctx context.Context, pu positionUpdater, ne
 
 	p.TargetPrice = old
 	return fmt.Errorf("couldn't save position: %w", err)
+}
+
+type ChangeOptions struct {
+	TargetPrice string `form:"target_price"`
+	Deadline    string `form:"deadline"`
+	Close       string `form:"close"`
+}
+
+func (wp *WithProfit) ApplyChange(ctx context.Context, opt ChangeOptions, pu positionUpdater) error {
+	var parseError error
+
+	if opt.TargetPrice != "" {
+		tp, err := decimal.NewFromString(opt.TargetPrice)
+		if err != nil || tp.LessThan(decimal.Zero) {
+			parseError = errors.Join(parseError, err, ErrTargetPrice)
+		} else {
+			if wp.Type == Long && tp.LessThan(wp.Instrument.Price) {
+				parseError = errors.Join(ErrTargetPrice)
+			} else if wp.Type == Short && wp.Instrument.Price.LessThan(tp) {
+				parseError = errors.Join(ErrTargetPrice)
+			} else {
+				if err := wp.ChangeTargetPrice(ctx, pu, tp); err != nil {
+					return fmt.Errorf("couldn't change target price: %w", err)
+				}
+			}
+		}
+	}
+
+	if opt.Deadline != "" {
+		deadline, err := time.ParseInLocation("02.01.2006", opt.Deadline, time.Local)
+		if err != nil {
+			parseError = errors.Join(parseError, err, ErrParseDeadline)
+		} else if deadline.Before(time.Now()) {
+			parseError = errors.Join(parseError, ErrParseDeadline)
+		} else {
+			if err := wp.ChangeDeadline(ctx, pu, deadline); err != nil {
+				return fmt.Errorf("couldn't change deadline: %w", err)
+			}
+		}
+	}
+
+	if opt.Close == "true" {
+		if err := wp.Close(ctx, pu); err != nil {
+			return fmt.Errorf("couldn't close position: %w", err)
+		}
+	}
+
+	return parseError
 }

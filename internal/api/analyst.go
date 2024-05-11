@@ -5,7 +5,6 @@ import (
 	"changemedaddy/internal/aggregate/idea"
 	"changemedaddy/internal/ui"
 	"errors"
-	"strconv"
 
 	"github.com/labstack/echo/v4"
 )
@@ -13,26 +12,6 @@ import (
 func (h *handler) analystMiddleware(next echo.HandlerFunc) echo.HandlerFunc {
 	return func(c echo.Context) error {
 		var a *analyst.Analyst
-
-		idS := c.Param("analystID")
-		if idS != "" {
-			id, err := strconv.Atoi(idS)
-			if err != nil {
-				h.log.Debug("tried to get analyst with wrong id", "id", id, "err", err)
-				return c.Redirect(307, "/404")
-			}
-
-			an, err := h.ar.Find(c.Request().Context(), id)
-			if errors.Is(err, analyst.ErrNotFound) {
-				h.log.Debug("couldn't find analyst: given id does not exist", "id", id)
-				return c.Redirect(307, "/404")
-			} else if err != nil {
-				h.log.Error("couldn't find analyst", "id", id, "err", err)
-				return c.Redirect(307, "/500")
-			}
-			a = an
-		}
-
 		slug := c.Param("analystSlug")
 		if slug != "" {
 			an, err := h.ar.FindBySlug(c.Request().Context(), slug)

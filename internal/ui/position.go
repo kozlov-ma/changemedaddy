@@ -17,6 +17,8 @@ type PositionComponent struct {
 	AssetName string
 	Type      string
 
+	AuthorSlug, IdeaSlug string
+
 	Profitable bool
 	ProfitP    string
 
@@ -33,14 +35,28 @@ type PositionComponent struct {
 
 	Deadline time.Time
 	OpenDate time.Time
+
+	IsOwner bool
 }
 
-func Position(p position.WithProfit) PositionComponent {
+func Position(isOwner bool, authorSlug, ideaSlug string, p position.WithProfit) PositionComponent {
+	var change, changeP string
+	if p.Status == position.Active {
+		change = withSign(p.TargetPrice.Sub(p.Instrument.Price))
+		changeP = withSign(p.TargetPrice.Sub(p.Instrument.Price).Div(p.Instrument.Price).Mul(decimal.NewFromInt(100)).Round(2))
+	} else if p.Status == position.Closed {
+		change = withSign(p.ClosedPrice.Sub(p.OpenPrice))
+		changeP = withSign(p.ClosedPrice.Sub(p.OpenPrice).Div(p.OpenPrice).Mul(decimal.NewFromInt(100)).Round(2))
+	}
+
 	return PositionComponent{
 		ID:        p.ID,
 		Ticker:    strings.ToUpper(p.Instrument.Ticker),
 		Type:      strings.ToUpper(string(p.Type)),
 		AssetName: p.Instrument.Name,
+
+		AuthorSlug: authorSlug,
+		IdeaSlug:   ideaSlug,
 
 		Profitable: p.ProfitP.GreaterThanOrEqual(decimal.Zero),
 		ProfitP:    withSign(p.ProfitP),
@@ -52,11 +68,13 @@ func Position(p position.WithProfit) PositionComponent {
 		CurPrice:  p.Instrument.Price,
 
 		TargetPrice: p.TargetPrice,
-		Change:      withSign(p.TargetPrice.Sub(p.Instrument.Price)),
-		ChangeP:     withSign(p.TargetPrice.Sub(p.Instrument.Price).Div(p.Instrument.Price).Mul(decimal.NewFromInt(100)).Round(2)),
+		Change:      change,
+		ChangeP:     changeP,
 
 		Deadline: p.Deadline,
 		OpenDate: p.OpenDate,
+
+		IsOwner: isOwner,
 	}
 }
 

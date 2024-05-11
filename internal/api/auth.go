@@ -56,7 +56,7 @@ func (h *handler) tokenAuth(c echo.Context) error {
 func (h *handler) ownerMW(next echo.HandlerFunc) echo.HandlerFunc {
 	return func(c echo.Context) error {
 		author, ok := c.Get("analyst").(*analyst.Analyst)
-		assert.That(ok, "analyst not found in ownerMW context")
+		assert.That(ok && author != nil, "analyst not found in ownerMW context")
 
 		cookie, err := c.Cookie("token")
 		if err != nil {
