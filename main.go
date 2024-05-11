@@ -27,17 +27,17 @@ func main() {
 	ctx, stop := signal.NotifyContext(context.Background(), syscall.SIGINT, syscall.SIGTERM)
 	defer stop()
 
-	posRepo := positionrepo.NewInMem()
-	ideaRepo := idearepo.NewInMem()
-	mp := market.NewService(ctx)
-
-	ar := analystrepo.NewInmem()
-
 	handler := slog.NewJSONHandler(os.Stderr, &slog.HandlerOptions{
 		AddSource: true,
 		Level:     slog.LevelDebug,
 	})
 	log := slog.New(handler)
+
+	posRepo := positionrepo.NewInMem()
+	ideaRepo := idearepo.NewInMem()
+	mp := market.NewService(log)
+
+	ar := analystrepo.NewInmem()
 
 	as := tokenauth.NewFake(ar)
 
@@ -55,12 +55,15 @@ func main() {
 		c = &closer.Closer{}
 	)
 
-	c.Add(srv.Shutdown)
 	c.Add(mp.Shutdown)
+	c.Add(srv.Shutdown)
 
 	go func() {
 		if err := api.NewHandler(posRepo, ideaRepo, mp, ar, as, log).MustEcho().StartServer(srv); err != nil {
-			log.Error("listen and serve", err)
+			log.Info(
+				"stop listen and serve",
+				"status", err,
+			)
 		}
 	}()
 

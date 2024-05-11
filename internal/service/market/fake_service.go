@@ -83,11 +83,11 @@ func (s *fakeService) GetCandles(ctx context.Context, i *instrument.WithInterval
 			low := min(opn, cls) - rand.Intn(11)
 
 			candles = append(candles, chart.Candle{
-				Time:  int(curDate.Unix()),
-				Open:  opn,
-				High:  high,
-				Low:   low,
-				Close: cls,
+				Time:  curDate.Unix(),
+				Open:  float64(opn),
+				High:  float64(high),
+				Low:   float64(low),
+				Close: float64(cls),
 			})
 
 			curDate = curDate.Add(timeStep)

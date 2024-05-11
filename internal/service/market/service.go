@@ -3,11 +3,13 @@ package market
 import (
 	"changemedaddy/internal/domain/chart"
 	"changemedaddy/internal/domain/instrument"
+	"changemedaddy/internal/pkg/collection"
 	"changemedaddy/internal/pkg/timeext"
 	"context"
+	"fmt"
 	"github.com/greatcloak/decimal"
 	pb "github.com/russianinvestments/invest-api-go-sdk/proto"
-	"log"
+	"log/slog"
 	"strings"
 	"time"
 
@@ -17,17 +19,26 @@ import (
 	"github.com/russianinvestments/invest-api-go-sdk/investgo"
 )
 
+var (
+	allowedClassCodes = collection.NewSet(
+		"TQBR", "TQBS",
+		"TQDE", "TQIF", "TQLI",
+		"TQLV", "TQNE", "TQNL",
+		"TQPI", "TQTF",
+	)
+)
+
 type service struct {
-	logger             *zap.SugaredLogger
+	logger             *slog.Logger
 	client             *investgo.Client
 	instrumentsService *investgo.InstrumentsServiceClient
 	marketDataService  *investgo.MarketDataServiceClient
 }
 
-func NewService(ctx context.Context) *service {
+func NewService(log *slog.Logger) *service {
 	config, err := investgo.LoadConfig("internal/service/market/config.yaml")
 	if err != nil {
-		log.Fatalf("config loading error %v", err.Error())
+		log.Error("config loading error", "error", err.Error())
 	}
 
 	// сдк использует для внутреннего логирования investgo.Logger
@@ -38,13 +49,13 @@ func NewService(ctx context.Context) *service {
 	l, err := zapConfig.Build()
 	logger := l.Sugar()
 	if err != nil {
-		log.Fatalf("logger creating error %v", err)
+		log.Error("logger creating error", "error", err)
 	}
 	// создаем клиента для investAPI, он позволяет создавать нужные сервисы и уже
 	// через них вызывать нужные методы
-	client, err := investgo.NewClient(ctx, config, logger)
+	client, err := investgo.NewClient(context.Background(), config, logger)
 	if err != nil {
-		logger.Fatalf("client creating error %v", err.Error())
+		log.Error("client creating error ", "error", err.Error())
 	}
 
 	// создаем клиента для сервиса инструментов
@@ -52,7 +63,7 @@ func NewService(ctx context.Context) *service {
 	// создаем клиента для сервиса маркетдаты
 	marketDataService := client.NewMarketDataServiceClient()
 	return &service{
-		logger:             logger,
+		logger:             log,
 		client:             client,
 		instrumentsService: instrumentsService,
 		marketDataService:  marketDataService,
@@ -64,7 +75,6 @@ func (s *service) Find(ctx context.Context, ticker string) (*instrument.Instrume
 
 	instrResp, err := s.instrumentsService.FindInstrument(ticker)
 	if err != nil {
-		s.logger.Errorf(err.Error())
 		return &instrument.Instrument{}, instrument.ErrNotFound
 	}
 
@@ -74,7 +84,7 @@ func (s *service) Find(ctx context.Context, ticker string) (*instrument.Instrume
 		if found == true {
 			break
 		}
-		if in.Ticker == ticker {
+		if in.Ticker == ticker && allowedClassCodes.Contains(in.GetClassCode()) {
 			found = true
 			return &instrument.Instrument{
 				Name:   in.GetName(),
@@ -96,12 +106,10 @@ func (s *service) Price(ctx context.Context, i *instrument.Instrument) (decimal.
 
 	lastPriceResp, err := s.marketDataService.GetLastPrices(instruments)
 	if err != nil {
-		s.logger.Error(err.Error())
-		return decimal.Zero, instrument.ErrNotFound
+		return decimal.Zero, fmt.Errorf("fail to get price %w", err)
 	}
 	lp := lastPriceResp.GetLastPrices()
 	res := lp[0].GetPrice().ToFloat()
-	s.logger.Debugf("last price number %v = %v\n", i.Ticker, res)
 	return decimal.NewFromFloat(res), nil
 }
 
@@ -109,26 +117,25 @@ func (s *service) GetCandles(ctx context.Context, i *instrument.WithInterval) ([
 	to := timeext.Min(i.Deadline, time.Now())
 	candles, err := s.marketDataService.GetHistoricCandles(&investgo.GetHistoricCandlesRequest{
 		Instrument: i.Uid,
-		Interval:   pb.CandleInterval_CANDLE_INTERVAL_1_MIN,
-		From:       i.OpenedAt,
+		Interval:   pb.CandleInterval_CANDLE_INTERVAL_HOUR,
+		From:       time.Now().Add(-48 * time.Hour),
 		To:         to,
 		File:       false,
 		FileName:   "",
 		Source:     pb.GetCandlesRequest_CANDLE_SOURCE_UNSPECIFIED,
 	})
 	if err != nil {
-		s.logger.Errorf(err.Error())
-		return []chart.Candle{}, err
+		return []chart.Candle{}, fmt.Errorf("fail to get candles %w", err)
 	}
 
 	chartCandles := make([]chart.Candle, 0)
 	for _, candle := range candles {
 		chartCandles = append(chartCandles, chart.Candle{
-			Time:  int(candle.Time.AsTime().Unix()),
-			Open:  int(candle.Open.Units),
-			High:  int(candle.High.Units),
-			Low:   int(candle.Low.Units),
-			Close: int(candle.Close.Units),
+			Time:  candle.Time.AsTime().Unix(),
+			Open:  candle.Open.ToFloat(),
+			High:  candle.High.ToFloat(),
+			Low:   candle.Low.ToFloat(),
+			Close: candle.Close.ToFloat(),
 		})
 	}
 
@@ -136,15 +143,9 @@ func (s *service) GetCandles(ctx context.Context, i *instrument.WithInterval) ([
 }
 
 func (s *service) Shutdown(ctx context.Context) error {
-	if err := s.logger.Sync(); err != nil {
-		log.Printf(err.Error())
-		return err
-	}
-
-	s.logger.Infof("closing client connection")
+	s.logger.Info("closing client connection")
 	if err := s.client.Stop(); err != nil {
-		s.logger.Errorf("client shutdown error %v", err.Error())
-		return err
+		return fmt.Errorf("client shutdown error %w", err)
 	}
 
 	return nil
