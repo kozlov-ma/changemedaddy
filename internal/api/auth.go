@@ -20,6 +20,16 @@ func writeCookie(c echo.Context, name, value string) {
 	c.SetCookie(cookie)
 }
 
+func deleteCookie(c echo.Context, name string) {
+	cookie := new(http.Cookie)
+	cookie.Name = name
+	cookie.Value = ""
+	cookie.Expires = time.Now()
+	cookie.MaxAge = -1
+	cookie.Path = "/"
+	c.SetCookie(cookie)
+}
+
 func (h *handler) tokenAuth(c echo.Context) error {
 	token := c.Param("token")
 	if token == "" {
@@ -30,6 +40,7 @@ func (h *handler) tokenAuth(c echo.Context) error {
 	a, err := h.as.Auth(c.Request().Context(), token)
 	if errors.Is(err, analyst.ErrWrongToken) {
 		h.log.Debug("user tried logging in with wrong token", "token", token)
+		deleteCookie(c, "token")
 		return c.Redirect(307, "/wrongtoken")
 	}
 
@@ -49,14 +60,16 @@ func (h *handler) ownerMW(next echo.HandlerFunc) echo.HandlerFunc {
 
 		cookie, err := c.Cookie("token")
 		if err != nil {
-			h.log.Debug("user tried logging in without token", "err", err, "cookies", c.Cookies())
-			return c.Redirect(307, "/wrongtoken")
+			h.log.Debug("user tried to log in without token", "err", err, "cookies", c.Cookies())
+			c.Set("isOwner", false)
+			deleteCookie(c, "token")
+			return next(c)
 		}
 
 		token := cookie.Value
 		user, err := h.as.Auth(c.Request().Context(), token)
 		if errors.Is(err, analyst.ErrWrongToken) {
-			h.log.Info("user tried logging in with wrong token", "token", token)
+			h.log.Info("user tried to log in with wrong token", "token", token)
 			return c.Redirect(307, "/wrongtoken")
 		} else if err != nil {
 			h.log.Error("couldn't authenticate user", "token", token, "err", err)
