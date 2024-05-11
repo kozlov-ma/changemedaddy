@@ -3,11 +3,12 @@ package api
 import (
 	"changemedaddy/internal/domain/chart"
 	"encoding/json"
-	"github.com/labstack/echo/v4"
 	"net/http"
 	"strconv"
 	"strings"
 	"time"
+
+	"github.com/labstack/echo/v4"
 )
 
 func (h *handler) getChartData(c echo.Context) error {

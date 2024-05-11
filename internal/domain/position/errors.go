@@ -9,6 +9,6 @@ var (
 
 	ErrTicker        = errors.New("cannot create position: instrument with this ticker does not exist")
 	ErrParseType     = errors.New("position type does not exist")
-	ErrTargerPrice   = errors.New("wrong target price")
+	ErrTargetPrice   = errors.New("wrong target price")
 	ErrParseDeadline = errors.New("couldn't parse deadline")
 )

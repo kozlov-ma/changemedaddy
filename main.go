@@ -46,7 +46,6 @@ func main() {
 		as.RegisterAs("test", "test analyst")
 		as.RegisterAs("shemet-no-lifer", "Павел Шеметов")
 		as.RegisterAs("mk0101", "MK")
-
 		as.RegisterAs("d1sturm", "Иван Домашних")
 	}()
 

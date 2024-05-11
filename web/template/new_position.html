@@ -21,6 +21,11 @@
                   value="{{ .PrevTicker }}"
                   required
                 />
+                {{ if .WrongTicker }}
+                <span class="text-red-500">
+                  Акция с таким тикером не найдена.
+                </span>
+                {{ end }}
               </label>
 
               <div
@@ -51,6 +56,10 @@
                     value="{{ .PrevTarget }}"
                     required
                   />
+
+                  {{ if .WrongTarget }}
+                  <span class="text-red-500"> Неверная целевая цена. </span>
+                  {{ end }}
                 </label>
               </div>
 
@@ -65,6 +74,10 @@
                     value="{{ .PrevDeadline }}"
                     required
                   />
+
+                  {{ if .WrongDeadline }}
+                  <span class="text-red-500"> Неверный дедлайн. </span>
+                  {{ end }}
                 </label>
               </div>
 

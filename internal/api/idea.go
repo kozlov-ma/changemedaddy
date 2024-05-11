@@ -81,14 +81,14 @@ func (h *handler) addPosition(c echo.Context) error {
 
 	i := c.Get("idea").(*idea.Idea)
 	p, err := i.NewPosition(c.Request().Context(), h.mp, h.pos, h.ir, opt)
-	if errors.Is(err, position.ErrTicker) || errors.Is(err, position.ErrParseType) || errors.Is(err, position.ErrTargerPrice) || errors.Is(err, position.ErrParseDeadline) {
+	if errors.Is(err, position.ErrTicker) || errors.Is(err, position.ErrParseType) || errors.Is(err, position.ErrTargetPrice) || errors.Is(err, position.ErrParseDeadline) {
 		pf := ui.PositionForm{
 			IdeaSlug:      i.Slug,
 			AnalystSlug:   i.AuthorSlug,
 			PrevTicker:    opt.Ticker,
 			WrongTicker:   errors.Is(err, position.ErrTicker),
 			PrevTarget:    opt.TargetPrice,
-			WrongTarget:   errors.Is(err, position.ErrTargerPrice),
+			WrongTarget:   errors.Is(err, position.ErrTargetPrice),
 			WrongType:     errors.Is(err, position.ErrParseType),
 			PrevDeadline:  opt.Deadline,
 			WrongDeadline: errors.Is(err, position.ErrParseDeadline),

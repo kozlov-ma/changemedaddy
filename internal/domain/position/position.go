@@ -82,7 +82,7 @@ func New(ctx context.Context, mp marketProvider, ps positionSaver, opt CreationO
 
 	tp, err := decimal.NewFromString(opt.TargetPrice)
 	if err != nil || tp.LessThan(decimal.Zero) {
-		parseError = errors.Join(parseError, err, ErrTargerPrice)
+		parseError = errors.Join(parseError, err, ErrTargetPrice)
 	}
 
 	deadline, err := time.Parse("2.01.2006", opt.Deadline)
@@ -92,13 +92,19 @@ func New(ctx context.Context, mp marketProvider, ps positionSaver, opt CreationO
 		parseError = errors.Join(parseError, ErrParseDeadline)
 	}
 
-	if parseError != nil {
-		return nil, parseError
-	}
-
 	wp, err := i.WithPrice(ctx, mp)
 	if err != nil {
 		return nil, fmt.Errorf("couldn't get instrument (%q) price: %w", i.Ticker, err)
+	}
+
+	if opt.Type == Long && tp.LessThan(wp.Price) {
+		parseError = errors.Join(ErrTargetPrice)
+	} else if opt.Type == Short && wp.Price.LessThan(tp) {
+		parseError = errors.Join(ErrTargetPrice)
+	}
+
+	if parseError != nil {
+		return nil, parseError
 	}
 
 	pos := &Position{
