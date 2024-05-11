@@ -11,6 +11,7 @@ import (
 type Instrument struct {
 	Name   string
 	Ticker string
+	Uid    string
 }
 
 type WithPrice struct {

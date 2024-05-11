@@ -95,13 +95,10 @@ class ChartComponent extends HTMLElement {
 
     this.attachShadow({ mode: "open" });
     const template = document.createElement("template");
-    // template.innerHTML = `<div>
-    //                         <div id="chart-container"></div>
-    //                         <button id="scrollBtn">>></button>
-    //                       </div>`;
     template.innerHTML = `<div>
-                                <div id="chart-container"></div>
-                              </div>`;
+                            <div id="chart-container"></div>
+                            <button id="scrollBtn">>></button>
+                          </div>`;
 
     const clonedTemplate = document.importNode(template.content, true);
     this.shadowRoot.appendChild(clonedTemplate);

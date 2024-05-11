@@ -6,96 +6,146 @@ import (
 	"changemedaddy/internal/pkg/timeext"
 	"context"
 	"github.com/greatcloak/decimal"
-	"math/rand"
+	pb "github.com/russianinvestments/invest-api-go-sdk/proto"
+	"log"
 	"strings"
 	"time"
+
+	"go.uber.org/zap"
+	"go.uber.org/zap/zapcore"
+
+	"github.com/russianinvestments/invest-api-go-sdk/investgo"
 )
 
-type fakeService struct {
+type service struct {
+	logger             *zap.SugaredLogger
+	client             *investgo.Client
+	instrumentsService *investgo.InstrumentsServiceClient
+	marketDataService  *investgo.MarketDataServiceClient
 }
 
-func NewFakeService() *fakeService {
-	return &fakeService{}
+func NewService(ctx context.Context) *service {
+	config, err := investgo.LoadConfig("internal/service/market/config.yaml")
+	if err != nil {
+		log.Fatalf("config loading error %v", err.Error())
+	}
+
+	// сдк использует для внутреннего логирования investgo.Logger
+	// для примера передадим uber.zap
+	zapConfig := zap.NewDevelopmentConfig()
+	zapConfig.EncoderConfig.EncodeTime = zapcore.TimeEncoderOfLayout(time.DateTime)
+	zapConfig.EncoderConfig.TimeKey = "time"
+	l, err := zapConfig.Build()
+	logger := l.Sugar()
+	if err != nil {
+		log.Fatalf("logger creating error %v", err)
+	}
+	// создаем клиента для investAPI, он позволяет создавать нужные сервисы и уже
+	// через них вызывать нужные методы
+	client, err := investgo.NewClient(ctx, config, logger)
+	if err != nil {
+		logger.Fatalf("client creating error %v", err.Error())
+	}
+
+	// создаем клиента для сервиса инструментов
+	instrumentsService := client.NewInstrumentsServiceClient()
+	// создаем клиента для сервиса маркетдаты
+	marketDataService := client.NewMarketDataServiceClient()
+	return &service{
+		logger:             logger,
+		client:             client,
+		instrumentsService: instrumentsService,
+		marketDataService:  marketDataService,
+	}
 }
 
-func (s *fakeService) Find(ctx context.Context, ticker string) (*instrument.Instrument, error) {
+func (s *service) Find(ctx context.Context, ticker string) (*instrument.Instrument, error) {
 	ticker = strings.ToUpper(ticker)
 
-	if ticker == "MGNT" {
-		return &instrument.Instrument{
-			Name:   "Магнит",
-			Ticker: "MGNT",
-		}, nil
+	instrResp, err := s.instrumentsService.FindInstrument(ticker)
+	if err != nil {
+		s.logger.Errorf(err.Error())
+		return &instrument.Instrument{}, instrument.ErrNotFound
 	}
 
-	if ticker == "SBER" {
-		return &instrument.Instrument{
-			Name:   "Сбер Банк",
-			Ticker: "SBER",
-		}, nil
+	ins := instrResp.GetInstruments()
+	found := false
+	for _, in := range ins {
+		if found == true {
+			break
+		}
+		if in.Ticker == ticker {
+			found = true
+			return &instrument.Instrument{
+				Name:   in.GetName(),
+				Ticker: in.GetTicker(),
+				Uid:    in.GetUid(),
+			}, nil
+		}
 	}
 
-	return &instrument.Instrument{}, instrument.ErrNotFound
+	return &instrument.Instrument{
+		Name:   ins[0].GetName(),
+		Ticker: ins[0].GetTicker(),
+		Uid:    ins[0].GetUid(),
+	}, nil
 }
 
-func (s *fakeService) Price(ctx context.Context, i *instrument.Instrument) (decimal.Decimal, error) {
-	if i.Ticker == "MGNT" {
-		return decimal.NewFromFloat(8240.1), nil
-	}
+func (s *service) Price(ctx context.Context, i *instrument.Instrument) (decimal.Decimal, error) {
+	instruments := []string{i.Uid}
 
-	if i.Ticker == "SBER" {
-		return decimal.NewFromFloat(309.2), nil
+	lastPriceResp, err := s.marketDataService.GetLastPrices(instruments)
+	if err != nil {
+		s.logger.Error(err.Error())
+		return decimal.Zero, instrument.ErrNotFound
 	}
-
-	return decimal.Zero, instrument.ErrNotFound
+	lp := lastPriceResp.GetLastPrices()
+	res := lp[0].GetPrice().ToFloat()
+	s.logger.Debugf("last price number %v = %v\n", i.Ticker, res)
+	return decimal.NewFromFloat(res), nil
 }
 
-func (s *fakeService) GetCandles(ctx context.Context, i *instrument.WithInterval) ([]chart.Candle, error) {
-	if i.Instrument.Ticker == "MGNT" || i.Instrument.Ticker == "SBER" {
-		endAt := timeext.Min(i.Deadline, time.Now())
-		daysCount := endAt.Sub(i.OpenedAt).Hours() / 24
-
-		var timeStep time.Duration
-		var candlesCount int
-		switch {
-		case daysCount < 2:
-			timeStep = 15 * time.Minute
-			candlesCount = int(daysCount * float64(24*60) / 15)
-		case daysCount < 15:
-			timeStep = time.Hour
-			candlesCount = int(daysCount * float64(24))
-		default:
-			timeStep = 24 * time.Hour
-			candlesCount = int(daysCount)
-		}
-
-		candles := make([]chart.Candle, 0)
-
-		prevClose := 1000
-		var candlesBeforeOpened time.Duration = 15
-		candlesCount += int(candlesBeforeOpened)
-		curDate := i.OpenedAt.Add(-candlesBeforeOpened * timeStep)
-
-		for i := 0; i < candlesCount; i++ {
-			opn := prevClose
-			cls := opn + rand.Intn(20) - 10
-			high := max(opn, cls) + rand.Intn(11)
-			low := min(opn, cls) - rand.Intn(11)
-
-			candles = append(candles, chart.Candle{
-				Time:  int(curDate.Unix()),
-				Open:  opn,
-				High:  high,
-				Low:   low,
-				Close: cls,
-			})
-
-			curDate = curDate.Add(timeStep)
-			prevClose = cls
-		}
-
-		return candles, nil
+func (s *service) GetCandles(ctx context.Context, i *instrument.WithInterval) ([]chart.Candle, error) {
+	to := timeext.Min(i.Deadline, time.Now())
+	candles, err := s.marketDataService.GetHistoricCandles(&investgo.GetHistoricCandlesRequest{
+		Instrument: i.Uid,
+		Interval:   pb.CandleInterval_CANDLE_INTERVAL_1_MIN,
+		From:       i.OpenedAt,
+		To:         to,
+		File:       false,
+		FileName:   "",
+		Source:     pb.GetCandlesRequest_CANDLE_SOURCE_UNSPECIFIED,
+	})
+	if err != nil {
+		s.logger.Errorf(err.Error())
+		return []chart.Candle{}, err
 	}
 
-	return nil, instrument.ErrNotFound
+	chartCandles := make([]chart.Candle, 0)
+	for _, candle := range candles {
+		chartCandles = append(chartCandles, chart.Candle{
+			Time:  int(candle.Time.AsTime().Unix()),
+			Open:  int(candle.Open.Units),
+			High:  int(candle.High.Units),
+			Low:   int(candle.Low.Units),
+			Close: int(candle.Close.Units),
+		})
+	}
+
+	return chartCandles, nil
+}
+
+func (s *service) Shutdown(ctx context.Context) error {
+	if err := s.logger.Sync(); err != nil {
+		log.Printf(err.Error())
+		return err
+	}
+
+	s.logger.Infof("closing client connection")
+	if err := s.client.Stop(); err != nil {
+		s.logger.Errorf("client shutdown error %v", err.Error())
+		return err
+	}
+
+	return nil
 }
