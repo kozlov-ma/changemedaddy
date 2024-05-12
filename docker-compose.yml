@@ -1,0 +1,11 @@
+version: "3.8"
+
+services:
+  everything:
+    container_name: everything
+    build: .
+    command: go run main.go
+    logging:
+      driver: json-file
+    ports:
+      - "443:8080"
