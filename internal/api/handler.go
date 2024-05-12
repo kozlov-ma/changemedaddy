@@ -25,9 +25,8 @@ type (
 	ideaRepo interface {
 		Save(ctx context.Context, i *idea.Idea) error
 		Update(ctx context.Context, i *idea.Idea) error
-		Find(ctx context.Context, id int) (*idea.Idea, error)
-		FindByAnalystID(ctx context.Context, id int) ([]*idea.Idea, error)
-		FindBySlug(ctx context.Context, analystID int, slug string) (*idea.Idea, error)
+		FindByAnalystSlug(ctx context.Context, analystSLug string) ([]*idea.Idea, error)
+		FindBySlug(ctx context.Context, analystSlug string, slug string) (*idea.Idea, error)
 	}
 
 	marketProvider interface {

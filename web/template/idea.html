@@ -39,7 +39,7 @@
 
         <div>
             {{ $idea := . }}
-            {{ range $id, $p := .PositionIDs }}
+            {{ range $idx, $id := .PositionIDs }}
             <div
                 hx-get="/analyst/{{ $idea.AuthorSlug }}/idea/{{ $idea.Slug }}/position/{{ $id }}"
                 hx-trigger="load"
@@ -47,7 +47,7 @@
             >
                 <div class="mt-4 flex-1 flex items-center justify-center">
                     <div class="w-full px-4 sm:px-6 lg:px-8">
-                        <div class="animate-pulse bg-white rounded-lg shadow-md p-6">
+                        <div class="min-h-20 animate-pulse bg-white rounded-lg shadow-md p-6">
                         </div>
                     </div>
                 </div>

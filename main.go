@@ -20,12 +20,16 @@ import (
 	"time"
 
 	"github.com/greatcloak/decimal"
+	"go.mongodb.org/mongo-driver/mongo"
+	"go.mongodb.org/mongo-driver/mongo/options"
 )
 
 const (
 	srvAddr         = ":8080"
 	shutdownTimeout = 5 * time.Second
 )
+
+const mongoString = "mongodb://127.0.0.1:27017/?directConnection=true&serverSelectionTimeoutMS=2000&appName=mongosh+2.2.4"
 
 func main() {
 	ctx, stop := signal.NotifyContext(context.Background(), syscall.SIGINT, syscall.SIGTERM)
@@ -37,25 +41,35 @@ func main() {
 	})
 	log := slog.New(handler)
 
-	posRepo := positionrepo.NewInMem()
-	ideaRepo := idearepo.NewInMem()
+	client, err := mongo.Connect(ctx, options.Client().ApplyURI(mongoString))
+	if err != nil {
+		panic(err)
+	}
+
+	posRepo := positionrepo.NewMongo(ctx, client)
+	ideaRepo := idearepo.NewMongo(ctx, client)
 	mp := market.NewService(log)
 
 	ar := analystrepo.NewInmem()
 
 	as := tokenauth.NewFake(ar)
 
-	// generate some fake data
 	func() {
 		as.RegisterAs("mk0101", "MK")
 
+		as.RegisterAs("test", "test analyst")
+		as.RegisterAs("shemet-no-lifer", "Павел Шеметов")
+		as.RegisterAs("d1sturm", "Иван Домашних")
+	}()
+
+	fakeMeIdeas := func() {
 		an, err := as.Auth(ctx, "mk0101")
 		if err != nil {
 			panic(err)
 		}
 
 		i, err := an.NewIdea(ctx, ideaRepo, analyst.IdeaCreationOptions{
-			Name: "Магнит по 11к",
+			Name: "Магнит 🚀🌕",
 		})
 		if err != nil {
 			panic(err)
@@ -73,13 +87,14 @@ func main() {
 
 		p.OpenDate = time.Date(2024, time.March, 10, 13, 31, 32, 0, time.Local)
 		p.OpenPrice = decimal.NewFromInt(7841)
-		if err := p.Save(ctx, posRepo); err != nil {
+		if err := posRepo.Update(ctx, p); err != nil {
 			panic(err)
 		}
+	}
 
-		as.RegisterAs("test", "test analyst")
-		as.RegisterAs("shemet-no-lifer", "Павел Шеметов")
-		as.RegisterAs("d1sturm", "Иван Домашних")
+	// generate some fake data
+	func() {
+		fakeMeIdeas()
 	}()
 
 	var (
@@ -93,22 +108,20 @@ func main() {
 
 	c.Add(mp.Shutdown)
 	c.Add(srv.Shutdown)
+	c.Add(func(ctx context.Context) error {
+		return client.Disconnect(ctx)
+	})
 
 	go func() {
-		if err := api.NewHandler(posRepo, ideaRepo, mp, ar, as, log).MustEcho().StartServer(srv); err != nil {
-			log.Info(
-				"stop listen and serve",
-				"status", err,
-			)
+		<-ctx.Done()
+
+		shutdownCtx, cancel := context.WithTimeout(context.Background(), shutdownTimeout)
+		defer cancel()
+
+		if err := c.Close(shutdownCtx); err != nil {
+			fmt.Printf("closer: %v", err)
 		}
 	}()
 
-	<-ctx.Done()
-
-	shutdownCtx, cancel := context.WithTimeout(context.Background(), shutdownTimeout)
-	defer cancel()
-
-	if err := c.Close(shutdownCtx); err != nil {
-		fmt.Printf("closer: %v", err)
-	}
+	panic(api.NewHandler(posRepo, ideaRepo, mp, ar, as, log).MustEcho().StartServer(srv))
 }

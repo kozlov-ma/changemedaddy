@@ -11,7 +11,6 @@ import (
 )
 
 type Analyst struct {
-	ID   int    `bson:"id"`
 	Slug string `bson:"slug"`
 	Name string `bson:"name"`
 }
@@ -66,26 +65,25 @@ func (a *Analyst) NewIdea(ctx context.Context, is ideaSaver, io IdeaCreationOpti
 		Name:       io.Name,
 		AuthorName: a.Name,
 		AuthorSlug: a.Slug,
-		AuthorID:   a.ID,
 		SourceLink: io.SourceLink,
 	}
 
 	i, err := idea.New(ctx, is, opt)
 	if err != nil {
-		return nil, fmt.Errorf("couldn't create idea (for analyst id %v): %w", a.ID, err)
+		return nil, fmt.Errorf("couldn't create idea for analyst: %w", err)
 	}
 
 	return i, nil
 }
 
 type ideaFinder interface {
-	FindByAnalystID(ctx context.Context, id int) ([]*idea.Idea, error)
+	FindByAnalystSlug(ctx context.Context, slug string) ([]*idea.Idea, error)
 }
 
 func (a *Analyst) Ideas(ctx context.Context, idf ideaFinder) ([]*idea.Idea, error) {
-	ii, err := idf.FindByAnalystID(ctx, a.ID)
+	ii, err := idf.FindByAnalystSlug(ctx, a.Slug)
 	if err != nil {
-		return ii, fmt.Errorf("couldn't find ideas for analyst (id %q): %w", a.ID, err)
+		return ii, fmt.Errorf("couldn't find ideas for analyst (slug %q): %w", a.Slug, err)
 	}
 	return ii, err
 }

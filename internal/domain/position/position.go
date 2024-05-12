@@ -6,6 +6,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"math/rand/v2"
 	"time"
 
 	"github.com/greatcloak/decimal"
@@ -17,22 +18,19 @@ type (
 	Status string
 
 	Position struct {
-		ID int
-		// Author      *analyst.Analyst
+		ID int `bson:"id"`
 
-		Instrument *instrument.Instrument
+		Instrument *instrument.Instrument `bson:"instrument"`
 
-		Type   Type
-		Status Status
+		Type   Type   `bson:"type"`
+		Status Status `bson:"status"`
 
-		OpenPrice   decimal.Decimal
-		TargetPrice decimal.Decimal
-		ClosedPrice decimal.Decimal
+		OpenPrice   decimal.Decimal `bson:"open_price"`
+		TargetPrice decimal.Decimal `bson:"target_price"`
+		ClosedPrice decimal.Decimal `bson:"closed_price"`
 
-		Deadline time.Time
-		OpenDate time.Time
-
-		IdeaPartP decimal.Decimal
+		Deadline time.Time `bson:"deadline"`
+		OpenDate time.Time `bson:"open_date"`
 	}
 )
 
@@ -108,6 +106,7 @@ func New(ctx context.Context, mp marketProvider, ps positionSaver, opt CreationO
 	}
 
 	pos := &Position{
+		ID:          rand.Int(),
 		Instrument:  i,
 		Type:        opt.Type,
 		Status:      Active,
@@ -170,10 +169,6 @@ var (
 
 type positionSaver interface {
 	Save(ctx context.Context, p *Position) error
-}
-
-func (p *Position) Save(ctx context.Context, to positionSaver) error {
-	return to.Save(ctx, p)
 }
 
 type positionUpdater interface {
@@ -260,7 +255,7 @@ func (wp *WithProfit) ApplyChange(ctx context.Context, opt ChangeOptions, pu pos
 	}
 
 	if opt.Deadline != "" {
-		deadline, err := time.ParseInLocation("02.01.2006", opt.Deadline, time.Local)
+		deadline, err := time.ParseInLocation("2.01.2006", opt.Deadline, time.Local)
 		if err != nil {
 			parseError = errors.Join(parseError, err, ErrParseDeadline)
 		} else if deadline.Before(time.Now()) {
@@ -270,6 +265,10 @@ func (wp *WithProfit) ApplyChange(ctx context.Context, opt ChangeOptions, pu pos
 				return fmt.Errorf("couldn't change deadline: %w", err)
 			}
 		}
+	}
+
+	if parseError != nil {
+		return parseError
 	}
 
 	if opt.Close == "true" {

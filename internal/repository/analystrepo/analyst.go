@@ -25,7 +25,6 @@ func (i *inmem) Save(_ context.Context, new *analyst.Analyst) error {
 		}
 	}
 
-	new.ID = len(i.aa)
 	i.aa = append(i.aa, new)
 
 	return nil
