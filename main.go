@@ -9,6 +9,7 @@ import (
 	"changemedaddy/internal/repository/idearepo"
 	"changemedaddy/internal/repository/positionrepo"
 	"changemedaddy/internal/repository/tokenrepo"
+	"changemedaddy/internal/repository/visitorsrepo"
 	"changemedaddy/internal/service/market"
 	"changemedaddy/internal/service/tokenauth"
 	"context"
@@ -30,7 +31,7 @@ const (
 	shutdownTimeout = 5 * time.Second
 )
 
-const mongoString = "mongodb://127.0.0.1:27017/?directConnection=true&serverSelectionTimeoutMS=2000&appName=mongosh+2.2.4"
+const mongoString = "mongodb://db:27017/?directConnection=true&serverSelectionTimeoutMS=2000&appName=mongosh+2.2.4"
 
 func main() {
 	ctx, stop := signal.NotifyContext(context.Background(), syscall.SIGINT, syscall.SIGTERM)
@@ -49,6 +50,7 @@ func main() {
 
 	posRepo := positionrepo.NewMongo(ctx, client)
 	ideaRepo := idearepo.NewMongo(ctx, client)
+	visitorsRepo := visitorsrepo.NewInmem(ctx)
 	mp := market.NewService(log)
 
 	ar := analystrepo.NewMongo(ctx, client)
@@ -97,7 +99,7 @@ func main() {
 		}
 	}
 
-	// generate some fake data
+	//generate some fake data
 	func() {
 		fakeMeIdeas()
 	}()
@@ -128,5 +130,5 @@ func main() {
 		}
 	}()
 
-	panic(api.NewHandler(posRepo, ideaRepo, mp, ar, as, log).MustEcho().StartServer(srv))
+	panic(api.NewHandler(posRepo, visitorsRepo, ideaRepo, mp, ar, as, log).MustEcho().StartServer(srv))
 }

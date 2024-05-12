@@ -149,10 +149,9 @@ func (p *Position) WithProfit(ctx context.Context, pp priceProvider) (WithProfit
 	}
 
 	if p.Status == Closed {
-		profitP = p.ClosedPrice.Sub(p.OpenPrice).Mul(mul)
+		profitP = p.ClosedPrice.Sub(p.OpenPrice).Mul(mul).Div(p.OpenPrice).Mul(decimal.NewFromInt(100))
 	} else {
-
-		profitP = wp.Price.Sub(p.OpenPrice).Mul(mul)
+		profitP = wp.Price.Sub(p.OpenPrice).Mul(mul).Div(p.OpenPrice).Mul(decimal.NewFromInt(100))
 	}
 
 	return WithProfit{

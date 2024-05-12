@@ -1,8 +1,8 @@
 version: "3.8"
 
 services:
-  everything:
-    container_name: everything
+  app:
+    container_name: app
     build: .
     command: go run main.go
     logging:

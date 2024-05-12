@@ -43,10 +43,16 @@ type (
 	tokenAuthService interface {
 		Auth(ctx context.Context, token string) (*analyst.Analyst, error)
 	}
+
+	visitorsRepo interface {
+		Add(ctx context.Context, a *analyst.Analyst, ip string)
+		GetAll(ctx context.Context) map[string]int
+	}
 )
 
 type handler struct {
 	pos positionRepo
+	vr  visitorsRepo
 	mp  marketProvider
 	ir  ideaRepo
 	ar  analystRepo
@@ -59,6 +65,7 @@ func (h *handler) MustEcho() *echo.Echo {
 	e.Static("/static", "web/chart")
 
 	e.Use(slogecho.New(h.log))
+	e.Use(h.adminMW)
 	ui.NewRenderer().Register(e)
 
 	e.GET("/chart-data/:ticker/from/:openedAt/to/:deadline/interval/:interval", h.getChartData)
@@ -68,7 +75,7 @@ func (h *handler) MustEcho() *echo.Echo {
 
 	ae := e.Group("/analyst", h.analystMiddleware, h.ownerMW)
 	ae.GET("/:analystSlug", h.getAnalyst)
-	ae.GET("/:analystSlug/idea/:ideaSlug", h.getIdea, h.ideaMW)
+	ae.GET("/:analystSlug/idea/:ideaSlug", h.getIdea, h.ideaMW, h.visitorsMW)
 	ae.GET("/:analystSlug/new_idea", h.ideaForm)
 	ae.GET("/:analystSlug/idea/:ideaSlug/position/:positionID", h.getPosition, h.ideaMW, h.positionMW)
 
@@ -86,12 +93,17 @@ func (h *handler) MustEcho() *echo.Echo {
 	e.GET("/500", func(c echo.Context) error { return ui.Render500(c) })
 	e.GET("/wrongtoken", func(c echo.Context) error { return ui.RenderWrongToken(c) })
 
+	e.GET("/analytics", h.getVisitorsCount, h.adminonlyMW)
+
+	e.GET("/makeadmin/:password", h.makeAdmin)
+
 	return e
 }
 
-func NewHandler(pr positionRepo, ir ideaRepo, mp marketProvider, ar analystRepo, as tokenAuthService, log *slog.Logger) *handler {
+func NewHandler(pr positionRepo, vr visitorsRepo, ir ideaRepo, mp marketProvider, ar analystRepo, as tokenAuthService, log *slog.Logger) *handler {
 	return &handler{
 		pos: pr,
+		vr:  vr,
 		mp:  mp,
 		ir:  ir,
 		ar:  ar,

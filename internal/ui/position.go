@@ -59,7 +59,7 @@ func Position(isOwner bool, authorSlug, ideaSlug string, p position.WithProfit) 
 		IdeaSlug:   ideaSlug,
 
 		Profitable: p.ProfitP.GreaterThanOrEqual(decimal.Zero),
-		ProfitP:    withSign(p.ProfitP),
+		ProfitP:    withSign(p.ProfitP.Round(2)),
 
 		IsClosed:   p.Status == position.Closed,
 		ClosePrice: p.ClosedPrice,
