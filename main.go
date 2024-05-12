@@ -8,6 +8,7 @@ import (
 	"changemedaddy/internal/repository/analystrepo"
 	"changemedaddy/internal/repository/idearepo"
 	"changemedaddy/internal/repository/positionrepo"
+	"changemedaddy/internal/repository/tokenrepo"
 	"changemedaddy/internal/service/market"
 	"changemedaddy/internal/service/tokenauth"
 	"context"
@@ -52,14 +53,18 @@ func main() {
 
 	ar := analystrepo.NewInmem()
 
-	as := tokenauth.NewFake(ar)
+	tr := tokenrepo.NewMongo(ctx, client)
+	as := tokenauth.New(log, ar, tr)
 
 	func() {
-		as.RegisterAs("mk0101", "MK")
+		err := as.RegisterAs(ctx, "mk0101", "MK")
+		if err != nil {
+			panic(err)
+		}
 
-		as.RegisterAs("test", "test analyst")
-		as.RegisterAs("shemet-no-lifer", "Павел Шеметов")
-		as.RegisterAs("d1sturm", "Иван Домашних")
+		as.RegisterAs(ctx, "test", "test analyst")
+		as.RegisterAs(ctx, "shemet-no-lifer", "Павел Шеметов")
+		as.RegisterAs(ctx, "d1sturm", "Иван Домашних")
 	}()
 
 	fakeMeIdeas := func() {
