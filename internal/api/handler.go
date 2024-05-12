@@ -37,7 +37,6 @@ type (
 
 	analystRepo interface {
 		Save(ctx context.Context, a *analyst.Analyst) error
-		Find(ctx context.Context, id int) (*analyst.Analyst, error)
 		FindBySlug(ctx context.Context, slug string) (*analyst.Analyst, error)
 	}
 

@@ -51,7 +51,7 @@ func main() {
 	ideaRepo := idearepo.NewMongo(ctx, client)
 	mp := market.NewService(log)
 
-	ar := analystrepo.NewInmem()
+	ar := analystrepo.NewMongo(ctx, client)
 
 	tr := tokenrepo.NewMongo(ctx, client)
 	as := tokenauth.New(log, ar, tr)
