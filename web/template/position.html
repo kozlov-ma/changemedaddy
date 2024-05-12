@@ -39,7 +39,7 @@
             </div>
             <div class="flex items-center justify-between mb-4">
               <p class="ticker text-gray-500">{{ .Ticker }}</p>
-              {{ if.Profitable }}
+              {{ if .Profitable }}
               <p class="curprice text-green-500 font-bold">
                 {{ .CurPrice }} ({{ .ProfitP }}%)
               </p>

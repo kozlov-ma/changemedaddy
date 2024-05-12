@@ -179,14 +179,18 @@ func (wp WithProfit) Close(ctx context.Context, pu positionUpdater) error {
 		return ErrClosedPositionModified
 	}
 
+	oldd := wp.Position.Deadline
+
 	wp.Status = Closed
 	wp.ClosedPrice = wp.Instrument.Price
+	wp.Deadline = time.Now()
 
 	err := pu.Update(ctx, wp.Position)
 	if err == nil {
 		return nil
 	}
 
+	wp.Deadline = oldd
 	wp.Status = Active
 	return fmt.Errorf("couldn't save position: %w", err)
 }
