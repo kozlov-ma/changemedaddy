@@ -22,7 +22,7 @@
         <div class="w-full px-4 sm:px-6 lg:px-8">
           <div class="bg-white rounded-lg shadow-md p-6">
             <div class="flex items-center justify-between mb-4">
-              <h2 class="assetname text-2xl font-bold">{{ .AssetName }}</h2>
+              <h2 class="text-2xl font-bold">{{ .AssetName }}</h2>
               {{ if .Type | eq "LONG" }}
               <span
                 class="bg-green-100 text-green-800 px-3 py-1 rounded-full text-sm"
@@ -67,7 +67,7 @@
               <!--  -->
               {{ if .Profitable }}
               <div>
-                <p class="name text-gray-500 mb-1">Прибыль</p>
+                <p class="name text-gray-500 mb-1">Доходность</p>
                 <p class="value text-green-500 font-medium">
                   {{ .Change }} ( {{ .ChangeP }}%)
                 </p>

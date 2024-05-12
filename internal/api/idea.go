@@ -6,7 +6,6 @@ import (
 	"changemedaddy/internal/domain/position"
 	"changemedaddy/internal/ui"
 	"errors"
-	"strconv"
 
 	"github.com/labstack/echo/v4"
 )
@@ -16,17 +15,15 @@ func (h *handler) ideaMW(next echo.HandlerFunc) echo.HandlerFunc {
 		var i *idea.Idea
 
 		a, _ := c.Get("analyst").(*analyst.Analyst)
-		slug := c.Param("ideaSlug")
-		if a != nil && slug != "" {
-			ia, err := h.ir.FindBySlug(c.Request().Context(), a.ID, slug)
+		iSlug := c.Param("ideaSlug")
+		if a != nil && iSlug != "" {
+			ia, err := h.ir.FindBySlug(c.Request().Context(), a.Slug, iSlug)
 			if errors.Is(err, idea.ErrNotFound) {
-				h.log.Debug("couldn't find idea: given slug does not exist", "slug", slug)
-				ui.Render404(c)
-				return err
+				h.log.Debug("couldn't find idea: given slug does not exist", "slug", iSlug)
+				return c.Redirect(307, "/404")
 			} else if err != nil {
-				h.log.Error("couldn't find idea", "slug", slug, "err", err)
-				ui.Render500(c)
-				return err
+				h.log.Error("couldn't find idea", "slug", iSlug, "err", err)
+				return c.Redirect(307, "/500")
 			}
 
 			i = ia
@@ -37,31 +34,7 @@ func (h *handler) ideaMW(next echo.HandlerFunc) echo.HandlerFunc {
 			return next(c)
 		}
 
-		idS := c.Param("ideaID")
-		if idS != "" {
-			id, err := strconv.Atoi(idS)
-			if err != nil {
-				h.log.Debug("tried to get idea with wrong id", "id", id, "err", err)
-				ui.Render404(c)
-				return err
-			}
-
-			ia, err := h.ir.Find(c.Request().Context(), id)
-			if errors.Is(err, idea.ErrNotFound) {
-				h.log.Debug("couldn't find idea: given id does not exist", "id", id)
-				ui.Render404(c)
-				return err
-			} else if err != nil {
-				h.log.Error("couldn't find idea", "id", id, "err", err)
-				ui.Render500(c)
-				return err
-			}
-
-			i = ia
-		}
-
-		c.Set("idea", i)
-		return next(c)
+		return c.Redirect(307, "/404")
 	}
 }
 

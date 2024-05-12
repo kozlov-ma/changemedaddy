@@ -28,7 +28,6 @@ type IdeaComponent struct {
 
 func Idea(i *idea.Idea, isOwner bool) IdeaComponent {
 	return IdeaComponent{
-		ID:          i.ID,
 		Name:        i.Name,
 		Slug:        i.Slug,
 		AuthorName:  i.AuthorName,

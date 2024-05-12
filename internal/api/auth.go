@@ -76,7 +76,7 @@ func (h *handler) ownerMW(next echo.HandlerFunc) echo.HandlerFunc {
 			return c.Redirect(307, "/500")
 		}
 
-		c.Set("isOwner", user.ID == author.ID)
+		c.Set("isOwner", user.Slug == author.Slug)
 
 		return next(c)
 	}

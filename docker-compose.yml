@@ -9,3 +9,10 @@ services:
       driver: json-file
     ports:
       - "443:8080"
+
+  db:
+    image: mongo
+    container_name: mongodb
+    restart: always
+    ports:
+      - "27017:27017"

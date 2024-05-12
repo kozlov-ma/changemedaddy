@@ -18,7 +18,6 @@ const (
 )
 
 type Idea struct {
-	ID          int    `bson:"_id"`
 	Name        string `bson:"name"`
 	Slug        string `bson:"slug"`
 	AuthorID    int    `bson:"author_id"`
@@ -33,11 +32,6 @@ type Idea struct {
 type ideaSaver interface {
 	// Save saves the Idea i. It also saves all the positions of the Idea.
 	Save(ctx context.Context, i *Idea) error
-}
-
-// Save saves the Idea i to the ideaSaver. It also saves all the positions of the Idea.
-func (i *Idea) Save(ctx context.Context, is ideaSaver) error {
-	return is.Save(ctx, i)
 }
 
 type CreationOptions struct {
@@ -65,7 +59,7 @@ func New(ctx context.Context, is ideaSaver, opt CreationOptions) (*Idea, error) 
 		Status:     Active,
 	}
 
-	err := i.Save(ctx, is)
+	err := is.Save(ctx, i)
 	if err != nil {
 		return nil, fmt.Errorf("couldn't save idea: %w", err)
 	}
@@ -93,14 +87,14 @@ type ideaUpdater interface {
 func (i *Idea) NewPosition(ctx context.Context, mp marketProvider, ps positionSaver, iu ideaUpdater, opt position.CreationOptions) (*position.Position, error) {
 	p, err := position.New(ctx, mp, ps, opt)
 	if err != nil {
-		return nil, fmt.Errorf("couldn't create position (for idea id %v): %w", i.ID, err)
+		return nil, fmt.Errorf("couldn't create position: %w", err)
 	}
 
 	i.PositionIDs = append(i.PositionIDs, p.ID)
 
 	if err := iu.Update(ctx, i); err != nil {
 		i.PositionIDs = i.PositionIDs[:len(i.PositionIDs)-1]
-		return nil, fmt.Errorf("couldn't update idea (id %v): %w", i.ID, err)
+		return nil, fmt.Errorf("couldn't update idea: %w", err)
 	}
 
 	return p, nil

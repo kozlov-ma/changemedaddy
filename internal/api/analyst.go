@@ -25,6 +25,10 @@ func (h *handler) analystMiddleware(next echo.HandlerFunc) echo.HandlerFunc {
 			a = an
 		}
 
+		if a == nil {
+			return c.Redirect(307, "/404")
+		}
+
 		c.Set("analyst", a)
 		return next(c)
 	}

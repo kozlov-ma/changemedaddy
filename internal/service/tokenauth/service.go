@@ -3,66 +3,68 @@ package tokenauth
 import (
 	"changemedaddy/internal/aggregate/analyst"
 	"context"
+	"errors"
 	"fmt"
-	"sync"
+	"log/slog"
 )
 
 type analystRepo interface {
 	Save(ctx context.Context, a *analyst.Analyst) error
-	Find(ctx context.Context, id int) (*analyst.Analyst, error)
 	FindBySlug(ctx context.Context, slug string) (*analyst.Analyst, error)
 }
 
-type fakeService struct {
-	mu        sync.Mutex
-	tokenToID map[string]int
-	regAs     map[string]string
-	ar        analystRepo
+type tokenRepo interface {
+	SlugFromToken(ctx context.Context, token string) (string, error)
+	RegisterAs(ctx context.Context, token, slug string) error
 }
 
-func (f *fakeService) Auth(ctx context.Context, token string) (*analyst.Analyst, error) {
-	f.mu.Lock()
-	defer f.mu.Unlock()
+type service struct {
+	log *slog.Logger
+	tr  tokenRepo
+	ar  analystRepo
+}
 
-	id, ok := f.tokenToID[token]
-	if !ok {
-		regAs, ok := f.regAs[token]
-		if !ok {
-			return nil, analyst.ErrWrongToken
-		}
-
-		newAn, err := analyst.New(ctx, f.ar, analyst.CreationOptions{
-			Name: regAs,
-		})
-
-		f.tokenToID[token] = newAn.ID
-
-		if err != nil {
-			return nil, fmt.Errorf("couldn't create analyst (token %q): %w", token, err)
-		}
-
-		return newAn, nil
+func (f *service) Auth(ctx context.Context, token string) (*analyst.Analyst, error) {
+	slug, err := f.tr.SlugFromToken(ctx, token)
+	if err != nil {
+		return nil, fmt.Errorf("couldn't get slug (token %q): %w", token, err)
 	}
 
-	a, err := f.ar.Find(ctx, id)
+	a, err := f.ar.FindBySlug(ctx, slug)
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("couldn't find analyst: %w", err)
 	}
 
 	return a, nil
 }
 
-func (f *fakeService) RegisterAs(token, name string) {
-	f.mu.Lock()
-	defer f.mu.Unlock()
+func (f *service) RegisterAs(ctx context.Context, token, name string) error {
+	_, err := f.tr.SlugFromToken(ctx, token)
+	if err == nil {
+		return analyst.ErrDuplicateToken
+	} else if errors.Is(err, analyst.ErrWrongToken) || errors.Is(err, analyst.ErrDuplicateToken) {
+		return err
+	} else if err != analyst.ErrNotFound {
+		return fmt.Errorf("couldn't verify token: %w", err)
+	}
 
-	f.regAs[token] = name
+	an, err := analyst.New(context.Background(), f.ar, analyst.CreationOptions{Name: name})
+	if err != nil {
+		return fmt.Errorf("couldn't create analyst: %w", err)
+	}
+
+	if err := f.tr.RegisterAs(context.Background(), token, an.Slug); err != nil {
+		return fmt.Errorf("couldn't register token: %w", err)
+	}
+
+	f.log.DebugContext(ctx, "registered token-slug pair", "token", token, "slug", an.Slug)
+	return nil
 }
 
-func NewFake(ar analystRepo) *fakeService {
-	return &fakeService{
-		tokenToID: make(map[string]int),
-		regAs:     make(map[string]string),
-		ar:        ar,
+func New(log *slog.Logger, ar analystRepo, tr tokenRepo) *service {
+	return &service{
+		log: log,
+		tr:  tr,
+		ar:  ar,
 	}
 }
