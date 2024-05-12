@@ -1,7 +1,6 @@
 package positionrepo
 
 import (
-	"changemedaddy/internal/aggregate/idea"
 	"changemedaddy/internal/domain/instrument"
 	"changemedaddy/internal/domain/position"
 	"context"
@@ -73,7 +72,7 @@ func (r *mongoRepo) Update(ctx context.Context, p *position.Position) error {
 	sr := r.pp.FindOneAndReplace(ctx, positionFilter(p.ID), p)
 
 	if errors.Is(sr.Err(), mongo.ErrNoDocuments) {
-		return idea.ErrNotFound
+		return position.ErrNotFound
 	} else if sr.Err() != nil {
 		return fmt.Errorf("couldn't update position: %w", sr.Err())
 	}

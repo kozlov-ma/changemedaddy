@@ -42,6 +42,7 @@ type (
 
 	tokenAuthService interface {
 		Auth(ctx context.Context, token string) (*analyst.Analyst, error)
+		RegisterAs(ctx context.Context, token, name string) error
 	}
 
 	visitorsRepo interface {
@@ -96,6 +97,8 @@ func (h *handler) MustEcho() *echo.Echo {
 	e.GET("/analytics", h.getVisitorsCount, h.adminonlyMW)
 
 	e.GET("/makeadmin/:password", h.makeAdmin)
+	e.GET("/fakemedata", h.fakeMeData, h.adminonlyMW)
+	e.GET("/regtoken/:token/:forName", h.regToken, h.adminonlyMW)
 
 	return e
 }

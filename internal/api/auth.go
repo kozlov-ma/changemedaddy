@@ -38,7 +38,7 @@ func (h *handler) tokenAuth(c echo.Context) error {
 	}
 
 	a, err := h.as.Auth(c.Request().Context(), token)
-	if errors.Is(err, analyst.ErrWrongToken) {
+	if errors.Is(err, analyst.ErrWrongToken) || errors.Is(err, analyst.ErrNotFound) {
 		h.log.Debug("user tried logging in with wrong token", "token", token)
 		deleteCookie(c, "token")
 		return c.Redirect(307, "/wrongtoken")
@@ -46,6 +46,7 @@ func (h *handler) tokenAuth(c echo.Context) error {
 
 	if err != nil {
 		h.log.Error("couldn't authenticate user", "token", token, "err", err)
+		return c.Redirect(307, "/wrongtoken")
 	}
 
 	writeCookie(c, "token", token)
