@@ -1,0 +1,255 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>🚀 idea-x3.ru</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/htmx.org@1.9.12"></script>
+    <script src="/static/dist/bundle.js"></script>
+  </head>
+
+  <body class="flex flex-row justify-center">
+    <div
+      class="max-w-3xl mb-40 flex flex-col sm:gap-10 md:gap-24 lg:gap-24 gap-10 mx-12"
+    >
+      <div
+        class="absolute inset-x-0 top-[calc(100%-13rem)] -z-10 transform-gpu overflow-hidden blur-3xl sm:top-[calc(100%-30rem)]"
+        aria-hidden="true"
+      >
+        <div
+          class="relative left-[calc(50%+3rem)] aspect-[1155/678] w-[36.125rem] -translate-x-1/2 bg-gradient-to-tr from-[#ff80b5] to-[#9089fc] opacity-30 sm:left-[calc(50%+36rem)] sm:w-[72.1875rem]"
+          style="
+            clip-path: polygon(
+              74.1% 44.1%,
+              100% 61.6%,
+              97.5% 26.9%,
+              85.5% 0.1%,
+              80.7% 2%,
+              72.5% 32.5%,
+              60.2% 62.4%,
+              52.4% 68.1%,
+              47.5% 58.3%,
+              45.2% 34.5%,
+              27.5% 76.7%,
+              0.1% 64.9%,
+              17.9% 100%,
+              27.6% 76.8%,
+              76.1% 97.7%,
+              74.1% 44.1%
+            );
+          "
+        ></div>
+      </div>
+      <div class="bg-white pb-12">
+        <div class="relative isolate px-6 pt-14 lg:px-8">
+          <div
+            class="absolute inset-x-0 -top-40 -z-10 transform-gpu overflow-hidden blur-3xl sm:-top-80"
+            aria-hidden="true"
+          >
+            <div
+              class="relative left-[calc(50%-11rem)] aspect-[1155/678] w-[36.125rem] -translate-x-1/2 rotate-[30deg] bg-gradient-to-tr from-[#ff80b5] to-[#9089fc] opacity-30 sm:left-[calc(50%-30rem)] sm:w-[72.1875rem]"
+              style="
+                clip-path: polygon(
+                  74.1% 44.1%,
+                  100% 61.6%,
+                  97.5% 26.9%,
+                  85.5% 0.1%,
+                  80.7% 2%,
+                  72.5% 32.5%,
+                  60.2% 62.4%,
+                  52.4% 68.1%,
+                  47.5% 58.3%,
+                  45.2% 34.5%,
+                  27.5% 76.7%,
+                  0.1% 64.9%,
+                  17.9% 100%,
+                  27.6% 76.8%,
+                  76.1% 97.7%,
+                  74.1% 44.1%
+                );
+              "
+            ></div>
+          </div>
+          <div class="mx-auto max-w-2xl pt-32 sm:pt-32 lg:pt-56">
+            <div class="hidden sm:mb-8 sm:flex sm:justify-center"></div>
+            <div class="text-center">
+              <h1
+                class="text-4xl font-bold tracking-tight text-gray-900 sm:text-6xl"
+              >
+                Несите инвестидеи в массы.
+              </h1>
+              <p class="mt-6 text-lg leading-8 text-gray-600">
+                Современный и интуитивно понятный способ делиться инвестидеями с
+                любой аудиторией.
+              </p>
+              <div class="flex mt-10 items-center justify-center gap-x-6">
+                <div class="flex sm:mb-8 sm:justify-center">
+                  <div
+                    class="relative rounded-full px-3 py-1 text-sm leading-6 text-gray-600 ring-1 ring-gray-900/10 hover:ring-gray-900/20"
+                  >
+                    Создайте страницу сейчас.
+                    <a href="/contactus" class="font-semibold text-indigo-600"
+                      ><span class="absolute inset-0"></span>Связаться с нами
+                      <span aria-hidden="true">&rarr;</span></a
+                    >
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="bg-gray-500 bg-opacity-20 rounded-lg shadow-lg">
+        <div class="w-full p-4">
+          <div class="">
+            <div class="position">
+              <div class="flex flex-col">
+                <div class="flex-1 flex items-center justify-center">
+                  <div class="w-full">
+                    <div class="bg-white rounded-lg shadow-md p-6">
+                      <div class="flex items-center justify-between mb-4">
+                        <h2 class="text-2xl font-bold">Магнит 🚀🌕</h2>
+                        <span
+                          class="bg-green-100 text-green-800 px-3 py-1 rounded-full text-sm"
+                        >
+                          LONG
+                        </span>
+                      </div>
+                      <div class="flex items-center justify-between mb-4">
+                        <p class="ticker text-gray-500">MGNT</p>
+                        <p class="curprice text-green-500 font-bold">
+                          8319.1 (+18.7%)
+                        </p>
+                      </div>
+                      <chart-component
+                        url="/chart-data/MGNT/from/2024-01-22/to/2024-12-12"
+                      ></chart-component>
+                      <div
+                        class="posinfo grid grid-cols-2 justify-between auto-rows-auto gap-4 mb-6"
+                      >
+                        <div>
+                          <p class="name text-gray-500 mb-1">Цель</p>
+                          <p class="value text-gray-900 font-medium">11000</p>
+                        </div>
+                        <div>
+                          <p class="name text-gray-500 mb-1">Апсайд</p>
+                          <p class="value text-green-500 font-medium">
+                            +2621.5 (+31.29%)
+                          </p>
+                        </div>
+                        <div>
+                          <p class="name text-gray-500 mb-1">Дата открытия</p>
+                          <p class="value text-gray-900 font-medium">
+                            22 января 2024
+                          </p>
+                        </div>
+                        <div>
+                          <p class="name text-gray-500 mb-1">Срок позиции</p>
+                          <p class="value text-gray-900 font-medium">
+                            до 20 июня 2024
+                          </p>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div
+        class="relative isolate px-6 pt-14 lg:px-8 shadow-lg rounded-lg hover:shadow-indigo-300 hover:transition-all hover:duration-700 duration-700"
+      >
+        <div class="pb-12">
+          <div
+            class="grid md:grid-cols-2 md:grid-rows-1 lg:grid-cols-2 lg:grid-rows-1 sm:grid-cols-1 sm:grid-rows-2 sm:gap-4 md:gap-6 lg:gap-8 gap-4"
+          >
+            <div
+              class="p-6 gap-8 bg-gray-500 bg-opacity-10 rounded-lg shadow-lg hover:shadow-indigo-300 hover:transition-all hover:duration-700 duration-700"
+            >
+              <h2 class="font-bold text-indigo-600 text-xl mb-4">
+                Level-up для ваших идей
+              </h2>
+              <div class="flex flex-col gap-4">
+                <p>
+                  Добавляйте к своим постам и статьям с инвестидеями компактные
+                  веб-страницы. Это позволит читателям лучше понимать суть вашей
+                  идеи и принимать верные торговые решения.
+                </p>
+
+                <p>
+                  На сайте будет видна доходность, срок идеи и другая
+                  необходимая информация. Она автоматически обновляется в
+                  соответствии с рыночными данными.
+                </p>
+
+                <p>
+                  Для каждой позиции на странице отображается график. Он
+                  автоматически подстраивается под даты открытия и закрытия
+                  идеи, чтобы сразу отображать полезную информацию.
+                </p>
+              </div>
+            </div>
+            <div
+              class="grid grid-rows-3 justify-between sm:gap-4 md:gap-6 lg:gap-8 gap-4"
+            >
+              <div
+                class="p-6 flex flex-row gap-8 bg-gray-500 bg-opacity-10 rounded-lg shadow-lg hover:shadow-indigo-300 hover:transition-all hover:duration-700 duration-700"
+              >
+                <h2 class="font-bold text-indigo-600 text-xl">1.</h2>
+                <span>Создайте идею на сайте. Она будет доступна сразу же</span>
+              </div>
+              <div
+                class="p-6 flex flex-row gap-8 bg-gray-500 bg-opacity-10 rounded-lg shadow-lg hover:shadow-indigo-300 hover:transition-all hover:duration-700 duration-700"
+              >
+                <h2 class="font-bold text-indigo-600 text-xl">2.</h2>
+                <span
+                  >Добавьте позиции в идею. Мы рекомендуем открывать несколько
+                  разных идей для не связанных между собой позиций</span
+                >
+              </div>
+              <div
+                class="p-6 flex flex-row gap-8 bg-gray-500 bg-opacity-10 rounded-lg shadow-lg hover:shadow-indigo-300 hover:transition-all hover:duration-700 duration-700"
+              >
+                <h2 class="font-bold text-indigo-600 text-xl">3.</h2>
+                <span
+                  >Скопируйте ссылку из браузера и поделитесь с читателями.
+                  Можете добавить ее прямо в пост с описанием идеи</span
+                >
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div
+        class="relative isolate px-6 pt-14 lg:px-8 shadow-lg rounded-lg hover:shadow-indigo-300 hover:transition-all hover:duration-700 duration-700"
+      >
+        <div class="mt-12 pb-12">
+          <div class="text-center">
+            <h2
+              class="text-2xl font-bold tracking-tight text-gray-900 sm:text-4xl"
+            >
+              Сделайте свои инвестидеи лучше. Уже сегодня.
+            </h2>
+            <p class="mt-6 text-lg leading-8 text-gray-600">
+              Обратитесь к нам, и ваши пользователи получат более простые,
+              красивые и понятные инвестидеи уже сегодня.
+            </p>
+            <div class="mt-10 flex items-center justify-center gap-x-6">
+              <a
+                href="/contactus"
+                class="rounded-md bg-indigo-600 px-3.5 py-2.5 text-sm font-semibold text-white shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600"
+                >Связаться с нами</a
+              >
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </body>
+</html>
