@@ -29,7 +29,7 @@ const (
 	shutdownTimeout = 5 * time.Second
 )
 
-const mongoString = "mongodb://localhost:27017/?directConnection=true&serverSelectionTimeoutMS=2000&appName=mongosh+2.2.4"
+const mongoString = "mongodb://db:27017/?directConnection=true&serverSelectionTimeoutMS=2000&appName=mongosh+2.2.4"
 
 func main() {
 	ctx, stop := signal.NotifyContext(context.Background(), syscall.SIGINT, syscall.SIGTERM)
