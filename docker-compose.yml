@@ -4,7 +4,7 @@ services:
   app:
     container_name: app
     build: .
-    command: go run main.go
+    command: go run cmd/server/main.go
     logging:
       driver: json-file
     ports:
