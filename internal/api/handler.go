@@ -112,6 +112,8 @@ func (h *handler) MustEcho() *echo.Echo {
 	e.GET("/fakemedata", h.fakeMeData, h.adminonlyMW)
 	e.GET("/regtoken/:token/:forName", h.regToken, h.adminonlyMW)
 
+	e.GET("/", ui.Landing)
+
 	return e
 }
 
