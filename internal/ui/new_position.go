@@ -1,6 +1,7 @@
 package ui
 
 import (
+	"changemedaddy/internal/domain/position"
 	_ "embed"
 
 	"github.com/labstack/echo/v4"
@@ -16,6 +17,7 @@ type PositionForm struct {
 	PrevTarget  string
 	WrongTarget bool
 
+	PrevType  position.Type
 	WrongType bool
 
 	PrevDeadline  string
@@ -24,6 +26,7 @@ type PositionForm struct {
 
 func NewPosition(ideaSlug, analystSlug string) PositionForm {
 	return PositionForm{
+		PrevType:    position.Long,
 		IdeaSlug:    ideaSlug,
 		AnalystSlug: analystSlug,
 	}

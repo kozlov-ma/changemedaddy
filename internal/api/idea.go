@@ -61,6 +61,7 @@ func (h *handler) addPosition(c echo.Context) error {
 			WrongTicker:   errors.Is(err, position.ErrTicker),
 			PrevTarget:    opt.TargetPrice,
 			WrongTarget:   errors.Is(err, position.ErrTargetPrice),
+			PrevType:      opt.Type,
 			WrongType:     errors.Is(err, position.ErrParseType),
 			PrevDeadline:  opt.Deadline,
 			WrongDeadline: errors.Is(err, position.ErrParseDeadline),

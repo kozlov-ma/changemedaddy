@@ -33,13 +33,13 @@
               >
                 <div>
                   <label>
-                    <input type="radio" name="type" value="long" checked />
+                    <input type="radio" name="type" value="long" {{ if .PrevType | eq "long" }} checked {{ end }}/>
                     <span class=""> Long </span>
                   </label>
                 </div>
                 <div>
                   <label>
-                    <input type="radio" name="type" value="short" />
+                    <input type="radio" name="type" value="short" {{ if .PrevType | eq "short" }} checked {{ end }} />
                     <span class=""> Short </span>
                   </label>
                 </div>

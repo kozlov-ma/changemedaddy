@@ -9,9 +9,11 @@ import (
 	"changemedaddy/internal/ui"
 	"context"
 	"log/slog"
+	"time"
 
 	"github.com/greatcloak/decimal"
 	"github.com/labstack/echo/v4"
+	"github.com/labstack/echo/v4/middleware"
 	slogecho "github.com/samber/slog-echo"
 )
 
@@ -67,6 +69,16 @@ func (h *handler) MustEcho() *echo.Echo {
 
 	e.Use(slogecho.New(h.log))
 	e.Use(h.adminMW)
+	e.Use(middleware.TimeoutWithConfig(middleware.TimeoutConfig{
+		Skipper:      middleware.DefaultSkipper,
+		ErrorMessage: "timeout exceeded.",
+		OnTimeoutRouteErrorHandler: func(err error, c echo.Context) {
+			h.log.ErrorContext(c.Request().Context(), "connection timeout exceeded", "err", err)
+		},
+		Timeout: 3 * time.Second,
+	}))
+	e.Use(middleware.RateLimiter(middleware.NewRateLimiterMemoryStore(20)))
+
 	ui.NewRenderer().Register(e)
 
 	e.GET("/chart-data/:ticker/from/:openedAt/to/:deadline/interval/:interval", h.getChartData)
