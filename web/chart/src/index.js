@@ -57,38 +57,6 @@ function generateRandomData(num) {
     return data;
 }
 
-function fromJSONToChartOption(jsonArr) {
-    let timeVisible = false;
-    let prevTime = null;
-
-    return [
-        jsonArr.map((e) => {
-            const open = e["open"];
-            const close = e["close"];
-            const color = close >= open ? turquoise : red;
-            const time = e["time"];
-
-            if (timeVisible === false) {
-                if (prevTime === null) {
-                    prevTime = time;
-                } else {
-                    timeVisible = timestampHaveSimilarDate(prevTime, time);
-                }
-            }
-
-            return {
-                time: time,
-                open: open,
-                high: e["high"],
-                low: e["low"],
-                close: close,
-                color: color,
-            };
-        }),
-        timeVisible,
-    ];
-}
-
 function getMarketInterval(openDate, deadline) {
     let candlesOnScreenCount = ((window.innerWidth - 80) / 210) * 30;
     let now = new Date();
@@ -145,7 +113,7 @@ function getMarketInterval(openDate, deadline) {
     }
 
     console.log(intervalType);
-    return intervalType;
+    return [intervalType, Math.floor(candlesOnScreenCount)];
 }
 
 class ChartComponent extends HTMLElement {
@@ -158,13 +126,22 @@ class ChartComponent extends HTMLElement {
                             <div id="chart-container"></div>
                             <button id="scrollBtn">>></button>
                           </div>`;
-
         const clonedTemplate = document.importNode(template.content, true);
         this.shadowRoot.appendChild(clonedTemplate);
 
+        this.shadowRoot.getElementById('chart-container').style.display = 'none';
+        this.shadowRoot.getElementById('scrollBtn').style.display = 'none';
+    }
+
+    connectedCallback() {
         this.chart = null;
         this.series = null;
         this.lineSeries = null;
+
+        this.candlesOnScreenCount = null;
+        this.propIndex = null;
+        this.fromInSeconds = null;
+
         this.loadChart();
     }
 
@@ -175,13 +152,17 @@ class ChartComponent extends HTMLElement {
         for (let i = 0; i < urlParts.length; i++) {
             if (urlParts[i] === "from") {
                 openDate = new Date(decodeURIComponent(urlParts[i + 1]));
+                this.fromInSeconds = openDate.getTime() / 1000;
             } else if (urlParts[i] === "to") {
                 deadline = new Date(decodeURIComponent(urlParts[i + 1]));
             }
         }
 
-        let marketInterval = getMarketInterval(openDate, deadline);
+        let [marketInterval, candlesOnScreenCount] = getMarketInterval(openDate, deadline);
+        this.candlesOnScreenCount = candlesOnScreenCount;
+        console.log("candles on screen count=", this.candlesOnScreenCount);
         url += "/interval/" + marketInterval.toString();
+        console.log(url);
 
         fetch(url)
             .then((response) => {
@@ -191,13 +172,57 @@ class ChartComponent extends HTMLElement {
                 return response.json();
             })
             .then((json) => {
-                return fromJSONToChartOption(json);
+                return this.fromJSONToChartOption(json);
             })
-            .then((option) => this.render(option))
+            .then((option) => {
+                const [data, timeVisible] = option;
+                if (data.length !== 0) {
+                    this.render(data, timeVisible);
+                }
+            })
             .catch((error) => {
                 console.error(error);
-                this.render([[], false]);
             });
+    }
+
+    fromJSONToChartOption(jsonArr) {
+        let timeVisible = false;
+        let prevTime = null;
+        let idx = 0;
+        let minDiff = 10 ** 9
+
+        return [
+            jsonArr.map((e) => {
+                const open = e["open"];
+                const close = e["close"];
+                const color = close >= open ? turquoise : red;
+                const time = e["time"];
+
+                const curDiff = Math.abs(time - this.fromInSeconds);
+                if (curDiff < minDiff) {
+                    this.propIndex = idx;
+                    minDiff = curDiff;
+                }
+                if (timeVisible === false) {
+                    if (prevTime === null) {
+                        prevTime = time;
+                    } else {
+                        timeVisible = timestampHaveSimilarDate(prevTime, time);
+                    }
+                }
+
+                idx += 1;
+                return {
+                    time: time,
+                    open: open,
+                    high: e["high"],
+                    low: e["low"],
+                    close: close,
+                    color: color,
+                };
+            }),
+            timeVisible,
+        ];
     }
 
     setChartData(data) {
@@ -205,16 +230,26 @@ class ChartComponent extends HTMLElement {
         this.series.setData(data);
 
         if (data.length > 0) {
+            console.log("probIndex=", this.propIndex);
             this.lineSeries.setData([
-                {time: data[0].time, value: data[0].open},
-                {
-                    time: data[data.length - 1].time,
-                    value: data[0].open,
-                },
+                {time: data[this.propIndex].time, value: data[this.propIndex].open},
+                {time: data[data.length - 1].time, value: data[this.propIndex].open},
             ]);
 
-            let startRange =
-                data.length >= 60 ? data[data.length - 60]["time"] : data[0]["time"];
+            let startRangeIndex;
+            switch (true) {
+                case data.length < this.candlesOnScreenCount:
+                    startRangeIndex = 0;
+                    break;
+                case data.length - 1 - this.propIndex >= this.candlesOnScreenCount:
+                    startRangeIndex = this.propIndex;
+                    break;
+                default:
+                    startRangeIndex = data.length - this.candlesOnScreenCount;
+                    break;
+            }
+
+            let startRange = data[startRangeIndex]["time"];
             let endRange = data[data.length - 1]["time"];
             this.chart.timeScale().setVisibleRange({
                 from: startRange,
@@ -223,8 +258,9 @@ class ChartComponent extends HTMLElement {
         }
     }
 
-    render(option) {
-        const [data, timeVisible] = option;
+    render(data, timeVisible) {
+        this.shadowRoot.getElementById('chart-container').style.display = 'block';
+        this.shadowRoot.getElementById('scrollBtn').style.display = 'block';
 
         const chartContainer = this.shadowRoot.getElementById("chart-container");
         const chart = Charts.createChart(chartContainer, {
