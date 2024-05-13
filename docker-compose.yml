@@ -9,6 +9,8 @@ services:
       driver: json-file
     ports:
       - "443:8080"
+    volumes:
+      - mongodata:/data/db
 
   db:
     image: mongo
@@ -16,3 +18,6 @@ services:
     restart: always
 #    ports:
 #      - "27017:27017"
+
+volumes:
+  mongodata:
