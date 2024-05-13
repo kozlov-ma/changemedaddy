@@ -81,8 +81,6 @@ func (h *handler) MustEcho() *echo.Echo {
 
 	ui.NewRenderer().Register(e)
 
-	e.GET("/", h.getLanding)
-
 	e.GET("/chart-data/:ticker/from/:openedAt/to/:deadline/interval/:interval", h.getChartData)
 
 	e.GET("/token_auth/:token", h.tokenAuth)
