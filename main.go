@@ -11,6 +11,7 @@ import (
 	"changemedaddy/internal/service/market"
 	"changemedaddy/internal/service/tokenauth"
 	"context"
+	"crypto/tls"
 	"fmt"
 	"log/slog"
 	"net/http"
@@ -28,7 +29,7 @@ const (
 	shutdownTimeout = 5 * time.Second
 )
 
-const mongoString = "mongodb://localhost:27017/?directConnection=true&serverSelectionTimeoutMS=2000&appName=mongosh+2.2.4"
+const mongoString = "mongodb://db:27017/?directConnection=true&serverSelectionTimeoutMS=2000&appName=mongosh+2.2.4"
 
 func main() {
 	ctx, stop := signal.NotifyContext(context.Background(), syscall.SIGINT, syscall.SIGTERM)
@@ -56,10 +57,12 @@ func main() {
 	as := tokenauth.New(log, ar, tr)
 
 	var (
-		mux = http.NewServeMux()
-		srv = &http.Server{
-			Addr:    srvAddr,
-			Handler: mux,
+		mux     = http.NewServeMux()
+		cert, _ = tls.LoadX509KeyPair("server.crt", "server.key")
+		srv     = &http.Server{
+			Addr:      srvAddr,
+			Handler:   mux,
+			TLSConfig: &tls.Config{Certificates: []tls.Certificate{cert}},
 		}
 		c = &closer.Closer{}
 	)
