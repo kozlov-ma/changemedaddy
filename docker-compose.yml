@@ -14,5 +14,5 @@ services:
     image: mongo
     container_name: mongodb
     restart: always
-    ports:
-      - "27017:27017"
+#    ports:
+#      - "27017:27017"
