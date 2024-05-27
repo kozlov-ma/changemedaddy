@@ -3,6 +3,7 @@ package ui
 import (
 	"changemedaddy/internal/domain/position"
 	_ "embed"
+	"strings"
 	"time"
 
 	"github.com/labstack/echo/v4"
@@ -34,7 +35,7 @@ func EditPosition(authorSlug, ideaSlug string, p *position.Position) PositionEdi
 		IdeaSlug:     ideaSlug,
 		Name:         p.Instrument.Name,
 		Ticker:       p.Instrument.Ticker,
-		Type:         string(p.Type),
+		Type:         strings.ToUpper(string(p.Type)),
 		TargetHint:   p.TargetPrice.String(),
 		DeadlineHint: p.Deadline,
 	}

@@ -65,7 +65,7 @@ type handler struct {
 
 func (h *handler) MustEcho() *echo.Echo {
 	e := echo.New()
-	e.Static("/static", "web/chart")
+	e.Static("/static", "web/static")
 
 	e.Use(slogecho.New(h.log))
 	e.Use(h.adminMW)

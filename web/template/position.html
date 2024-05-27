@@ -125,8 +125,8 @@
 
             {{ if and .IsOwner (not .IsClosed) }}
             <button
-              hx-get="/analyst/{{ .AuthorSlug }}/idea/{{ .IdeaSlug }}/edit_position/{{ .ID }}"
-              hx-target="closest .position"
+              ssr-get="/analyst/{{ .AuthorSlug }}/idea/{{ .IdeaSlug }}/edit_position/{{ .ID }}"
+              ssr-target="closest .position"
               class="inline-flex items-center justify-center whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 h-10 pr-4 py-2"
             >
               Редактировать позицию

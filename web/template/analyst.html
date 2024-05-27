@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>{{ .Name }}</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <script src="https://unpkg.com/htmx.org@1.9.12"></script>
+    <script src="/static/ssr/ssr.js" defer></script>
   </head>
 
   <body class="px-4 sm:px-6 lg:px-8 p-6">
@@ -24,9 +24,9 @@
       <!--  -->
       {{ if .IsOwner }}
       <button
-        hx-get="/analyst/{{ .Slug }}/new_idea"
-        hx-swap="beforebegin"
-        hx-target="this"
+        ssr-get="/analyst/{{ .Slug }}/new_idea"
+        ssr-swap="beforebegin"
+        ssr-target="this"
         class="bg-white text-xl font-bold rounded-md shadow-md p-6 text-center text-green-500 hover:text-green-600 hover:bg-green-100 hover:shadow-green-200 transition duration-300"
       >
         Создать Новую Идею

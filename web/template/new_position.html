@@ -1,8 +1,7 @@
 <div>
   <form
-    hx-post="/analyst/{{ .AnalystSlug }}/idea/{{ .IdeaSlug }}/position"
-    hx-target="this"
-    hx-swap="outerHTML"
+    class="newpositionform"
+    ssr-post="/analyst/{{ .AnalystSlug }}/idea/{{ .IdeaSlug }}/position"
   >
     <div class="flex flex-col">
       <div class="mt-4 flex items-center justify-center">
@@ -82,14 +81,15 @@
               </div>
 
               <div class="flex-row">
-                <button
+                <input
                   class="bg-green-100 mr-2 p-2 rounded-md text-green-500 hover:text-gray-600 hover:bg-green-300 transition duration-300"
+                  type="submit"
+                  value="Сохранить"
                 >
-                  <span>Сохранить</span>
-                </button>
 
                 <button
-                  hx-get="/empty"
+                  ssr-get="/empty"
+                  ssr-target="closest .newpositionform"
                   class="bg-red-100 p-2 rounded-md text-red-500 hover:text-gray-600 hover:bg-red-300 transition duration-300"
                 >
                   <span>Отмена</span>

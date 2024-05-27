@@ -5,8 +5,8 @@
         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
         <title>{{ .Name }}</title>
         <script src="https://cdn.tailwindcss.com"></script>
-        <script src="https://unpkg.com/htmx.org@1.9.12"></script>
-        <script src="/static/dist/bundle.js"></script>
+        <script src="/static/ssr/ssr.js" defer></script>
+        <script src="/static/chart/dist/bundle.js"></script>
     </head>
 
     <body>
@@ -41,9 +41,8 @@
             {{ $idea := . }}
             {{ range $idx, $id := .PositionIDs }}
             <div
-                hx-get="/analyst/{{ $idea.AuthorSlug }}/idea/{{ $idea.Slug }}/position/{{ $id }}"
-                hx-trigger="load"
-                hx-swap="outerHTML"
+                ssr-get="/analyst/{{ $idea.AuthorSlug }}/idea/{{ $idea.Slug }}/position/{{ $id }}"
+                ssr-trigger="load"
             >
                 <div class="mt-4 flex-1 flex items-center justify-center">
                     <div class="w-full px-4 sm:px-6 lg:px-8">
@@ -57,9 +56,9 @@
             {{ if .IsOwner }}
             <div class="create-buttons w-full px-4 sm:px-6 lg:px-8 mt-8 flex justify-between">
                 <button
-                    hx-get="/analyst/{{ .AuthorSlug }}/idea/{{ .Slug }}/new_position"
-                    hx-swap="beforebegin"
-                    hx-target=".create-buttons"
+                    ssr-get="/analyst/{{ .AuthorSlug }}/idea/{{ .Slug }}/new_position"
+                    ssr-target=".create-buttons"
+                    ssr-swap="beforebegin"
                     class="inline-flex items-center justify-center whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 h-10 px-4 py-2"
                 >
                     Добавить Новую Позицию
