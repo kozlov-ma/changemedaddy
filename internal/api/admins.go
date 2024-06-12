@@ -71,31 +71,37 @@ func (h *handler) fakeMeData(c echo.Context) error {
 		an, err := h.as.Auth(ctx, "mk0101")
 		if err != nil {
 			e = errors.Join(err, e)
+			h.log.Error("failed to fake data", "err", err)
 		}
 
-		// fake mgnt
+		// fake lqdt
 		func() {
 			i, err := an.NewIdea(ctx, h.ir, analyst.IdeaCreationOptions{
-				Name: "Магнит 🚀🌕",
+				Name: "💸 Ликвидность 💸",
 			})
 			if err != nil {
-				e = errors.Join(err, e)
+				e = errors.Join(e)
+				h.log.Error("failed to fake data", "err", err)
 			}
 
 			p, err := i.NewPosition(ctx, h.mp, h.pos, h.ir, position.CreationOptions{
-				Ticker:      "MGNT",
+				Ticker:      "LQDT",
 				Type:        position.Long,
-				TargetPrice: "11000",
-				Deadline:    "31.05.2024",
+				TargetPrice: "1.62",
+				Deadline:    "5.05.2025",
 			})
 			if err != nil {
 				e = errors.Join(err, e)
+				h.log.Error("failed to fake data", "err", err)
+				return
 			}
 
-			p.OpenDate = time.Date(2024, time.March, 10, 13, 31, 32, 0, time.Local)
-			p.OpenPrice = decimal.NewFromInt(7841)
+			p.OpenDate = time.Date(2024, time.May, 5, 13, 31, 32, 0, time.Local)
+			p.OpenPrice = decimal.NewFromFloat32(1.3942)
+
 			if err := h.pos.Update(ctx, p); err != nil {
 				e = errors.Join(err, e)
+				return
 			}
 		}()
 
@@ -107,17 +113,19 @@ func (h *handler) fakeMeData(c echo.Context) error {
 			if err != nil {
 				e = errors.Join(err, e)
 				h.log.Error("failed to fake data", "err", err)
+				return
 			}
 
 			p, err := i.NewPosition(ctx, h.mp, h.pos, h.ir, position.CreationOptions{
 				Ticker:      "SOFL",
 				Type:        position.Long,
 				TargetPrice: "200",
-				Deadline:    "15.06.2024",
+				Deadline:    "15.08.2024",
 			})
 			if err != nil {
 				e = errors.Join(err, e)
 				h.log.Error("failed to fake data", "err", err)
+				return
 			}
 
 			p.OpenDate = time.Date(2024, time.April, 29, 13, 31, 32, 0, time.Local)
@@ -125,6 +133,47 @@ func (h *handler) fakeMeData(c echo.Context) error {
 			if err := h.pos.Update(ctx, p); err != nil {
 				e = errors.Join(err, e)
 				h.log.Error("failed to fake data", "err", err)
+				return
+			}
+		}()
+
+		// fake mgnt
+		func() {
+			i, err := an.NewIdea(ctx, h.ir, analyst.IdeaCreationOptions{
+				Name: "Магнит 🚀🌕",
+			})
+			if err != nil {
+				e = errors.Join(err, e)
+				return
+			}
+
+			p, err := i.NewPosition(ctx, h.mp, h.pos, h.ir, position.CreationOptions{
+				Ticker:      "MGNT",
+				Type:        position.Long,
+				TargetPrice: "11000",
+				Deadline:    "31.05.2028",
+			})
+			if err != nil {
+				e = errors.Join(err, e)
+				return
+			}
+
+			p.Status = position.Closed
+			p.ClosedPrice = decimal.NewFromInt(8800)
+			p.Deadline = time.Date(2024, time.May, 5, 13, 31, 32, 0, time.Local)
+			p.OpenDate = time.Date(2024, time.March, 10, 13, 31, 32, 0, time.Local)
+			p.OpenPrice = decimal.NewFromInt(7841)
+
+			if err := h.pos.Update(ctx, p); err != nil {
+				e = errors.Join(err, e)
+				return
+			}
+
+			i.Status = idea.Closed
+			if err := h.ir.Update(ctx, i); err != nil {
+				e = errors.Join(err, e)
+				h.log.Error("failed to fake data", "err", err)
+				return
 			}
 		}()
 
@@ -136,6 +185,7 @@ func (h *handler) fakeMeData(c echo.Context) error {
 			if err != nil {
 				e = errors.Join(err, e)
 				h.log.Error("failed to fake data", "err", err)
+				return
 			}
 
 			p, err := i.NewPosition(ctx, h.mp, h.pos, h.ir, position.CreationOptions{
@@ -147,6 +197,7 @@ func (h *handler) fakeMeData(c echo.Context) error {
 			if err != nil {
 				e = errors.Join(err, e)
 				h.log.Error("failed to fake data", "err", err)
+				return
 			}
 			p.TargetPrice = decimal.NewFromFloat(4000)
 			p.OpenDate = time.Date(2023, time.December, 4, 13, 31, 32, 0, time.Local)
@@ -158,12 +209,14 @@ func (h *handler) fakeMeData(c echo.Context) error {
 			if err := h.pos.Update(ctx, p); err != nil {
 				e = errors.Join(err, e)
 				h.log.Error("failed to fake data", "err", err)
+				return
 			}
 
 			i.Status = idea.Closed
 			if err := h.ir.Update(ctx, i); err != nil {
 				e = errors.Join(err, e)
 				h.log.Error("failed to fake data", "err", err)
+				return
 			}
 		}()
 	}

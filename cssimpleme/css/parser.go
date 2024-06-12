@@ -71,6 +71,8 @@ func (p *Parser) Work() {
 				} else if strings.HasPrefix(possibleValue, "[") && strings.HasSuffix(possibleValue, "]") {
 					class = cl
 					value = strings.Trim(possibleValue, "[]")
+					value = strings.ReplaceAll(value, "-", " - ")
+					value = strings.ReplaceAll(value, "+", " + ")
 					break out
 				}
 			}

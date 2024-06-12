@@ -1,6 +1,8 @@
 package main
 
 import (
+	"bufio"
+	"cmp"
 	"cssimpleme/ast"
 	"cssimpleme/css"
 	"cssimpleme/tw"
@@ -10,6 +12,7 @@ import (
 	"os"
 	"path/filepath"
 	"regexp"
+	"slices"
 	"strings"
 	"sync"
 
@@ -92,6 +95,17 @@ func dedup[T comparable](ch <-chan T) <-chan T {
 	return out
 }
 
+func sortToSlice[E cmp.Ordered](ch <-chan E) []E {
+	var sl []E
+	for s := range ch {
+		sl = append(sl, s)
+	}
+
+	slices.Sort(sl)
+
+	return sl
+}
+
 func main() {
 	log.SetLevel(log.InfoLevel)
 	log.SetOutput(os.Stderr)
@@ -120,16 +134,24 @@ func main() {
 		parser.Work()
 	}()
 
-	var sb strings.Builder
-	sb.WriteString(preflight)
-
 	go func() {
 		defer wg.Done()
+		var sl []string
 		for ru := range out {
-			sb.WriteString(ru.CSS())
-			sb.WriteString("\n\n")
+			sl = append(sl, ru.CSS())
 			log.Debug("parsed", "css", ru.CSS())
 		}
+
+		slices.Sort(sl)
+
+		out := bufio.NewWriter(os.Stdout)
+		defer out.Flush()
+
+		fmt.Fprintln(out, preflight)
+		for _, s := range sl {
+			fmt.Fprintln(out, s)
+		}
+
 	}()
 
 	go func() {
@@ -154,6 +176,4 @@ func main() {
 	}()
 
 	wg.Wait()
-
-	fmt.Println(sb.String())
 }

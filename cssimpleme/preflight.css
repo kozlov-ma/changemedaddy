@@ -569,3 +569,9 @@ video {
     -webkit-appearance: none;
     appearance: none;
 }
+
+@keyframes pulse {
+    50% {
+        opacity: 0.5;
+    }
+}

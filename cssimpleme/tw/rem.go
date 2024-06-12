@@ -48,7 +48,7 @@ func init() {
 
 	remClass("gap", "gap")
 
-	remClass("gap-x", "column-gap", "-moz-column-gap")
+	remClass("gap-x", "-moz-column-gap", "column-gap")
 
 	remClass("gap-y", "row-gap")
 

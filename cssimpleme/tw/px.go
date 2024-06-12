@@ -48,8 +48,8 @@ func init() {
 
 	Classes.Functional("inset-x", px, func(value string) ast.AST {
 		return ast.AST{
-			ast.Decl("inset-left", value),
-			ast.Decl("inset-right", value),
+			ast.Decl("left", value),
+			ast.Decl("right", value),
 		}
 	})
 

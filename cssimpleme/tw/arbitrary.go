@@ -9,6 +9,8 @@ type arbReader struct{}
 
 func (a arbReader) Read(fromCls string) (converted string, ok bool) {
 	if strings.HasPrefix(fromCls, "[") && strings.HasSuffix(fromCls, "]") {
+		fromCls = strings.ReplaceAll(fromCls, "-", " - ")
+		fromCls = strings.ReplaceAll(fromCls, "+", " + ")
 		return strings.Trim(fromCls, "[]"), ok
 	}
 

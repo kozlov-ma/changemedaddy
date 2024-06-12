@@ -266,13 +266,13 @@ func color(name, property, variable string, shadow bool) {
 		var a ast.AST
 
 		if variable != "" {
-			value = value[:len(value)-1] + "/var(" + variable + ")"
+			value = value[:len(value)-1] + " / var(" + variable + "))"
 		}
 
-		a = append(a, ast.Decl(property, value))
 		if variable != "" {
 			a = append(a, ast.Decl(variable, "1"))
 		}
+		a = append(a, ast.Decl(property, value))
 		if shadow {
 			a = append(a, ast.Decl("--x3-shadow", "var(--x3-shadow-colored)"))
 		}
@@ -281,7 +281,7 @@ func color(name, property, variable string, shadow bool) {
 }
 
 func init() {
-	color("bg", "background-color", "--x3-background-opacity", false)
+	color("bg", "background-color", "--x3-bg-opacity", false)
 	color("border", "border-color", "--x3-border-opacity", false)
 	color("text", "color", "--x3-text-opacity", false)
 	color("shadow", "--x3-shadow-color", "", true)

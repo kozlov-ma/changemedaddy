@@ -35,7 +35,7 @@ func (r *Rule) writeCSS(sb *strings.Builder, indent int) {
 		sb.WriteString(indentation)
 	}
 
-	sb.WriteRune('}')
+	sb.WriteString("}\n")
 }
 
 func (d *Declaration) writeCSS(sb *strings.Builder, indent int) {

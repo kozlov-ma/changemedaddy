@@ -11,8 +11,8 @@ func singleStatic(name, prop, value string) {
 func shadow(name, shadow, shadowColored string) {
 	Classes.Static(
 		name,
-		ast.Decl("--x3-shadow: ", shadow),
-		ast.Decl("--x3-shadow-colored: ", shadowColored),
+		ast.Decl("--x3-shadow", shadow),
+		ast.Decl("--x3-shadow-colored", shadowColored),
 		ast.Decl("box-shadow", "var(--x3-ring-offset-shadow, 0 0 #0000), var(--x3-ring-shadow, 0 0 #0000), var(--x3-shadow)"),
 	)
 }
@@ -178,11 +178,11 @@ func init() {
 
 	singleStatic("pointer-events-none", "pointer-events", "none")
 
-	singleStatic("to-[#9089fc]", "--x3-gradient-to", "#9089fc var(--tw-gradient-to-position)")
+	singleStatic("to-[#9089fc]", "--x3-gradient-to", "#9089fc var(--x3-gradient-to-position)")
 	Classes.Static(
 		"from-[#ff80b5]",
-		ast.Decl("--tw-gradient-from", "#ff80b5 var(--tw-gradient-from-position)"),
-		ast.Decl("--tw-gradient-to", "rgb(255 128 181 / 0) var(--tw-gradient-to-position)"),
-		ast.Decl("--tw-gradient-stops", "var(--tw-gradient-from), var(--tw-gradient-to)"),
+		ast.Decl("--x3-gradient-from", "#ff80b5 var(--x3-gradient-from-position)"),
+		ast.Decl("--x3-gradient-to", "rgb(255 128 181 / 0) var(--x3-gradient-to-position)"),
+		ast.Decl("--x3-gradient-stops", "var(--x3-gradient-from), var(--x3-gradient-to)"),
 	)
 }
