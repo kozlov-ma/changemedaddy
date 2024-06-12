@@ -43,7 +43,7 @@ func (p *Parser) Work() {
 			if vr, ok := p.Va.Find(v); ok {
 				variants = append(variants, vr)
 			} else {
-				p.UnknownVariants <- v
+				p.UnknownVariants <- variantsClassValue
 			}
 		}
 
@@ -51,14 +51,23 @@ func (p *Parser) Work() {
 		var class *Class
 		var value string
 
+		var found bool
 		for end := len(classValue); end > 0; end-- {
 			if cl, ok := p.Cls.Find(classValue[:end]); ok {
 				class = cl
 				value = classValue[end+1:]
+				found = true
 				break
 			}
 		}
+		if !found {
+			p.UnknownClasses <- variantsClassValue
+			continue
+		}
 
+		if class.Name[0] == '-' {
+			value = "-" + value
+		}
 		parsed := parsed{
 			Original: variantsClassValue,
 			Class:    class,

@@ -3,6 +3,7 @@ package main
 import (
 	"cssimpleme/ast"
 	"cssimpleme/css"
+	"fmt"
 	"io/fs"
 	"os"
 	"path/filepath"
@@ -36,7 +37,7 @@ func paths() <-chan string {
 
 var classRegex = regexp.MustCompile(`class="([^"]+)"`)
 
-func classAttributes(htmlPaths <-chan string) <-chan string {
+func classes(htmlPaths <-chan string) <-chan string {
 	cc := make(chan string, 100)
 	go func() {
 		defer close(cc)
@@ -70,6 +71,7 @@ func classAttributes(htmlPaths <-chan string) <-chan string {
 
 func main() {
 	log.SetLevel(log.DebugLevel)
+	log.SetOutput(os.Stderr)
 
 	cls := css.NewClasses()
 
@@ -82,27 +84,53 @@ func main() {
 
 	va.Selector("lg", "@media (min-width: 1024px)")
 
-	classes := make(chan string, 228)
-	classes <- "hover:mx-3"
-	classes <- "lg:mx-3"
-	classes <- "mx-8"
-	close(classes)
-
 	out := make(chan *ast.Rule, 228)
 
+	unknownVariants := make(chan string, 250)
+	unknownClasses := make(chan string, 250)
 	parser := css.Parser{
 		Cls:             cls,
 		Va:              va,
-		Input:           classes,
+		Input:           classes(paths()),
 		Output:          out,
-		UnknownVariants: make(chan<- string),
-		UnknownClasses:  make(chan<- string),
+		UnknownVariants: unknownVariants,
+		UnknownClasses:  unknownClasses,
 	}
 
-	go parser.Work()
+	var wg sync.WaitGroup
 
-	for ru := range out {
-		log.Print("parsed", "css", ru.CSS())
-	}
+	wg.Add(4)
 
+	go func() {
+		defer wg.Done()
+		parser.Work()
+	}()
+
+	var sb strings.Builder
+	go func() {
+		defer wg.Done()
+		for ru := range out {
+			sb.WriteString(ru.CSS())
+			sb.WriteString("\n\n")
+			log.Debug("parsed", "css", ru.CSS())
+		}
+	}()
+
+	go func() {
+		defer wg.Done()
+		for uv := range unknownVariants {
+			log.Error("unknown variant", "class", uv)
+		}
+	}()
+
+	go func() {
+		defer wg.Done()
+		for uc := range unknownClasses {
+			log.Warn("unknown class", "class", uc)
+		}
+	}()
+
+	wg.Wait()
+
+	fmt.Println(sb.String())
 }
