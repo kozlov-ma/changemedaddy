@@ -14,4 +14,13 @@ func init() {
 	Classes.Static("mx-auto", ast.Decl("margin-left", "auto"), ast.Decl("margin-right", "auto"))
 
 	singleStatic("flex", "display", "flex")
+
+	Classes.Static(
+		"hover:ring-gray-900/20",
+		ast.Decl("--tw-ring-color", "rgb(17 24 39 / 0.2)"),
+	)
+	Classes.Static(
+		"ring-gray-900/10",
+		ast.Decl("--tw-ring-color", "rgb(17 24 39 / 0.1)"),
+	)
 }
