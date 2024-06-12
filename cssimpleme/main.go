@@ -4,6 +4,7 @@ import (
 	"cssimpleme/ast"
 	"cssimpleme/css"
 	"cssimpleme/tw"
+	_ "embed"
 	"fmt"
 	"io/fs"
 	"os"
@@ -14,6 +15,9 @@ import (
 
 	"github.com/charmbracelet/log"
 )
+
+//go:embed preflight.css
+var preflight string
 
 func paths() <-chan string {
 	pp := make(chan string, 100)
@@ -117,6 +121,8 @@ func main() {
 	}()
 
 	var sb strings.Builder
+	sb.WriteString(preflight)
+
 	go func() {
 		defer wg.Done()
 		for ru := range out {
