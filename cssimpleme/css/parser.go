@@ -25,40 +25,41 @@ type Parser struct {
 }
 
 func (p *Parser) Work() {
-	variantsClassValue := <-p.Input
+	for variantsClassValue := range p.Input {
 
-	possibleVariants := strings.Split(variantsClassValue, ":")
-	numVariants := len(possibleVariants)
+		possibleVariants := strings.Split(variantsClassValue, ":")
+		numVariants := len(possibleVariants)
 
-	if numVariants == 0 {
-		return
-	}
-
-	variants := make([]ApplyVariant, 0, numVariants-1)
-	for _, v := range possibleVariants[:numVariants-1] {
-		if vr, ok := p.va.Find(v); ok {
-			variants = append(variants, vr)
-		} else {
-			p.UnknownVariants <- v
+		if numVariants == 0 {
+			return
 		}
-	}
 
-	classValue := possibleVariants[numVariants-1]
-	var class *Class
-	var value string
-
-	for end := len(classValue); end > 0; end-- {
-		if cl, ok := p.cls.Find(classValue[:end]); ok {
-			class = cl
-			value = classValue[end:]
-			break
+		variants := make([]ApplyVariant, 0, numVariants-1)
+		for _, v := range possibleVariants[:numVariants-1] {
+			if vr, ok := p.va.Find(v); ok {
+				variants = append(variants, vr)
+			} else {
+				p.UnknownVariants <- v
+			}
 		}
-	}
 
-	parsed := parsed{
-		Class:    class,
-		Value:    value,
-		Variants: variants,
+		classValue := possibleVariants[numVariants-1]
+		var class *Class
+		var value string
+
+		for end := len(classValue); end > 0; end-- {
+			if cl, ok := p.cls.Find(classValue[:end]); ok {
+				class = cl
+				value = classValue[end:]
+				break
+			}
+		}
+
+		parsed := parsed{
+			Class:    class,
+			Value:    value,
+			Variants: variants,
+		}
+		p.Output <- parsed.ToRule()
 	}
-	p.Output <- parsed.ToRule()
 }
