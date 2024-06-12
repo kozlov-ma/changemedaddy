@@ -70,6 +70,24 @@ func classes(htmlPaths <-chan string) <-chan string {
 	return cc
 }
 
+func dedup[T comparable](ch <-chan T) <-chan T {
+	out := make(chan T, cap(ch))
+
+	go func() {
+		defer close(out)
+
+		set := make(map[T]struct{}, 10000)
+		for el := range ch {
+			if _, ok := set[el]; !ok {
+				set[el] = struct{}{}
+				out <- el
+			}
+		}
+	}()
+
+	return out
+}
+
 func main() {
 	log.SetLevel(log.DebugLevel)
 	log.SetOutput(os.Stderr)
@@ -81,7 +99,7 @@ func main() {
 	parser := css.Parser{
 		Cls:             tw.Classes,
 		Va:              tw.Variants,
-		Input:           classes(paths()),
+		Input:           dedup(classes(paths())),
 		Output:          out,
 		UnknownVariants: unknownVariants,
 		UnknownClasses:  unknownClasses,
