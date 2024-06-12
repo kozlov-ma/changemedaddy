@@ -67,6 +67,7 @@ func (h *handler) MustEcho() *echo.Echo {
 	e := echo.New()
 	e.Static("/static", "web/static")
 
+	e.Pre(middleware.HTTPSRedirect())
 	e.Use(slogecho.New(h.log))
 	e.Use(h.adminMW)
 	e.Use(middleware.TimeoutWithConfig(middleware.TimeoutConfig{
