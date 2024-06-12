@@ -2,6 +2,7 @@ package css
 
 import (
 	"cssimpleme/ast"
+	"strings"
 	"sync"
 	"sync/atomic"
 
@@ -22,7 +23,7 @@ func NewClasses() *Classes {
 
 func (c *Classes) Find(name string) []*Class {
 	c.registrationComplete.Store(true)
-	return c.cl[name]
+	return c.cl[strings.TrimLeft(name, "-")]
 }
 
 func (c *Classes) Static(name string, nodes ...ast.Node) {

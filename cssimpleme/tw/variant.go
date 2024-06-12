@@ -9,4 +9,5 @@ func init() {
 	Variants.PseudoClass("hover")
 	Variants.PseudoClass("focus")
 	Variants.PseudoClass("focus-visible")
+	Variants.PseudoClass("disabled")
 }

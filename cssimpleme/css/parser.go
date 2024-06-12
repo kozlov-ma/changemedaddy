@@ -32,7 +32,6 @@ func (p *Parser) Work() {
 	defer close(p.UnknownValues)
 
 	for variantsClassValue := range p.Input {
-
 		possibleVariants := strings.Split(variantsClassValue, ":")
 		numVariants := len(possibleVariants)
 
@@ -50,42 +49,41 @@ func (p *Parser) Work() {
 		}
 
 		classValue := possibleVariants[numVariants-1]
+
 		var class *Class
 		var value string
 
 		// FIXME ПОЛНЫЙ ПЭ кастовать в []rune
-		var found bool
-
+	out:
 		for end := len(classValue); end > 0; end-- {
-			for _, cl := range p.Cls.Find(classValue[:end]) {
-				if end == len(classValue) || classValue[end] == '-' {
+			className := classValue[:end]
+			var possibleValue string
+			if end < len(classValue) && classValue[end] == '-' {
+				possibleValue = classValue[min(end+1, len(classValue)):]
+				if className[0] == '-' {
+					possibleValue = "-" + possibleValue
+				}
+			} else {
+				possibleValue = ""
+			}
+
+			for _, cl := range p.Cls.Find(className) {
+				val, ok := cl.Val.Read(possibleValue)
+				if ok {
 					class = cl
-					if end != len(classValue) {
-						cv := classValue[end+1:]
-						pv, ok := class.Val.Read(value)
-						if !ok {
-							if strings.HasPrefix(cv, "[") && strings.HasSuffix(cv, "]") {
-								pv = cv[1 : len(cv)-1]
-							} else {
-								p.UnknownValues <- variantsClassValue + " " + class.Name + " " + pv
-								continue
-							}
-						} else {
-							value = pv
-						}
-					}
-					found = true
-					break
+					value = val
+					break out
+				} else if strings.HasPrefix(possibleValue, "[") && strings.HasSuffix(possibleValue, "]") {
+					class = cl
+					value = strings.Trim(possibleValue, "[]")
+					break out
 				}
 			}
 		}
-		if !found {
+
+		if class == nil {
 			p.UnknownClasses <- variantsClassValue
 			continue
-		}
-
-		if class.Name[0] == '-' {
-			value = "-" + value
 		}
 
 		parsed := parsed{

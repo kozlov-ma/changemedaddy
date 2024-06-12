@@ -32,4 +32,10 @@ func init() {
 		}
 	})
 
+	Classes.Functional("z", intr, func(value string) ast.AST {
+		return ast.AST{
+			ast.Decl("z-index", value),
+		}
+	})
+
 }

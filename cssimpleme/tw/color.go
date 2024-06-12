@@ -265,10 +265,6 @@ func color(name, property, variable string, shadow bool) {
 	Classes.Functional(name, clr, func(value string) ast.AST {
 		var a ast.AST
 
-		if value == "" {
-			return a
-		}
-
 		if variable != "" {
 			value = value[:len(value)-1] + "/var(" + variable + ")"
 		}
