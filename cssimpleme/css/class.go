@@ -1,13 +1,15 @@
 package css
 
+import "cssimpleme/ast"
+
 type ValueReader interface {
-	Read(from string) (converted string, ok bool)
+	Read(fromCls string) (converted string, ok bool)
 }
+
+type ValueHandler func(value string) *ast.Rule
 
 type Class struct {
-	Name string
-	Val  ValueReader
+	Name   string
+	Val    ValueReader
+	Handle ValueHandler
 }
-
-bg-white
-bg-opacity-30
