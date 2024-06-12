@@ -15,3 +15,10 @@ type Declaration struct {
 
 func (r *Rule) tagNode()        {}
 func (d *Declaration) tagNode() {}
+
+func Decl(property, value string) *Declaration {
+	return &Declaration{
+		Property: property,
+		Value:    value,
+	}
+}

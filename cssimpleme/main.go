@@ -1,6 +1,8 @@
 package main
 
 import (
+	"cssimpleme/ast"
+	"cssimpleme/css"
 	"io/fs"
 	"os"
 	"path/filepath"
@@ -69,10 +71,6 @@ func classAttributes(htmlPaths <-chan string) <-chan string {
 func main() {
 	log.SetLevel(log.DebugLevel)
 
-	paths := paths()
-	cl := classAttributes(paths)
-
-	for c := range cl {
-		log.Debug("class", "name", c)
-	}
+	cls := css.NewClasses()
+	cls.Static("flex", ast.Decl("display", "flex"))
 }

@@ -16,5 +16,3 @@ func (p *parsed) ToRule() *ast.Rule {
 
 	return r
 }
-
-variant1:variant2:privet-privet-200
