@@ -36,14 +36,14 @@ func (p *Parser) Work() {
 		var variants []ApplyVariant
 
 		if !strings.HasPrefix(variantsClassValue, "[") {
-			variants, classValue = getVariants(variantsClassValue, p)
+			variants, classValue = p.getVariants(variantsClassValue)
 
 			if variants == nil {
 				continue
 			}
+		} else {
+			classValue = variantsClassValue
 		}
-
-		classValue = variantsClassValue
 
 		var class *Class
 		var value string
@@ -91,7 +91,7 @@ func (p *Parser) Work() {
 	}
 }
 
-func getVariants(variantsClassValue string, p *Parser) ([]ApplyVariant, string) {
+func (p *Parser) getVariants(variantsClassValue string) ([]ApplyVariant, string) {
 	possibleVariants := strings.Split(variantsClassValue, ":")
 	numVariants := len(possibleVariants)
 
