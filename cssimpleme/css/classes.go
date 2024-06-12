@@ -4,6 +4,8 @@ import (
 	"cssimpleme/ast"
 	"sync"
 	"sync/atomic"
+
+	"github.com/charmbracelet/log"
 )
 
 type Classes struct {
@@ -41,5 +43,20 @@ func (c *Classes) Static(name string, nodes ...ast.Node) {
 				Nodes:    nodes,
 			}
 		},
+	}
+}
+
+func (c *Classes) Functional(name string, vr ValueReader, vh ValueHandler) {
+	if c.registrationComplete.Load() {
+		log.Fatal("cannot register new classes after reading")
+	}
+
+	c.mu.Lock()
+	defer c.mu.Unlock()
+
+	c.cl[name] = &Class{
+		Name:   name,
+		Val:    vr,
+		Handle: vh,
 	}
 }

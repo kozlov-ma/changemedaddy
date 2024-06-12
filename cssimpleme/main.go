@@ -73,4 +73,5 @@ func main() {
 
 	cls := css.NewClasses()
 	cls.Static("flex", ast.Decl("display", "flex"))
+
 }
