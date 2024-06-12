@@ -6,7 +6,7 @@ type ValueReader interface {
 	Read(fromCls string) (converted string, ok bool)
 }
 
-type ValueHandler func(value string) *ast.Rule
+type ValueHandler func(value string) ast.AST
 
 type Class struct {
 	Name   string

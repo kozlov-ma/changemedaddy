@@ -60,6 +60,7 @@ func (p *Parser) Work() {
 		}
 
 		parsed := parsed{
+			Original: variantsClassValue,
 			Class:    class,
 			Value:    value,
 			Variants: variants,

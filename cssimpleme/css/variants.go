@@ -34,7 +34,7 @@ func (c *Variants) PseudoClass(name string) {
 
 	c.vv[name] = func(r *ast.Rule) *ast.Rule {
 		new := &ast.Rule{
-			Selector: name + "\\:" + r.Selector + ":" + name,
+			Selector: r.Selector + ":" + name,
 			Nodes:    r.Nodes,
 		}
 
@@ -54,7 +54,7 @@ func (c *Variants) Selector(name string, selector string) {
 		new := &ast.Rule{
 			Selector: selector,
 			Nodes: []ast.Node{
-				ast.NewRule(name+"\\:"+r.Selector, r.Nodes...), // FIXME сломается на вложенных lg:md ...
+				ast.NewRule(r.Selector, r.Nodes...), // FIXME сломается на вложенных lg:md ...
 			},
 		}
 

@@ -37,11 +37,8 @@ func (c *Classes) Static(name string, nodes ...ast.Node) {
 	c.cl[name] = &Class{
 		Name: name,
 		Val:  NoValue,
-		Handle: func(value string) *ast.Rule {
-			return &ast.Rule{
-				Selector: name,
-				Nodes:    nodes,
-			}
+		Handle: func(value string) ast.AST {
+			return nodes
 		},
 	}
 }

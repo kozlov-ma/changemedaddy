@@ -72,8 +72,9 @@ func main() {
 	log.SetLevel(log.DebugLevel)
 
 	cls := css.NewClasses()
-	cls.Functional("mx", css.Rem, func(value string) *ast.Rule {
-		return ast.NewRule("mx-"+value, ast.Decl("margin-left", value), ast.Decl("margin-right", value))
+
+	cls.Functional("mx", css.Rem, func(value string) ast.AST {
+		return ast.AST{ast.Decl("margin-left", value), ast.Decl("margin-right", value)}
 	})
 
 	va := css.NewVariants()

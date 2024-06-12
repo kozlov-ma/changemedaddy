@@ -17,6 +17,8 @@ type Declaration struct {
 	Property, Value string
 }
 
+type AST []Node
+
 func (r *Rule) writeCSS(sb *strings.Builder, indent int) {
 	for range indent {
 		sb.WriteString(indentation)
