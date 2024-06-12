@@ -274,7 +274,7 @@ func color(name, property, variable string, shadow bool) {
 			a = append(a, ast.Decl(variable, "1"))
 		}
 		if shadow {
-			a = append(a, ast.Decl("--tw-shadow", "var(--tw-shadow-colored)"))
+			a = append(a, ast.Decl("--x3-shadow", "var(--x3-shadow-colored)"))
 		}
 		return a
 	})
@@ -287,4 +287,5 @@ func init() {
 	color("shadow", "--x3-shadow-color", "", true)
 	color("ring", "--x3-ring-color", "", false)
 	color("ring-offset", "--x3-ring-offset-color", "", false)
+	color("outline", "outline-color", "", false)
 }

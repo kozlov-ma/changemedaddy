@@ -28,9 +28,15 @@ func init() {
 		}
 	})
 
+	Classes.Functional("ring-offset", px, func(value string) ast.AST {
+		return ast.AST{
+			ast.Decl("--x3-ring-offset-width", value),
+		}
+	})
+
 	Classes.Functional("outline-offset", px, func(value string) ast.AST {
 		return ast.AST{
-			ast.Decl("outlone-offset", value),
+			ast.Decl("outline-offset", value),
 		}
 	})
 

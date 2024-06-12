@@ -160,17 +160,22 @@ func init() {
 
 	Classes.Static(
 		"ring-gray-900/20",
-		ast.Decl("--tw-ring-color", "rgb(17 24 39 / 0.2)"),
+		ast.Decl("--x3-ring-color", "rgb(17 24 39 / 0.2)"),
 	)
 
 	Classes.Static(
 		"ring-gray-900/10",
-		ast.Decl("--tw-ring-color", "rgb(17 24 39 / 0.1)"),
+		ast.Decl("--x3-ring-color", "rgb(17 24 39 / 0.1)"),
 	)
 
 	Classes.Static(
 		"translate-x-1/2",
-		ast.Decl("--tw-translate-x", "-50%"),
-		ast.Decl("transform", "translate(var(--tw-translate-x), var(--tw-translate-y)) rotate(var(--tw-rotate)) skewX(var(--tw-skew-x)) skewY(var(--tw-skew-y)) scaleX(var(--tw-scale-x)) scaleY(var(--tw-scale-y))"),
+		ast.Decl("--x3-translate-x", "-50%"),
+		ast.Decl("transform", "translate(var(--x3-translate-x), var(--x3-translate-y)) rotate(var(--x3-rotate)) skewX(var(--x3-skew-x)) skewY(var(--x3-skew-y)) scaleX(var(--x3-scale-x)) scaleY(var(--x3-scale-y))"),
 	)
+
+	singleStatic("transform-gpu", "transform", "translate3d(var(--x3-translate-x), var(--x3-translate-y), 0) rotate(var(--x3-rotate)) skewX(var(--x3-skew-x)) skewY(var(--x3-skew-y)) scaleX(var(--x3-scale-x)) scaleY(var(--x3-scale-y))")
+
+	singleStatic("pointer-events-none", "pointer-events", "none")
+
 }
