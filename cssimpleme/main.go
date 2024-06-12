@@ -96,6 +96,7 @@ func main() {
 
 	unknownVariants := make(chan string, 250)
 	unknownClasses := make(chan string, 250)
+	unknownValues := make(chan string, 250)
 	parser := css.Parser{
 		Cls:             tw.Classes,
 		Va:              tw.Variants,
@@ -103,11 +104,12 @@ func main() {
 		Output:          out,
 		UnknownVariants: unknownVariants,
 		UnknownClasses:  unknownClasses,
+		UnknownValues:   unknownValues,
 	}
 
 	var wg sync.WaitGroup
 
-	wg.Add(4)
+	wg.Add(5)
 
 	go func() {
 		defer wg.Done()
@@ -135,6 +137,13 @@ func main() {
 		defer wg.Done()
 		for uc := range unknownClasses {
 			log.Warn("unknown class", "class", uc)
+		}
+	}()
+
+	go func() {
+		defer wg.Done()
+		for uc := range unknownValues {
+			log.Error("unknown value", "class", uc)
 		}
 	}()
 

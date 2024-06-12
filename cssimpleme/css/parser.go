@@ -29,6 +29,7 @@ func (p *Parser) Work() {
 	defer close(p.Output)
 	defer close(p.UnknownClasses)
 	defer close(p.UnknownVariants)
+	defer close(p.UnknownValues)
 
 	for variantsClassValue := range p.Input {
 
@@ -72,7 +73,7 @@ func (p *Parser) Work() {
 
 		value, ok := class.Val.Read(value)
 		if !ok {
-			if value[0] == '[' && value[len(value)-1] == ']' {
+			if strings.HasPrefix(value, "[") && strings.HasSuffix(value, "]") {
 				value = value[1 : len(value)-1]
 			} else {
 				p.UnknownValues <- value
