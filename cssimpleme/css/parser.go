@@ -68,6 +68,7 @@ func (p *Parser) Work() {
 		}
 
 		if class.Name[0] == '-' {
+			class.Name = class.Name[:len(class.Name)-1]
 			value = "-" + value
 		}
 
