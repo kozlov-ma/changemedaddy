@@ -156,4 +156,14 @@ func init() {
 		ast.Decl("transition-timing-function", "cubic-bezier(0.4, 0, 0.2, 1)"),
 		ast.Decl("transition-duration", "150ms"),
 	)
+
+	Classes.Static(
+		"hover:ring-gray-900/20",
+		ast.Decl("--tw-ring-color", "rgb(17 24 39 / 0.2)"),
+	)
+
+	Classes.Static(
+		"ring-gray-900/10",
+		ast.Decl("--tw-ring-color", "rgb(17 24 39 / 0.1)"),
+	)
 }
