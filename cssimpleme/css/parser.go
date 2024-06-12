@@ -6,7 +6,7 @@ import (
 )
 
 type ClassRegistry interface {
-	Find(name string) (cls *Class, ok bool)
+	Find(name string) []*Class
 }
 
 type VariantRegistry interface {
@@ -53,13 +53,30 @@ func (p *Parser) Work() {
 		var class *Class
 		var value string
 
+		// FIXME ПОЛНЫЙ ПЭ кастовать в []rune
 		var found bool
+
 		for end := len(classValue); end > 0; end-- {
-			if cl, ok := p.Cls.Find(classValue[:end]); ok {
-				class = cl
-				value = classValue[min(end+1, len(classValue)-1):] // FIXME min -- костыль
-				found = true
-				break
+			for _, cl := range p.Cls.Find(classValue[:end]) {
+				if end == len(classValue) || classValue[end] == '-' {
+					class = cl
+					if end != len(classValue) {
+						cv := classValue[end+1:]
+						pv, ok := class.Val.Read(value)
+						if !ok {
+							if strings.HasPrefix(cv, "[") && strings.HasSuffix(cv, "]") {
+								pv = cv[1 : len(cv)-1]
+							} else {
+								p.UnknownValues <- variantsClassValue + " " + class.Name + " " + pv
+								continue
+							}
+						} else {
+							value = pv
+						}
+					}
+					found = true
+					break
+				}
 			}
 		}
 		if !found {
@@ -68,18 +85,7 @@ func (p *Parser) Work() {
 		}
 
 		if class.Name[0] == '-' {
-			class.Name = class.Name[:len(class.Name)-1]
 			value = "-" + value
-		}
-
-		value, ok := class.Val.Read(value)
-		if !ok {
-			if strings.HasPrefix(value, "[") && strings.HasSuffix(value, "]") {
-				value = value[1 : len(value)-1]
-			} else {
-				p.UnknownValues <- value
-				continue
-			}
 		}
 
 		parsed := parsed{

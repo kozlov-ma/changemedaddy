@@ -13,3 +13,11 @@ type Class struct {
 	Val    ValueReader
 	Handle ValueHandler
 }
+
+type noValue struct{}
+
+func (n noValue) Read(fromCls string) (converted string, ok bool) {
+	return "", fromCls == ""
+}
+
+var NoValue = noValue{}

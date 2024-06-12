@@ -89,7 +89,7 @@ func dedup[T comparable](ch <-chan T) <-chan T {
 }
 
 func main() {
-	log.SetLevel(log.DebugLevel)
+	log.SetLevel(log.InfoLevel)
 	log.SetOutput(os.Stderr)
 
 	out := make(chan *ast.Rule, 228)

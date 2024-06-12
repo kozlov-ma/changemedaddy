@@ -11,19 +11,18 @@ import (
 type Classes struct {
 	registrationComplete atomic.Bool
 	mu                   sync.Mutex
-	cl                   map[string]*Class
+	cl                   map[string][]*Class
 }
 
 func NewClasses() *Classes {
 	return &Classes{
-		cl: make(map[string]*Class, 5000),
+		cl: make(map[string][]*Class, 5000),
 	}
 }
 
-func (c *Classes) Find(name string) (cls *Class, ok bool) {
+func (c *Classes) Find(name string) []*Class {
 	c.registrationComplete.Store(true)
-	cls, ok = c.cl[name]
-	return cls, ok
+	return c.cl[name]
 }
 
 func (c *Classes) Static(name string, nodes ...ast.Node) {
@@ -34,13 +33,13 @@ func (c *Classes) Static(name string, nodes ...ast.Node) {
 	c.mu.Lock()
 	defer c.mu.Unlock()
 
-	c.cl[name] = &Class{
+	c.cl[name] = append(c.cl[name], &Class{
 		Name: name,
 		Val:  NoValue,
 		Handle: func(value string) ast.AST {
 			return nodes
 		},
-	}
+	})
 }
 
 func (c *Classes) Functional(name string, vr ValueReader, vh ValueHandler) {
@@ -51,9 +50,9 @@ func (c *Classes) Functional(name string, vr ValueReader, vh ValueHandler) {
 	c.mu.Lock()
 	defer c.mu.Unlock()
 
-	c.cl[name] = &Class{
+	c.cl[name] = append(c.cl[name], &Class{
 		Name:   name,
 		Val:    vr,
 		Handle: vh,
-	}
+	})
 }

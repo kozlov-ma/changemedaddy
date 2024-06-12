@@ -77,6 +77,7 @@ func init() {
 	Classes.Static("text-2xl", ast.Decl("font-size", "1.5rem"), ast.Decl("line-height", "2rem"))
 	Classes.Static("text-3xl", ast.Decl("font-size", "1.875rem"), ast.Decl("line-height", "2.25rem"))
 	Classes.Static("text-4xl", ast.Decl("font-size", "2.25rem"), ast.Decl("line-height", "2.5rem"))
+	Classes.Static("text-6xl", ast.Decl("font-size", "3.75rem"), ast.Decl("line-height", "1"))
 
 	Classes.Static("text-lg", ast.Decl("font-size", "1.125rem"), ast.Decl("line-height", "1.75rem"))
 	Classes.Static("text-sm", ast.Decl("font-size", "0.875rem"), ast.Decl("line-height", "1.25rem"))
@@ -158,12 +159,18 @@ func init() {
 	)
 
 	Classes.Static(
-		"hover:ring-gray-900/20",
+		"ring-gray-900/20",
 		ast.Decl("--tw-ring-color", "rgb(17 24 39 / 0.2)"),
 	)
 
 	Classes.Static(
 		"ring-gray-900/10",
 		ast.Decl("--tw-ring-color", "rgb(17 24 39 / 0.1)"),
+	)
+
+	Classes.Static(
+		"translate-x-1/2",
+		ast.Decl("--tw-translate-x", "-50%"),
+		ast.Decl("transform", "translate(var(--tw-translate-x), var(--tw-translate-y)) rotate(var(--tw-rotate)) skewX(var(--tw-skew-x)) skewY(var(--tw-skew-y)) scaleX(var(--tw-scale-x)) scaleY(var(--tw-scale-y))"),
 	)
 }

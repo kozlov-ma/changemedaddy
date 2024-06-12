@@ -33,4 +33,22 @@ func init() {
 			ast.Decl("outlone-offset", value),
 		}
 	})
+
+	Classes.Functional("inset", px, func(value string) ast.AST {
+		return ast.AST{
+			ast.Decl("inset", value),
+		}
+	})
+
+	Classes.Functional("inset-x", px, func(value string) ast.AST {
+		return ast.AST{
+			ast.Decl("inset-left", value),
+			ast.Decl("inset-right", value),
+		}
+	})
+
+	Classes.Static("border-1", ast.Decl("border-width", "1px"))
+	Classes.Static("border-2", ast.Decl("border-width", "2px"))
+	Classes.Static("border-3", ast.Decl("border-width", "3px"))
+	Classes.Static("border-4", ast.Decl("border-width", "4px"))
 }

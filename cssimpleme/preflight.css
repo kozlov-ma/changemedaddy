@@ -558,3 +558,13 @@ video {
     --x3-contain-paint:  ;
     --x3-contain-style:  ;
 }
+
+.\[\&\:\:-webkit-inner-spin-button\]\:appearance-none::-webkit-inner-spin-button {
+    -webkit-appearance: none;
+    appearance: none;
+}
+
+.\[\&\:\:-webkit-outer-spin-button\]\:appearance-none::-webkit-outer-spin-button {
+    -webkit-appearance: none;
+    appearance: none;
+}
