@@ -55,7 +55,7 @@ func (p *Parser) Work() {
 		for end := len(classValue); end > 0; end-- {
 			if cl, ok := p.Cls.Find(classValue[:end]); ok {
 				class = cl
-				value = classValue[end+1:]
+				value = classValue[min(end+1, len(classValue)-1):] // FIXME min -- костыль
 				found = true
 				break
 			}
