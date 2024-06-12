@@ -8,3 +8,6 @@ type Class struct {
 	Name string
 	Val  ValueReader
 }
+
+bg-white
+bg-opacity-30

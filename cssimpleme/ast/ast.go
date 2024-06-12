@@ -15,9 +15,3 @@ type Declaration struct {
 
 func (r *Rule) tagNode()        {}
 func (d *Declaration) tagNode() {}
-
-type AST []Node
-
-func (a *AST) ToCSS() string {
-	panic("писать css ")
-}
