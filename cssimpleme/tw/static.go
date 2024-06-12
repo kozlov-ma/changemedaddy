@@ -178,4 +178,11 @@ func init() {
 
 	singleStatic("pointer-events-none", "pointer-events", "none")
 
+	singleStatic("to-[#9089fc]", "--x3-gradient-to", "#9089fc var(--tw-gradient-to-position)")
+	Classes.Static(
+		"from-[#ff80b5]",
+		ast.Decl("--tw-gradient-from", "#ff80b5 var(--tw-gradient-from-position)"),
+		ast.Decl("--tw-gradient-to", "rgb(255 128 181 / 0) var(--tw-gradient-to-position)"),
+		ast.Decl("--tw-gradient-stops", "var(--tw-gradient-from), var(--tw-gradient-to)"),
+	)
 }
