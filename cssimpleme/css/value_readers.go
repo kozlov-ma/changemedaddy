@@ -20,7 +20,7 @@ func (r rem) Read(fromCls string) (converted string, ok bool) {
 		return "", false
 	}
 
-	return strconv.FormatFloat(float64(i)/4, 'f', 3, 64), true
+	return strconv.FormatFloat(float64(i)/4, 'f', 3, 64) + "rem", true
 }
 
 var Rem = rem{}

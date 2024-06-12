@@ -72,6 +72,36 @@ func main() {
 	log.SetLevel(log.DebugLevel)
 
 	cls := css.NewClasses()
-	cls.Static("flex", ast.Decl("display", "flex"))
+	cls.Functional("mx", css.Rem, func(value string) *ast.Rule {
+		return ast.NewRule("mx-"+value, ast.Decl("margin-left", value), ast.Decl("margin-right", value))
+	})
+
+	va := css.NewVariants()
+	va.PseudoClass("hover")
+
+	va.Selector("lg", "@media (min-width: 1024px)")
+
+	classes := make(chan string, 228)
+	classes <- "hover:mx-3"
+	classes <- "lg:mx-3"
+	classes <- "mx-8"
+	close(classes)
+
+	out := make(chan *ast.Rule, 228)
+
+	parser := css.Parser{
+		Cls:             cls,
+		Va:              va,
+		Input:           classes,
+		Output:          out,
+		UnknownVariants: make(chan<- string),
+		UnknownClasses:  make(chan<- string),
+	}
+
+	go parser.Work()
+
+	for ru := range out {
+		log.Print("parsed", "css", ru.CSS())
+	}
 
 }

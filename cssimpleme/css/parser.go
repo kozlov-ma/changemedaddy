@@ -14,8 +14,8 @@ type VariantRegistry interface {
 }
 
 type Parser struct {
-	cls ClassRegistry
-	va  VariantRegistry
+	Cls ClassRegistry
+	Va  VariantRegistry
 
 	Input  <-chan string
 	Output chan<- *ast.Rule
@@ -25,6 +25,10 @@ type Parser struct {
 }
 
 func (p *Parser) Work() {
+	defer close(p.Output)
+	defer close(p.UnknownClasses)
+	defer close(p.UnknownVariants)
+
 	for variantsClassValue := range p.Input {
 
 		possibleVariants := strings.Split(variantsClassValue, ":")
@@ -36,7 +40,7 @@ func (p *Parser) Work() {
 
 		variants := make([]ApplyVariant, 0, numVariants-1)
 		for _, v := range possibleVariants[:numVariants-1] {
-			if vr, ok := p.va.Find(v); ok {
+			if vr, ok := p.Va.Find(v); ok {
 				variants = append(variants, vr)
 			} else {
 				p.UnknownVariants <- v
@@ -48,9 +52,9 @@ func (p *Parser) Work() {
 		var value string
 
 		for end := len(classValue); end > 0; end-- {
-			if cl, ok := p.cls.Find(classValue[:end]); ok {
+			if cl, ok := p.Cls.Find(classValue[:end]); ok {
 				class = cl
-				value = classValue[end:]
+				value = classValue[end+1:]
 				break
 			}
 		}
