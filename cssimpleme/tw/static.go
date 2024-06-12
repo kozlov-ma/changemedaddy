@@ -173,4 +173,12 @@ func init() {
 		ast.Decl("--tw-translate-x", "-50%"),
 		ast.Decl("transform", "translate(var(--tw-translate-x), var(--tw-translate-y)) rotate(var(--tw-rotate)) skewX(var(--tw-skew-x)) skewY(var(--tw-skew-y)) scaleX(var(--tw-scale-x)) scaleY(var(--tw-scale-y))"),
 	)
+
+	singleStatic("to-[#9089fc]", "--x3-gradient-to", "#9089fc var(--tw-gradient-to-position)")
+	Classes.Static(
+		"from-[#ff80b5]",
+		ast.Decl("--tw-gradient-from", "#ff80b5 var(--tw-gradient-from-position)"),
+		ast.Decl("--tw-gradient-to", "rgb(255 128 181 / 0) var(--tw-gradient-to-position)"),
+		ast.Decl("--tw-gradient-stops", "var(--tw-gradient-from), var(--tw-gradient-to)"),
+	)
 }
