@@ -8,12 +8,12 @@ import (
 type remReader struct{}
 
 func (r remReader) Read(fromCls string) (converted string, ok bool) {
-	i, err := strconv.Atoi(fromCls)
+	f, err := strconv.ParseFloat(fromCls, 64)
 	if err != nil {
 		return "", false
 	}
 
-	return strconv.FormatFloat(float64(i)/4, 'f', 3, 64) + "rem", true
+	return strconv.FormatFloat(f/4, 'f', 3, 64) + "rem", true
 }
 
 var rem = remReader{}
@@ -41,4 +41,25 @@ func init() {
 	remClass("ml", "margin-left")
 	remClass("mt", "margin-top")
 
+	remClass("h", "height")
+	remClass("min-h", "min-height")
+
+	remClass("w", "width")
+
+	remClass("gap", "gap")
+
+	remClass("gap-x", "column-gap", "-moz-column-gap")
+
+	remClass("gap-y", "row-gap")
+
+	remClass("p", "padding")
+	remClass("px", "padding-left", "padding-right")
+	remClass("py", "padding-top", "padding-bottom")
+
+	remClass("pr", "padding-right")
+	remClass("pl", "padding-left")
+	remClass("pt", "padding-top")
+	remClass("pb", "padding-bottom")
+
+	remClass("leading", "line-height")
 }
