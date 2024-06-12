@@ -65,9 +65,6 @@ func (h *handler) fakeMeData(c echo.Context) error {
 		if err != nil {
 			e = errors.Join(err)
 		}
-
-		h.as.RegisterAs(ctx, "shemet-no-lifer", "Павел Шеметов")
-		h.as.RegisterAs(ctx, "d1sturm", "Иван Домашних")
 	}()
 
 	fakeMeIdeas := func() {
