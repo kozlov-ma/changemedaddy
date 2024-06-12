@@ -32,23 +32,18 @@ func (p *Parser) Work() {
 	defer close(p.UnknownValues)
 
 	for variantsClassValue := range p.Input {
-		possibleVariants := strings.Split(variantsClassValue, ":")
-		numVariants := len(possibleVariants)
+		var classValue string
+		var variants []ApplyVariant
 
-		if numVariants == 0 {
-			return
+		if !strings.HasPrefix(variantsClassValue, "[") {
+			variants, classValue = getVariants(variantsClassValue, p)
 		}
 
-		variants := make([]ApplyVariant, 0, numVariants-1)
-		for _, v := range possibleVariants[:numVariants-1] {
-			if vr, ok := p.Va.Find(v); ok {
-				variants = append(variants, vr)
-			} else {
-				p.UnknownVariants <- variantsClassValue
-			}
+		if variants == nil {
+			continue
 		}
 
-		classValue := possibleVariants[numVariants-1]
+		classValue = variantsClassValue
 
 		var class *Class
 		var value string
@@ -94,4 +89,24 @@ func (p *Parser) Work() {
 		}
 		p.Output <- parsed.ToRule()
 	}
+}
+
+func getVariants(variantsClassValue string, p *Parser) ([]ApplyVariant, string) {
+	possibleVariants := strings.Split(variantsClassValue, ":")
+	numVariants := len(possibleVariants)
+
+	if numVariants == 0 {
+		return nil, ""
+	}
+
+	variants := make([]ApplyVariant, 0, numVariants-1)
+	for _, v := range possibleVariants[:numVariants-1] {
+		if vr, ok := p.Va.Find(v); ok {
+			variants = append(variants, vr)
+		} else {
+			p.UnknownVariants <- variantsClassValue
+		}
+	}
+
+	return variants, possibleVariants[numVariants-1]
 }
