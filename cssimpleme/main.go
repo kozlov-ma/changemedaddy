@@ -3,6 +3,7 @@ package main
 import (
 	"cssimpleme/ast"
 	"cssimpleme/css"
+	"cssimpleme/tw"
 	"fmt"
 	"io/fs"
 	"os"
@@ -69,29 +70,36 @@ func classes(htmlPaths <-chan string) <-chan string {
 	return cc
 }
 
+func dedup[T comparable](ch <-chan T) <-chan T {
+	out := make(chan T, cap(ch))
+
+	go func() {
+		defer close(out)
+
+		set := make(map[T]struct{}, 10000)
+		for el := range ch {
+			if _, ok := set[el]; !ok {
+				set[el] = struct{}{}
+				out <- el
+			}
+		}
+	}()
+
+	return out
+}
+
 func main() {
 	log.SetLevel(log.DebugLevel)
 	log.SetOutput(os.Stderr)
-
-	cls := css.NewClasses()
-
-	cls.Functional("mx", css.Rem, func(value string) ast.AST {
-		return ast.AST{ast.Decl("margin-left", value), ast.Decl("margin-right", value)}
-	})
-
-	va := css.NewVariants()
-	va.PseudoClass("hover")
-
-	va.Selector("lg", "@media (min-width: 1024px)")
 
 	out := make(chan *ast.Rule, 228)
 
 	unknownVariants := make(chan string, 250)
 	unknownClasses := make(chan string, 250)
 	parser := css.Parser{
-		Cls:             cls,
-		Va:              va,
-		Input:           classes(paths()),
+		Cls:             tw.Classes,
+		Va:              tw.Variants,
+		Input:           dedup(classes(paths())),
 		Output:          out,
 		UnknownVariants: unknownVariants,
 		UnknownClasses:  unknownClasses,
