@@ -37,10 +37,10 @@ func (p *Parser) Work() {
 
 		if !strings.HasPrefix(variantsClassValue, "[") {
 			variants, classValue = getVariants(variantsClassValue, p)
-		}
 
-		if variants == nil {
-			continue
+			if variants == nil {
+				continue
+			}
 		}
 
 		classValue = variantsClassValue
