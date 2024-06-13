@@ -31,8 +31,9 @@ func init() {
 
 	singleStatic("w-full", "width", "100%")
 
-	singleStatic("max-w-2xl", "width", "42rem")
-	singleStatic("max-w-3xl", "width", "48rem")
+	singleStatic("max-w-2xl", "max-width", "42rem")
+	singleStatic("max-w-3xl", "max-width", "48rem")
+	singleStatic("max-w-5xl", "max-width", "64rem")
 
 	singleStatic("flex-1", "flex", "1 1 0%")
 
@@ -185,4 +186,6 @@ func init() {
 		ast.Decl("--x3-gradient-to", "rgb(255 128 181 / 0) var(--x3-gradient-to-position)"),
 		ast.Decl("--x3-gradient-stops", "var(--x3-gradient-from), var(--x3-gradient-to)"),
 	)
+
+	singleStatic("overscroll-none", "overscroll-behavior", "none")
 }

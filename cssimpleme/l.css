@@ -937,14 +937,6 @@ video {
   left: calc(50% + 3rem);
 }
 
-.max-w-2xl {
-  width: 42rem;
-}
-
-.max-w-3xl {
-  width: 48rem;
-}
-
 .mb-1 {
   margin-bottom: 0.250rem;
 }
@@ -1022,6 +1014,14 @@ video {
 
 .overflow-hidden {
   overflow: hidden;
+}
+
+.overscroll-none {
+  overscroll-behavior: none;
+}
+
+.p-10 {
+  padding: 2.500rem;
 }
 
 .p-2 {
@@ -1320,8 +1320,27 @@ video {
 }
 
 @media (min-width: 1024px) {
+  .lg\:max-w-3xl {
+    max-width: 48rem;
+  }
+}
+
+@media (min-width: 1024px) {
+  .lg\:max-w-5xl {
+    max-width: 64rem;
+  }
+}
+
+@media (min-width: 1024px) {
   .lg\:pt-56 {
     padding-top: 14.000rem;
+  }
+}
+
+@media (min-width: 1024px) {
+  .lg\:px-16 {
+    padding-left: 4.000rem;
+    padding-right: 4.000rem;
   }
 }
 
